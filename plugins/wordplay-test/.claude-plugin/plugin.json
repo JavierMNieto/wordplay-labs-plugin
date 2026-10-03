@@ -1,8 +1,24 @@
 {
   "name": "wordplay-test",
+  "displayName": "Wordplay (test site)",
+  "version": "2026.1003.165512",
   "description": "The test site's Wordplay (https://test.wordplaylabs.com), following the repository's test branch: try a change here before production's plugin has it. Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay through its MCP server.",
   "author": {
-    "name": "Wordplay Labs"
+    "name": "Wordplay Labs",
+    "url": "https://wordplaylabs.com"
   },
-  "homepage": "https://test.wordplaylabs.com/mcp"
+  "homepage": "https://test.wordplaylabs.com/mcp",
+  "repository": "https://github.com/JavierMNieto/wordplay-labs-plugin",
+  "license": "MIT",
+  "keywords": [
+    "lessons",
+    "tutor",
+    "teaching",
+    "education",
+    "wplay"
+  ],
+  "icon": "./logo.png",
+  "documentationUrl": "https://creator.wordplaylabs.com/claude",
+  "supportUrl": "https://github.com/JavierMNieto/wordplay-labs-plugin/issues",
+  "privacyPolicyUrl": "https://wordplaylabs.com/privacy"
 }
