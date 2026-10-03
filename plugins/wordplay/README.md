@@ -31,49 +31,31 @@ What it holds:
 
 ## Two plugins: the site's and the test site's
 
-This repository's marketplace (`.claude-plugin/marketplace.json` at its
-root) holds two, so which site you write to is which plugin you run, never
-a setting:
+Which site you write to is which plugin you run, never a setting. Both come
+from [wordplay-labs-plugin](https://github.com/JavierMNieto/wordplay-labs-plugin),
+each in a marketplace of its own:
 
-| Plugin | Site | Installed from | Its commands |
+| Plugin | Site | Marketplace | Its commands |
 |---|---|---|---|
-| `wordplay` | https://wordplaylabs.com | the `main` branch | `/wordplay:…` |
-| `wordplay-test` | https://test.wordplaylabs.com | the `test` branch | `/wordplay-test:…` |
-
-A change reaches `wordplay-test` when it is pushed to `test`, and `wordplay`
-when `test` is squash-merged into `main`, exactly as the two sites do, so a
-plugin and its site are always the same commit. Try a change on the test
-site's plugin first. Both can be installed at once.
-
-`plugins/wordplay-test` is generated from this folder by `npm run plugin`
-(`scripts/plugin-build.ts`) and differs only where a plugin names itself or
-its site; edit this folder, never that one. Both folders are on both
-branches, because `test` is reset to `main` after every release and would
-lose anything `main` did not have.
-
-Inside Claude Code:
+| `wordplay` | https://wordplaylabs.com | `wordplay`, the repository's `main` | `/wordplay:…` |
+| `wordplay-test` | https://test.wordplaylabs.com | `wordplay-test`, its `test` branch | `/wordplay-test:…` |
 
 ```
-/plugin marketplace add JavierMNieto/wordplay-labs#test
-/plugin install wordplay-test@wordplay-labs
-/plugin install wordplay@wordplay-labs
+claude plugin marketplace add JavierMNieto/wordplay-labs-plugin
+claude plugin install wordplay@wordplay
+
+claude plugin marketplace add JavierMNieto/wordplay-labs-plugin#test
+claude plugin install wordplay-test@wordplay-test
 ```
 
-The marketplace file is the same on both branches, so `#test` only says
-where to read it from until `main` has it too; `wordplay` installs once
-`main` has the plugin. The repository is private, so this works for
-whoever's git login can read it (`gh auth login`, then `gh auth
-setup-git`). `/plugin marketplace update wordplay-labs` brings in what was
-pushed since: the plugins have no `version` on purpose, so an update
-follows the latest commit rather than waiting for a number to change.
-Each plugin signs you in to its own site the first time its tools are used.
-
-Or load one straight from a checkout while it is in development:
-
-```bash
-claude --plugin-dir plugins/wordplay-test   # the test site
-claude --plugin-dir plugins/wordplay        # the site
-```
+A change reaches `wordplay-test` with the test site, and `wordplay` with
+the site, so a plugin and its site are the same build. Try a change on the
+test site's plugin first; both can be installed at once.
+`/plugin marketplace update wordplay` (or `wordplay-test`) brings in what
+was published since: the plugins have no `version` on purpose, so an
+update follows the latest build rather than waiting for a number to
+change. Each plugin signs you in to its own site the first time its tools
+are used.
 
 `WORDPLAY_URL` still points either plugin's preview at a site of your own.
 The site's connector is always the plugin's own site: claude.ai and Cowork
@@ -136,10 +118,12 @@ try the lesson as a learner:
 - **The assistant, the tutor and Simulate run on your Claude Code**
   (`claude -p`), on your own plan, with the prompts Wordplay sends and nothing
   else: no tools, and none of your settings, memory, skills or MCP
-  servers. The tutor is the one Wordplay runs (`/api/wordplay` says which model
-  and effort), and the assistant is Opus unless `WORDPLAY_BUILDER_MODEL`
-  names another. `WORDPLAY_TUTOR_MODEL` and `WORDPLAY_TUTOR_EFFORT` set the
-  tutor's.
+  servers. **Each chat has its model by Send**: the assistant's and the
+  tutor's start on the ones Wordplay runs (`/api/wordplay` says which), and
+  the one you pick is kept in your browser; Simulate runs on the tutor you
+  picked. `WORDPLAY_BUILDER_MODEL` and `WORDPLAY_BUILDER_EFFORT`, and
+  `WORDPLAY_TUTOR_MODEL` and `WORDPLAY_TUTOR_EFFORT`, set where each starts
+  instead.
 - **What only Wordplay keeps is not here**: Your lessons, version history, the
   bin, attached files and pictures. **Publish is Claude Code's**: the
   Publish tab says what to ask it, and it publishes through Wordplay's MCP

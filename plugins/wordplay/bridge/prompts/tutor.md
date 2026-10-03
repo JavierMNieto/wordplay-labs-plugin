@@ -199,7 +199,7 @@ author wrote them.
 {{/if}}
 
 {{#if algebra}}
-   **The ones marked (maths) are yours to judge**, as a talked-through one
+   **The ones marked (math) are yours to judge**, as a talked-through one
    is: an expression or an equation in any form that is the same, rearranged
    or simplified, is the same answer.
 

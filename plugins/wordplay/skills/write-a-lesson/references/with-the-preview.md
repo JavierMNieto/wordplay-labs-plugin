@@ -76,7 +76,7 @@ A lesson is these fields of the file:
   step on the one thing it asks.
 - `answers`: one row per question, in the order the body asks them. A
   number (`"type": "number"`) is a quantity with its units, `2.6e13 m`,
-  which the calculator checks within a tolerance; maths that is not a
+  which the calculator checks within a tolerance; math that is not a
   number, an expression or an equation, is `"math"`, `v = \sqrt{2gh}`,
   which the tutor judges in any equivalent form; anything else is
   `"text"`, the thing the learner has to come out holding, which the tutor
@@ -95,7 +95,7 @@ A lesson is these fields of the file:
   `after: Why` under it). The lesson has no calculator of its own.
   The library, by tab:
 
-    Maths: sqrt, cbrt, nthroot, square, cube, power, inverse, frac, abs, factorial, percent, choose, pi, e, ans
+    Math: sqrt, cbrt, nthroot, square, cube, power, inverse, frac, abs, factorial, percent, choose, pi, e, ans
     Trig: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, deg
     Logs: ln, log, exp, tenpow
     Greek: theta, alpha, beta, gamma, delta, lambda, mu, omega, epsilon, rho, sigma, tau, phi, psi, eta, nu, Omega, Sigma, Phi
@@ -131,7 +131,7 @@ against:
   new case, one that stretches it, each after the closing; a long one split
   into steps.
 - **The tutor is prepared** (rule 6): for each step, what counts as
-  reaching it and what need not be spelt out; a hint for where they get
+  reaching it and what need not be spelled out; a hint for where they get
   stuck; the wrong turns the material or the author know of, each with what
   to say back; where a reader is likely to drift; and for each thing the
   reader can press or change, what it is and what its reports mean.
@@ -243,7 +243,7 @@ How to write it:
 
    The name is up to 24 characters, unique, and on the reader's page
    before the step is, so never what it gives away. A step that
-   asks something has an `answers` row labelled with its name; one that
+   asks something has an `answers` row labeled with its name; one that
    asks nothing has none, reads as plain text, and is complete as soon as
    it is shown: a hint, a figure, a worked aside, the closing words. Steps
    sit one after another, never one inside another, and what is in no step
@@ -424,7 +424,7 @@ How to write it:
     step away, or is its reward; in a step the tutor shows (`{tutor="…"}`)
     when only a reader who is stuck, or on one path, needs it. A figure no
     reader needs is left out. Draw it plainly, in the page's ink, with
-    colour only where the subject gives it a meaning (its look is under
+    color only where the subject gives it a meaning (its look is under
     Figures, below).
 11. **The book's own answer, once it is earned.** When the material prints
     the answer or the worked solution to an exercise the lesson asks, offer
@@ -457,10 +457,10 @@ How to write it:
     one main action is `class="wp-primary"`; a control that is on has
     `aria-pressed="true"`; a grid of things to press is `wp-key`s; what
     the reader studies is drawn on a `wp-stage`. What you draw yourself
-    takes the page's colours (`var(--wp-ink)`, `--wp-ink-muted`,
+    takes the page's colors (`var(--wp-ink)`, `--wp-ink-muted`,
     `--wp-line`, `--wp-accent`, `--wp-success`, `--wp-danger`), never a
-    colour written out, a font, a white or a black. **The subject is the
-    exception**: a colour that means something in the problem (the hot end
+    color written out, a font, a white or a black. **The subject is the
+    exception**: a color that means something in the problem (the hot end
     and the cold, two charges, a spectrum) stays true to it, chosen to
     read on a light page and a dark one, with the axes, outlines and
     labels round it in the page's ink. The accent means "press this" or
@@ -468,7 +468,7 @@ How to write it:
     page's: sentence case, a button that starts with a verb and names what
     happens ("Release the ball"). Nothing moves by itself for a reader who
     asked for less motion. None of this is said to the author, except a
-    subject's colour you chose, which is theirs to correct.
+    subject's color you chose, which is theirs to correct.
 
     **The tutor sees a part only through what it reports.** A part that
     reports nothing is a picture the tutor cannot see: the reader says "I
@@ -520,7 +520,7 @@ How to write it:
     - **A bar that is a wording.** Completion criteria that quote a term or
       a sentence the reader "must say" make the tutor wait for the word.
       Rewrite them as what they have to show, and say what need not be
-      spelt out ("the word *independent* is not needed").
+      spelled out ("the word *independent* is not needed").
     - **Two things in one bar.** When a step's criteria ask for A and B, ask
       the author whether the step teaches both or only A, and put B under
       what need not be said, or in a step of its own.
@@ -548,10 +548,10 @@ source:
 
 - **Text** is Markdown: headings, lists (bulleted or numbered), tables,
   quotes, emphasis, inline code and links. No HTML.
-- **Centred text**: `:::center`, the text, `:::`, each on its own
-  line. A formula alone on its line is centred already.
-- **Maths** is KaTeX: `$…$` inline, `$$…$$` displayed. `aligned`,
-  `pmatrix` and `cases` work inside the maths; `\R \N \Z \Q \C \eps` are
+- **Centered text**: `:::center`, the text, `:::`, each on its own
+  line. A formula alone on its line is centered already.
+- **Math** is KaTeX: `$…$` inline, `$$…$$` displayed. `aligned`,
+  `pmatrix` and `cases` work inside the math; `\R \N \Z \Q \C \eps` are
   defined; a `\newcommand` anywhere applies to the whole text. No theorem
   environments, `\label`, `\ref` or `\cref`; `\tag{3.1}` works.
 - **Figures** are SVG in a custom interaction that asks nothing (A
@@ -559,7 +559,7 @@ source:
   it fits any page, `role="img"` and an `aria-label` saying what it shows,
   labels as `<text>`. No TikZ: Wordplay does not draw it. **Its look**: lines
   and labels in `currentColor`, the page's ink, light or dark, and
-  `var(--wp-accent)` for the one thing the figure is about. A colour is for
+  `var(--wp-accent)` for the one thing the figure is about. A color is for
   what it means in the subject, from the page's own: `var(--wp-success)`,
   `var(--wp-danger)`, `var(--wp-ink-muted)`. Leave shapes unfilled, or
   tint them with `fill-opacity="0.15"`; never a white or pale fill, which
