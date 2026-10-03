@@ -1,8 +1,24 @@
 {
   "name": "wordplay",
+  "displayName": "Wordplay",
+  "version": "2026.1003.201208",
   "description": "Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay through its MCP server.",
   "author": {
-    "name": "Wordplay Labs"
+    "name": "Wordplay Labs",
+    "url": "https://wordplaylabs.com"
   },
-  "homepage": "https://wordplaylabs.com/mcp"
+  "homepage": "https://wordplaylabs.com/mcp",
+  "repository": "https://github.com/JavierMNieto/wordplay-labs-plugin",
+  "license": "MIT",
+  "keywords": [
+    "lessons",
+    "tutor",
+    "teaching",
+    "education",
+    "wplay"
+  ],
+  "icon": "./logo.png",
+  "documentationUrl": "https://creator.wordplaylabs.com/claude",
+  "supportUrl": "https://github.com/JavierMNieto/wordplay-labs-plugin/issues",
+  "privacyPolicyUrl": "https://wordplaylabs.com/privacy"
 }
