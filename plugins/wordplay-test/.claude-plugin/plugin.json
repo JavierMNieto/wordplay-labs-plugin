@@ -1,0 +1,8 @@
+{
+  "name": "wordplay-test",
+  "description": "The test site's Wordplay (https://test.wordplaylabs.com), following the repository's test branch: try a change here before production's plugin has it. Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay through its MCP server.",
+  "author": {
+    "name": "Wordplay Labs"
+  },
+  "homepage": "https://test.wordplaylabs.com/mcp"
+}

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "labs": {
+      "type": "http",
+      "url": "https://test.wordplaylabs.com/api/mcp"
+    },
+    "preview": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bridge/wordplay.mjs"],
+      "env": {
+        "WORDPLAY_URL": "${WORDPLAY_URL:-https://test.wordplaylabs.com}",
+        "WORDPLAY_TUTOR_MODEL": "${WORDPLAY_TUTOR_MODEL:-}",
+        "WORDPLAY_TUTOR_EFFORT": "${WORDPLAY_TUTOR_EFFORT:-}"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "wordplay-test",
+  "owner": {
+    "name": "Wordplay Labs"
+  },
+  "metadata": {
+    "description": "The Wordplay plugin for the test site, test.wordplaylabs.com: what is about to reach wordplaylabs.com, to try first."
+  },
+  "plugins": [
+    {
+      "name": "wordplay-test",
+      "source": "./plugins/wordplay-test",
+      "description": "Wordplay's plugin, writing to and previewing against the test site, test.wordplaylabs.com.",
+      "homepage": "https://test.wordplaylabs.com",
+      "license": "MIT"
+    }
+  ]
+}
