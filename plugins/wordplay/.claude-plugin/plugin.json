@@ -1,0 +1,8 @@
+{
+  "name": "wordplay",
+  "description": "Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay Labs through its MCP server.",
+  "author": {
+    "name": "Wordplay Labs"
+  },
+  "homepage": "https://wordplaylabs.com/mcp"
+}

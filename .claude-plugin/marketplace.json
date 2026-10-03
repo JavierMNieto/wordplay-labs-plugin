@@ -1,0 +1,18 @@
+{
+  "name": "wordplay",
+  "owner": {
+    "name": "Wordplay Labs"
+  },
+  "metadata": {
+    "description": "Write lessons with Claude as .wplay files, try them with Wordplay's tutor, and publish them on Wordplay (wordplaylabs.com)."
+  },
+  "plugins": [
+    {
+      "name": "wordplay",
+      "source": "./plugins/wordplay",
+      "description": "Write lessons from your own material as .wplay files, try them with the tutor in Wordplay's creator on your computer, and publish them on Wordplay.",
+      "homepage": "https://wordplaylabs.com",
+      "license": "MIT"
+    }
+  ]
+}
