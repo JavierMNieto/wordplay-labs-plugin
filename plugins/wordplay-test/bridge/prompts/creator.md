@@ -49,18 +49,3 @@ Nothing.
 The author has tried the lesson with the tutor: their conversation is
 above the lesson, and is new to you.
 {{/if}}
-{{#if model}}
-
-# The lesson the author wants theirs to be like
-
-The author pressed "Make one like this" on this lesson on Wordplay. Follow its
-shape: how it opens, how its steps build on each other, what it holds back
-until when, and what it lets the calculator check. Never its subject or its
-words: the author's lesson is about what they tell you. This is its reader's
-half only; its answers and its tutor's notes are its author's and were not
-sent, so do not guess at them.
-
-`````wordplay
-{{model}}
-`````
-{{/if}}
