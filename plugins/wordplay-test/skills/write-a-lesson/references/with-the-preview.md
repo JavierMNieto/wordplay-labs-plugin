@@ -26,7 +26,9 @@ question with neither an answer nor completion criteria.
 
 Keep it in the author's folder as `<name>.wplay`. When they ask to publish
 it, Wordplay's `save_lesson` does, under their name: suggest the title and the
-sentence or two Wordplay lists it by first. Its answer gives the lesson's `id`
+sentence or two Wordplay lists it by first, and ask whether it is public, on
+Wordplay's shelves and in its search, or unlisted, reached only by its
+address (`visibility`). Its answer gives the lesson's `id`
 and `version`, which are never in the file: keep them in
 `.wordplay/labs.json` in the lesson's folder, by the site and the file's
 name (`{"https://wordplaylabs.com": {"<name>.wplay": {"id": "…",
