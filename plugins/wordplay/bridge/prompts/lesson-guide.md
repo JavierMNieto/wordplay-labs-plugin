@@ -129,9 +129,11 @@ A lesson is these fields of the file:
   number (`"type": "number"`) is a quantity with its units, `2.6e13 m`,
   which the calculator checks within a tolerance; math that is not a
   number, an expression or an equation, is `"math"`, `v = \sqrt{2gh}`,
-  which the tutor judges in any equivalent form; anything else is
-  `"text"`, the thing the learner has to come out holding, which the tutor
-  judges. In a lesson in steps each row's `label` is its step's name.
+  which the tutor judges in any equivalent form; a pick among options is
+  `"choice"`, which the site checks and the tutor talks over (below);
+  anything else is `"text"`, the thing the learner has to come out
+  holding, which the tutor judges. In a lesson in steps each row's `label`
+  is its step's name.
 - `end`: what completes the lesson, under `:::tutor` before `answers`,
   which a lesson with more than one path needs (rule 8).
 - `context`: the notes the tutor works from, which the learner never sees.
@@ -280,6 +282,25 @@ How to write it:
        answer: Why it is so, in their own words; the formula is not needed.
        hints: |
          Ask what they would expect if it were not so.
+   ```
+
+   **A choice** (`type: choice`) asks the reader to pick one of its
+   `choices`, or all that apply with `pick: all`; true or false is a
+   choice of two. Each has its `text`, `right: true` where it is right,
+   and an optional `note` on what a reader who picks it is thinking, for
+   the tutor alone. The site checks a pick and the tutor talks it over;
+   the step's text asks the question, and the options are not in the body.
+   Offer one when the wrong answers say something about what a reader
+   thinks; ask in words when the reasoning is the point.
+
+   ```yaml
+     - label: Which gains
+       type: choice
+       choices:
+         - text: The faster clock
+           right: true
+         - text: The slower clock
+           note: Takes a slower tick to mean more time counted.
    ```
 
    **The notes are the subject, never the tutoring**: the tutor has its

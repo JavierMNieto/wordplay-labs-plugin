@@ -1,7 +1,7 @@
 {
   "name": "wordplay",
   "displayName": "Wordplay",
-  "version": "2026.1003.201208",
+  "version": "2026.1003.231402",
   "description": "Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay through its MCP server.",
   "author": {
     "name": "Wordplay Labs",
