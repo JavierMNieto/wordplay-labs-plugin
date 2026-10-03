@@ -9,10 +9,10 @@ source:
 
 - **Text** is Markdown: headings, lists (bulleted or numbered), tables,
   quotes, emphasis, inline code and links. No HTML.
-- **Centred text**: `:::center`, the text, `:::`, each on its own
-  line. A formula alone on its line is centred already.
-- **Maths** is KaTeX: `$…$` inline, `$$…$$` displayed. `aligned`,
-  `pmatrix` and `cases` work inside the maths; `\R \N \Z \Q \C \eps` are
+- **Centered text**: `:::center`, the text, `:::`, each on its own
+  line. A formula alone on its line is centered already.
+- **Math** is KaTeX: `$…$` inline, `$$…$$` displayed. `aligned`,
+  `pmatrix` and `cases` work inside the math; `\R \N \Z \Q \C \eps` are
   defined; a `\newcommand` anywhere applies to the whole text. No theorem
   environments, `\label`, `\ref` or `\cref`; `\tag{3.1}` works.
 - **Figures** are SVG in a custom interaction that asks nothing (A
@@ -20,7 +20,7 @@ source:
   it fits any page, `role="img"` and an `aria-label` saying what it shows,
   labels as `<text>`. No TikZ: Wordplay does not draw it. **Its look**: lines
   and labels in `currentColor`, the page's ink, light or dark, and
-  `var(--wp-accent)` for the one thing the figure is about. A colour is for
+  `var(--wp-accent)` for the one thing the figure is about. A color is for
   what it means in the subject, from the page's own: `var(--wp-success)`,
   `var(--wp-danger)`, `var(--wp-ink-muted)`. Leave shapes unfilled, or
   tint them with `fill-opacity="0.15"`; never a white or pale fill, which
