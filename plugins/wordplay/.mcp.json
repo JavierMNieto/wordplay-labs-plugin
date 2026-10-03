@@ -9,13 +9,8 @@
       "args": ["${CLAUDE_PLUGIN_ROOT}/bridge/wordplay.mjs"],
       "env": {
         "WORDPLAY_URL": "${WORDPLAY_URL:-https://wordplaylabs.com}",
-        "WORDPLAY_TOKEN": "${WORDPLAY_TOKEN:-}",
         "WORDPLAY_TUTOR_MODEL": "${WORDPLAY_TUTOR_MODEL:-}",
-        "WORDPLAY_TUTOR_EFFORT": "${WORDPLAY_TUTOR_EFFORT:-}",
-        "WORDPLAY_AI_KEY": "${WORDPLAY_AI_KEY:-}",
-        "WORDPLAY_AI_PROVIDER": "${WORDPLAY_AI_PROVIDER:-}",
-        "WORDPLAY_AI_BASE_URL": "${WORDPLAY_AI_BASE_URL:-}",
-        "WORDPLAY_AI_EXTRA_BODY": "${WORDPLAY_AI_EXTRA_BODY:-}"
+        "WORDPLAY_TUTOR_EFFORT": "${WORDPLAY_TUTOR_EFFORT:-}"
       }
     }
   }

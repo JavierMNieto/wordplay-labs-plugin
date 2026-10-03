@@ -50,7 +50,7 @@ Nothing.
 
 # The lesson the author wants theirs to be like
 
-The author pressed "Make one like this" on this lesson on Labs. Follow its
+The author pressed "Make one like this" on this lesson on Wordplay. Follow its
 shape: how it opens, how its steps build on each other, what it holds back
 until when, and what it lets the calculator check. Never its subject or its
 words: the author's lesson is about what they tell you. This is its reader's

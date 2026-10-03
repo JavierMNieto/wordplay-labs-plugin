@@ -16,7 +16,7 @@ source:
 - **Figures** are SVG in a custom interaction that asks nothing (A
   figure, above): one `<svg>` with a `viewBox` and no width or height, so
   it fits any page, `role="img"` and an `aria-label` saying what it shows,
-  labels as `<text>`. No TikZ: Labs does not draw it. **Its look**: lines
+  labels as `<text>`. No TikZ: Wordplay does not draw it. **Its look**: lines
   and labels in `currentColor`, the page's ink, light or dark, and
   `var(--wp-accent)` for the one thing the figure is about. A colour is for
   what it means in the subject, from the page's own: `var(--wp-success)`,

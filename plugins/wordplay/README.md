@@ -1,20 +1,20 @@
 # Wordplay, the plugin
 
 Writing lessons from Claude Code, each kept as one `.wplay` file in your
-own folder, tried there with the tutor, and published on Wordplay Labs
+own folder, tried there with the tutor, and published on Wordplay
 when you say so. The format is `docs/wordplay-format.md` in the site's
-repository. The plugin is Labs' (Javi, 30 September); the Wordplay Forum
+repository. The plugin is Wordplay's (Javi, 30 September); the Wordplay Forum
 has an MCP server of its own, for reading threads and writing drafts.
 
 What it holds:
 
-- **Wordplay Labs' MCP server** (`.mcp.json`), which Claude Code connects to
+- **Wordplay's MCP server** (`.mcp.json`), which Claude Code connects to
   and signs you in to the first time, in your browser: `search` and
   `get_lesson` for reading lessons, `list_lessons` for your own, and
-  `save_lesson`, which publishes a lesson on Labs under your name and
+  `save_lesson`, which publishes a lesson on Wordplay under your name and
   changes one you published before. Ask for it in words; it publishes.
 - **The preview** (`bridge/wordplay.mjs`, a second MCP server Claude Code
-  starts with Node): Wordplay Labs' creator on a lesson in your folder, on
+  starts with Node): Wordplay's creator on a lesson in your folder, on
   `http://127.0.0.1:4747/preview/local`, with its assistant, the tutor and
   Simulate running on your own Claude Code or key. See below.
 - **The `write-a-lesson` skill**, generated from the prompts in the site's
@@ -125,7 +125,7 @@ to after writing one. Its `preview_lesson` tool answers with an address;
 open it in a browser, or in VS Code's Simple Browser beside the file. You
 try the lesson as a learner:
 
-- **The page is Labs' creator**, the same one as on the site, bundled in
+- **The page is Wordplay's creator**, the same one as on the site, bundled in
   the plugin's `player/` folder (`creator.js`): the lesson as a document,
   the side panel's Tutor, Map, Calculator and Simulate, the assistant's
   chat, and the student's view with the tutor. The lesson is your file:
@@ -134,28 +134,24 @@ try the lesson as a learner:
   both changing the same lines, the file's version is kept and undo brings
   yours back.
 - **The assistant, the tutor and Simulate run on your Claude Code**
-  (`claude -p`), on your own plan, with the prompts Labs sends and nothing
+  (`claude -p`), on your own plan, with the prompts Wordplay sends and nothing
   else: no tools, and none of your settings, memory, skills or MCP
-  servers. The tutor is the one Labs runs (`/api/wordplay` says which model
+  servers. The tutor is the one Wordplay runs (`/api/wordplay` says which model
   and effort), and the assistant is Opus unless `WORDPLAY_BUILDER_MODEL`
   names another. `WORDPLAY_TUTOR_MODEL` and `WORDPLAY_TUTOR_EFFORT` set the
   tutor's.
-- **What only Labs keeps is not here**: Your lessons, version history, the
+- **What only Wordplay keeps is not here**: Your lessons, version history, the
   bin, attached files and pictures. **Publish is Claude Code's**: the
-  Publish tab says what to ask it, and it publishes through Labs' MCP
+  Publish tab says what to ask it, and it publishes through Wordplay's MCP
   server above, under your account.
 - **In the Claude desktop app's Code tab**, Claude can show the preview in
   the Browser pane beside the chat, and look at the page and use it as a
   reader would. `preview_lesson` says how: the pane attaches to a running
   server by its bare address, `http://127.0.0.1:4747`, which leads to the
   preview.
-- **Or on your own API key**: with `WORDPLAY_AI_KEY` set, the tutor's turns
-  go straight to your provider through the site's own inference code instead
-  of through Claude Code (Anthropic unless `WORDPLAY_AI_PROVIDER=openai`, for
-  any OpenAI-shaped provider at `WORDPLAY_AI_BASE_URL`), the whole
-  conversation each turn as on the site. The key goes to that provider and
-  nowhere else. On OpenAI's shape, name the model in `WORDPLAY_TUTOR_MODEL`;
-  a router's own settings go in `WORDPLAY_AI_EXTRA_BODY`, as JSON.
+- **No API key, ever**: the tutor runs on your own Claude Code and your
+  plan, and publishing signs you in through your browser. The plugin passes
+  no key or token to anything (2 October, for Anthropic's directory).
 - **Numbers are checked on your machine** against the answers in the file, and the
   answers never leave it except inside the tutor's prompt.
 - **Each conversation is a file**, `.trials/<name>/<id>.json` beside the
@@ -167,8 +163,8 @@ try the lesson as a learner:
   into `~/.cache/wordplay/engine` with npm (about ten seconds), and drawn
   diagrams are kept in `~/.cache/wordplay/tikz`. `WORDPLAY_CACHE_DIR`
   moves both. Only if that install cannot happen (no npm, or offline the
-  first time) does the site draw them instead, which needs a personal
-  access token from Settings on the site in `WORDPLAY_TOKEN`.
+  first time) are they left undrawn in the preview, and drawn on the site
+  when the lesson is published.
 
 ## An automated trial
 
