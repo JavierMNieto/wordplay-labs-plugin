@@ -9,6 +9,8 @@ source:
 
 - **Text** is Markdown: headings, lists (bulleted or numbered), tables,
   quotes, emphasis, inline code and links. No HTML.
+- **Centred text**: `:::center`, the text, `:::`, each on its own
+  line. A formula alone on its line is centred already.
 - **Maths** is KaTeX: `$…$` inline, `$$…$$` displayed. `aligned`,
   `pmatrix` and `cases` work inside the maths; `\R \N \Z \Q \C \eps` are
   defined; a `\newcommand` anywhere applies to the whole text. No theorem

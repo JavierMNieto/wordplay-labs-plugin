@@ -1,8 +1,10 @@
 {{!-- The creator's builder is sent the builder's guide (lesson-guide.md,
-      for the `creator` host) and then this: the lesson as the author's page
-      holds it now, sent with every message. It is the second of the two
-      cacheable pieces, so the guide above it is read from cache while this
-      changes (lib/creator/prompt.ts in apps/wordplay, docs/creator.md). --}}
+      for the `creator` host), what the author attached, their other lessons
+      and their latest conversation with the tutor (trial.md), and then
+      this: the lesson as the author's page holds it now, sent with every
+      message. It is the last of the cacheable pieces, so everything above it
+      is read from cache while this changes (`builderPrompt` in
+      lib/builder-turn.ts, docs/creator.md). --}}
 # The lesson as it stands
 
 {{#if file}}
@@ -40,11 +42,12 @@ Nothing.
 - {{.}}
 {{/each}}
 {{/if}}
-{{#if trial}}
+{{#if fresh}}
 
-# The author's latest conversation with the tutor
+# Since your last reply
 
-{{trial}}
+The author has tried the lesson with the tutor: their conversation is
+above the lesson, and is new to you.
 {{/if}}
 {{#if model}}
 
