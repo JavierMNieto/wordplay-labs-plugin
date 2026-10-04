@@ -86,10 +86,7 @@ then a line reading `:::tutor` on its own, and under it what only the tutor
 reads: the `answers` as front matter, then the tutor's notes (the
 `context`). Everything above that line is what a reader sees, so never put
 an answer there; anyone who has the file has the answers, which is the
-point of sharing one. A lesson kept as version 0's two files
-(`<name>.play.md` and `<name>.guide.md`) is joined into one: the play file,
-a blank line, the `:::tutor` line, then the guide file, with `wordplay: 1`
-added to the front matter.
+point of sharing one.
 
 {{#if claudeCode}}
 {{!-- Javi, 29 September, after trying it in Cowork: "I would like the
