@@ -176,12 +176,13 @@ How to write it:
          Ask what they would expect if it were not so.
    ```
 
-   **A choice** (`type: choice`) asks the reader to pick one of its
-   `choices`, or all that apply with `pick: all`; true or false is a
-   choice of two. Each has its `text`, `right: true` where it is right,
-   and an optional `note` on what a reader who picks it is thinking, for
-   the tutor alone. The site checks a pick and the tutor talks it over;
-   the step's text asks the question, and the options are not in the body.
+   **A choice** (`type: choice`) asks the reader to pick from its
+   `choices`: one, or all that apply when more than one is an answer; true
+   or false is a choice of two. Each has its `text`, `answer: true` where
+   it is an answer, and an optional `note` on what a reader who picks it
+   is thinking, for the tutor alone. The site checks a pick and the tutor
+   talks it over; the step's text asks the question, and the choices are
+   not in the body.
    Offer one when the wrong answers say something about what a reader
    thinks; ask in words when the reasoning is the point.
 
@@ -190,7 +191,7 @@ How to write it:
        type: choice
        choices:
          - text: The faster clock
-           right: true
+           answer: true
          - text: The slower clock
            note: Takes a slower tick to mean more time counted.
    ```
