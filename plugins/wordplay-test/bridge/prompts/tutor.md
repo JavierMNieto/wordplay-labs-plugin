@@ -15,8 +15,7 @@ WHAT IS BOUND, AND WHEN EACH SECTION APPEARS
                                 each step on their screen in full, each
                                 held-back one as a line saying when it
                                 appears (`lessonOutline` in lib/tutor-prompt.ts)
-  blocks        if in blocks    the lesson is in steps (or, in a file from
-                                before 1 October, `:::reveal` blocks)
+  blocks        if in blocks    the lesson is in steps
   stepped         "             it has steps, each asking at most one thing
   hides           "             something in it waits for the tutor to show it
   confirmed       "             the steps the calculator has confirmed in
