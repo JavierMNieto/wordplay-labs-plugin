@@ -16,7 +16,14 @@ What it holds:
 - **The preview** (`bridge/wordplay.mjs`, a second MCP server Claude Code
   starts with Node): Wordplay's creator on a lesson in your folder, on
   `http://127.0.0.1:4747/preview/local`, with its assistant, the tutor and
-  Simulate running on your own Claude Code or key. See below.
+  Simulate running on your own Claude Code or key. It opens in your
+  browser the first time a session opens a lesson, where there is a browser
+  to open (not over SSH or in a container; `WORDPLAY_NO_BROWSER=1` turns it
+  off). See below.
+- **`/wordplay:create`**: the creator opened in your browser, on a new
+  lesson in this folder or the `.wplay` file you name. From a terminal,
+  `claude "/wordplay:create"` in the lesson's folder is the one command in;
+  keep that terminal open while you work, since the creator runs from it.
 - **The `write-a-lesson` skill**, generated from the prompts in the site's
   repository (`scripts/skills.ts`; edit the prompts, never this file).
 - **`/wordplay:trial` and the `learner` agent**: simulated readers playing a
