@@ -144,7 +144,7 @@ How to write it:
    Put what you think is the best option first and say why in a few
    words. Ask in words only when the answer cannot be a choice.
 4. **Read the lesson before you change it.** The author may have changed
-   it since you last looked: in the preview's editor, or by hand.
+   it since you last looked: where they watch it, or by hand.
    Read it again before every change (the page's `lesson.wplay`, below),
    make your change on that copy, and never write back a copy you read
    before theirs.

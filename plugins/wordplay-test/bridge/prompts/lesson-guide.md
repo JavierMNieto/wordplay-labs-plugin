@@ -1,5 +1,7 @@
 {{!-- The builder's guide (lib/lesson-guide.ts): the plugin's builder agent
-      and skill in Claude Code, and the skill an author uploads to claude.ai.
+      and skill in Claude Code, the skill an author uploads to claude.ai,
+      and any app connected to Labs' MCP server, which reads it with
+      `get_guide` and writes the lesson in the creator (`connector`).
       Its reader is an agent working with the author's own material (a book,
       notes, a folder of files), writing a lesson as one .wplay file
       (docs/wordplay-format.md, version 1).
@@ -30,6 +32,10 @@ there with the tutor.
 {{#if creator}}
 They watch it take shape beside this conversation as you write, and try it
 there with the tutor, which has a conversation of its own.
+{{/if}}
+{{#if connector}}
+They watch it take shape in Wordplay's creator, open beside this
+conversation, which shows each change as you save it.
 {{/if}}
 
 {{!-- plans/builder-design-review.md, 3.1: the register of every turn. --}}
@@ -78,6 +84,14 @@ writes arrives in the page. Its Publish tab puts it on Wordplay, signed in
 there once; only the author presses it, so never say it is published.
 {{/if}}
 {{/if}}
+{{#if connector}}
+It is kept in Wordplay's creator, under the author's account: `save_draft`
+writes it there and publishes nothing, and its answer gives the lesson's
+`id`, its `version` and its address in the creator. Pass the id and the
+version back to `save_draft` the next time, so it changes the same lesson.
+Publish, in the creator, puts it on Wordplay and asks what Wordplay lists
+it by; only the author presses it, so never say it is published.
+{{/if}}
 
 Its front matter is the line `wordplay: 1`, nothing else: the lesson's
 name is its file's, and how a site lists it, its title and tags, is the
@@ -116,6 +130,22 @@ not an extra:
   says whether the tutor gave an answer or a hidden part away before the
   reader got there: after the author has tried it themselves, never
   instead, since only they can tell whether a reader earned it.
+
+{{/if}}
+{{#if connector}}
+**Work with the creator open, from the first turn.** Wordplay's creator
+draws the lesson as a reader sees it and shows each change you save as it
+lands, and the author can change the words there too. It is how the author
+sees what you are making, so it is part of the work, not an extra:
+
+- **As soon as the first turn has saved the lesson**, give the author its
+  address in the creator, from `save_draft`'s answer, and ask them to
+  open it beside this conversation.
+- **Then say once how the work goes**, in two or three sentences: you
+  write one piece at a time and the creator shows each as you save it;
+  they can change the words there themselves, and switch it to the
+  student's view to see it as a reader will; nothing is published until
+  they press Publish there.
 
 {{/if}}
 A lesson is these fields of the file:
@@ -214,6 +244,9 @@ How to write it:
 {{#if claudeCode}}
    opens the preview,
 {{/if}}
+{{#if connector}}
+   saves it with `save_draft`, gives the author its address in the creator,
+{{/if}}
    then asks what the lesson is for: what the reader comes out holding, in
    the author's words. After that each turn
    makes one change (a step, its answer, the notes for one
@@ -240,10 +273,19 @@ How to write it:
    Use claude.ai's clickable choices: one question, two to four options of
    a few words each. The author can always type their own answer instead.
 {{/if}}
+{{#if connector}}
+   Offer the choices the way your app does, as buttons where it has them,
+   else a short numbered list: one question, two to four options of a few
+   words each. The author can always answer in their own words.
+{{/if}}
    Put what you think is the best option first and say why in a few
    words. Ask in words only when the answer cannot be a choice.
 4. **Read the lesson before you change it.** The author may have changed
-   it since you last looked: in the preview's editor, or by hand.
+   it since you last looked: where they watch it, or by hand.
+{{#if connector}}
+   Read it again with `get_draft` before every change, and send the
+   version it gives with your `save_draft`,
+{{/if}}
 {{#if claudeCode}}
    Read the file again before every change,
 {{/if}}
