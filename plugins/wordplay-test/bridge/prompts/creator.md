@@ -5,22 +5,22 @@
       message. It is the last of the cacheable pieces, so everything above it
       is read from cache while this changes (`builderPrompt` in
       lib/builder-turn.ts, docs/creator.md). --}}
-# The lesson as it stands
+# The wordplay as it stands
 
 {{#if file}}
-`````wordplay
+`````html
 {{file}}
 `````
 {{else}}
 Nothing is written yet. Your first reply writes the whole file in a
-`<file>` block: the front matter, the title and the opening, and the
-`:::tutor` line with no answers under it yet.
+`<file>` block: the document, `data-wordplay="1"` on its body, the title and
+the opening, and no context yet.
 {{/if}}
 
 {{#if page}}
-# Where the author is
+# Where the teacher is
 
-The lesson is in pages, and the author has {{page}} open in front of them.
+The wordplay is in pages, and the teacher has {{page}} open in front of them.
 "Here" and "this page" mean that page, and a change they ask for without
 saying where belongs on it.
 
@@ -46,6 +46,6 @@ Nothing.
 
 # Since your last reply
 
-The author has tried the lesson with the tutor: their conversation is
+The teacher has tried it with the tutor: their conversation is
 above the lesson, and is new to you.
 {{/if}}

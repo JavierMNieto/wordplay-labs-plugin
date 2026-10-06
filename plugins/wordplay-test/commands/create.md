@@ -13,12 +13,12 @@ What they gave, if anything: $ARGUMENTS
    (`two-clocks.wplay`), or `untitled.wplay` when they said nothing (with
    `-2`, `-3` after it if that name is taken), holding exactly:
 
-   ```
-   ---
-   wordplay: 1
-   ---
-
-   :::tutor
+   ```html
+   <!doctype html>
+   <html lang="en">
+   <body data-wordplay="1">
+   </body>
+   </html>
    ```
 
    Never overwrite a file that is already there.
