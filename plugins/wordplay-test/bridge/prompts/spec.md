@@ -13,9 +13,8 @@ numbers in double braces are bound from packages/format/src/limits.ts.
 As agreed on 4 and 5 October 2026, from the discussion posted to the
 Wordplay Labs group:
 https://forum.wordplaylabs.com/p/cmuun53g200122ppbn1eb314m, and simplified
-on 5 October (Javi: "we only need data verify, data expect, and data
-context"). The decisions behind it, and its history, are in
-docs/wordplay-format.md.
+on 5 October to data-verify, data-expect and data-context alone. The
+decisions behind it, and its history, are in docs/wordplay-format.md.
 --}}
 # The `.wplay` format
 
