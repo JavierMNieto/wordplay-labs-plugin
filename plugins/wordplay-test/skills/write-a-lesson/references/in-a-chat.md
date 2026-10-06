@@ -206,6 +206,9 @@ ignore, and the file loses nothing:
   teacher's CSS (`body:has(#solved) .hint { display: none }`, since a step
   is not in the page at all before it is met), their scripts, or another
   condition (`shown`, below). A condition is written once.
+- Once the page has been checked against the conditions, it fires
+  `wordplay:checked` on the document: a step not given by then did not
+  hold, so a component can say an answer is wrong without holding it.
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
@@ -379,14 +382,12 @@ How to write it:
    - **A hint, or what to say to a wrong turn**, context with its own
      `data-expect`, the moment it is for ("they say the trick is to always
      take 1"), so the tutor is given it only then.
-   - **A choice** is HTML: a `<fieldset>` with a `<legend>`, a radio or a
-     checkbox per option, each labelled. The step that follows it holds when
-     the right one is checked (`data-verify="checked = The faster clock"`),
-     and context for a wrong pick is given when it is checked, saying what a
-     student who picks it is thinking.
-   - **A number** is an `<input>` with a `<label>`, the calculator on it
-     when working it out is the point, its keys in the label, and the step
-     that follows holds within a tolerance (`≈`), never one exact string.
+   - **An answer to check**, a choice or a number, is a component: its
+     fields, a Check button naming the step it gives (`aria-controls`), and
+     an `<output>` Check fills, which that step's `data-verify` reads (a
+     number within a tolerance, `≈`). With no step by `wordplay:checked`,
+     it says the answer is wrong. A note on an option is context in its
+     label; a number's calculator is on its `<input>`, its keys in the label.
    - **A question asked where it arises** is a chat in the page, named for
      what it is about, beside what a student would want to talk through,
      with context inside it for that conversation alone.

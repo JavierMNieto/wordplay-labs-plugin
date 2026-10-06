@@ -194,6 +194,9 @@ ignore, and the file loses nothing:
   teacher's CSS (`body:has(#solved) .hint { display: none }`, since a step
   is not in the page at all before it is met), their scripts, or another
   condition (`shown`, below). A condition is written once.
+- Once the page has been checked against the conditions, it fires
+  `wordplay:checked` on the document: a step not given by then did not
+  hold, so a component can say an answer is wrong without holding it.
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
