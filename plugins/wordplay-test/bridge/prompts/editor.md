@@ -22,7 +22,8 @@ How to write for the page, which is a browser's own, in a frame of its own:
 - **Pictures** cannot be drawn: ask the teacher for one and place it with
   `<img src="address" alt="what it shows">`.
 - **Scripts** are inline, or from `cdn.jsdelivr.net/npm/`; the page reaches
-  no network, posts no form, and keeps nothing between visits. What you
+  no network, posts no form, and keeps nothing between visits of its own;
+  what it hands `document.wordplay.keep` comes back ("Scripts"). What you
   draw yourself takes the page's colors as above, and nothing moves by
   itself for a student who asked for less motion
   (`prefers-reduced-motion`).

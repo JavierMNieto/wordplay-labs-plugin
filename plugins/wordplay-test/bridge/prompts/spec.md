@@ -14,9 +14,10 @@ As agreed on 4 and 5 October 2026, from the discussion posted to the
 Wordplay Labs group:
 https://forum.wordplaylabs.com/p/cmuun53g200122ppbn1eb314m, simplified on
 5 October, and on 8 October, after the company meeting of 7 October, to
-data-expect and data-context, with document.tutor for scripts and sections
-as the steps that count. The decisions behind it, and its history, are in
-docs/wordplay-format.md.
+data-expect and data-context, with document.wordplay for scripts and sections
+as the steps that count; and on 9 October with data-tutor, the one place
+the tutor writes, and document.wordplay.say. The decisions behind it, and its
+history, are in docs/wordplay-format.md.
 --}}
 # The `.wplay` format
 
@@ -30,8 +31,8 @@ session the teacher would have held.
 
 ## The file
 
-A `.wplay` file is an HTML document with three attributes on it. ARIA added
-attributes to HTML so a screen reader could read a page; these three add
+A `.wplay` file is an HTML document with four attributes on it. ARIA added
+attributes to HTML so a screen reader could read a page; these four add
 what a tutor needs on top of that.
 
 | Attribute | On any element, means |
@@ -39,6 +40,7 @@ what a tutor needs on top of that.
 | `data-wordplay="1"` | On `<body>`: this document is a wordplay. |
 | `data-context` | The student never sees this element. The tutor reads it, and operates it if it is a control. |
 | `data-expect="…"` | This element is given once a condition holds, judged by the tutor from the conversation, or said by the page's script. |
+| `data-tutor` | On an `<output>`: the tutor writes it, by its accessible name. What it writes replaces what was there. |
 
 Everything else is HTML, written to ARIA, and is shown as HTML. A relative
 URL in it resolves against where the file is. What is logical, checking an
@@ -68,7 +70,7 @@ so math and code survive. Context with no condition is given as soon as its
 parent is; with one, once the condition holds. Context nests by nesting.
 
 **The condition.** `data-expect` is prose, the moment as the teacher would
-recognize it, judged by the tutor or said by a script (`document.tutor.met`).
+recognize it, judged by the tutor or said by a script (`document.wordplay.met`).
 
 **Ids.** Each step, reveal and context element is named by its own `id`,
 else numbered in document order: `s1`, `s2`, … for steps, `r1`, … for
@@ -83,6 +85,11 @@ reaches it. A page that works for a blind student works for the tutor.
 tutor can do by accessible name: press a button, set a field, choose an
 option. An element marked `data-context` is removed from the student's page
 and their screen reader, and placed in the tutor's tree alone.
+
+**Writing on the page.** An `<output>` marked `data-tutor` is the tutor's to
+write, by its accessible name: what it writes is the element's text,
+replacing what was there. Nothing else on the page takes the tutor's words,
+and how they are drawn is the teacher's.
 
 **Privacy.** Every element marked `data-context` is stripped before anything
 reaches the student's browser. This is the one rule a host must never break.
@@ -101,16 +108,48 @@ conversation. With no conversation, a host shows the whole wordplay.
 
 ## Scripts
 
-The teacher's scripts run as on any page. Before any runs, the host puts
-one object on the document, `document.tutor`, with two members:
+The teacher's scripts run as on any page. Before the body is read, the
+host puts one object on the document, `document.wordplay`, frozen, with
+these members:
 
-| Member | Does |
-|---|---|
-| `met(id)` | That element's condition holds: the host gives it, as if the tutor had said so. An id not waiting is ignored. |
-| `tell(text)` | The text reaches the tutor at its next turn, cut to one announcement. A live region is read out to the student too; this is not. |
+| Member | Does | At most |
+|---|---|---|
+| `met(id)` | That element's condition holds: the host gives it, as if the tutor had said so. An id not waiting is ignored. | |
+| `tell(text)` | The text reaches the tutor at its next turn. A live region is read out to the student too; this is not. | {{maxAnnouncement}} characters |
+| `say(text, chat?)` | A message from the student, as if typed, in the chat named or the tutor's own: the tutor answers it now, and is told it came from the page. `tell` waits for the next message; `say` is one. | {{maxSaid}} characters, {{maxPageSays}} a minute |
+| `keep(value)` | Keeps one JSON value, the page's own state, with the conversation; each call replaces the last. A larger value is dropped, with a warning in the console. | {{maxKept}} bytes |
+| `kept` | The value last kept in this conversation, or `undefined`; there before the first script runs. | |
 
-Opened as plain HTML a page has no `document.tutor`, so a script calls
-`document.tutor?.met("solved")`. A script runs in the student's browser,
+**`wordplay:met`** is fired on a part as it is given, bubbling, its id in
+`event.detail.id`, and again for each part already given when the page is
+drawn, in document order, so a script knows what is on the page whether
+it was given now or before.
+
+**The page is the conversation's.** The host keeps each control's value,
+typed, checked or chosen, by its id, else its name, else its accessible
+name, and which page was open; drawing the page again, it sets them back
+and fires `input` and `change`, so a script that draws from its fields
+draws again. What lives only in a script's variables is `keep`'s:
+
+```js
+// A pile drawn in <output id="pile">, taken from by <button id="take">.
+const game = document.wordplay?.kept ?? { pile: 21 };
+const draw = () => (document.querySelector("#pile").textContent = game.pile);
+document.querySelector("#take").onclick = () => {
+  game.pile -= 1;
+  document.wordplay?.keep(game);
+  draw();
+  if (game.pile === 0) document.wordplay?.met("emptied");
+};
+draw();
+```
+
+The kept value is never the tutor's, which reads the page as shown. It is
+one conversation's: starting over starts from the file. It is one value,
+not a store: what the page needs to draw itself again.
+
+Opened as plain HTML a page has no `document.wordplay`, so a script calls
+`document.wordplay?.met("solved")`. A script runs in the student's browser,
 which can read it: a secret goes in `data-context` or behind a
 `data-expect`, never in a script.
 
@@ -153,8 +192,8 @@ Page 2 of *The game from Marienbad*:
     let lost = 0;
     function gameOver(won) {
       lost = won ? 0 : lost + 1;
-      if (lost === 3) document.tutor?.met("stuck");
-      if (won) document.tutor?.tell("They beat the computer from 21 matches.");
+      if (lost === 3) document.wordplay?.met("stuck");
+      if (won) document.wordplay?.tell("They beat the computer from 21 matches.");
     }
   </script>
 
@@ -222,13 +261,16 @@ ignore, and the file loses nothing:
   so a question is asked where it arises. A chat in the page is one
   conversation with the tutor's, shown in it as a thread: the tutor reads
   every message in order, knowing where it was said, and answers there.
+  A chat holding an output the tutor writes is drawn by the teacher:
+  Wordplay draws no box in it.
 - Mathematics: `$…$` in text is a formula and `$$…$$` one on its own line,
   drawn with KaTeX, except inside `code`, `pre`, `script`, `style` and
   fields. The tutor reads the source as written.
 - A calculator for number answers, checked by the component's script.
 - A step or reveal given carries `data-met`, its id, and fires a
-  `wordplay:met` event as it appears, the id in `event.detail.id`, for the
-  teacher's CSS (`body:has(#solved) .hint { display: none }`) or scripts.
+  `wordplay:met` event as it appears and again as the page is drawn, the
+  id in `event.detail.id`, for the teacher's CSS
+  (`body:has(#solved) .hint { display: none }`) or scripts ("Scripts").
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
@@ -252,8 +294,11 @@ accessible name: its `aria-label`, else its first heading, else its id.
 
 **Checks.** Wordplay says what looks like a mistake: a step with no
 accessible name, `data-skip` off a step, an id used twice, a chat unnamed
-or named as another, a key outside a calculator or of an unknown kind, and
-an attribute nearly one of these or no longer read. It refuses to publish
+or named as another, a key outside a calculator or of an unknown kind, an
+output the tutor writes unnamed, named as another, named with a colon or
+inside context, `data-tutor` on anything but an `<output>`, an
+attribute nearly one of these or no longer read, and `document.tutor`, the
+object's old name, in a script. It refuses to publish
 an unknown `data-wordplay` version, a file over the limit, an id used
 twice, and a control the tutor cannot see: one with no accessible name, on
 a page where nothing is named or live.
@@ -265,6 +310,9 @@ a page where nothing is named or live.
 | The file | {{maxFile}} characters |
 | A condition | {{maxCondition}} characters |
 | One live announcement, or one `tell` | {{maxAnnouncement}} characters |
+| One line the tutor writes | {{maxWritten}} characters |
+| One `say` | {{maxSaid}} characters |
+| What a page keeps (`keep`) | {{maxKept}} bytes |
 | Keys in one group of a calculator | {{maxKeys}} |
 
 ## Versions

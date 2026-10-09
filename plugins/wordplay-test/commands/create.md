@@ -28,8 +28,10 @@ What they gave, if anything: $ARGUMENTS
    creator is open in their browser (or, if the tool says it could not
    open one, the address to open); they write the lesson there, with its
    assistant and the tutor running on their own Claude, and it is saved to
-   the file as they type; and this terminal has to stay open while they
-   work, since the creator runs from it.
+   the file as they type; this terminal has to stay open while they
+   work, since the creator runs from it; and any lesson in this folder can
+   be tried alone as a student, beside the creator, at the student's
+   address `preview_lesson` gives.
 
 Do not write the lesson here unless they ask: the creator's own assistant
 does that, in the page.
