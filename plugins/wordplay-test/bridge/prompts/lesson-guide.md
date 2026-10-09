@@ -10,7 +10,7 @@
       bound in whole as `spec`, and a test fails when this guide names an
       attribute the spec does not. What is here is how to work with a
       teacher, what a good lesson does, and how to write HTML a tutor can
-      read (plans/wplay-standard.md, Phase 6).
+      read (docs/wordplay-format.md).
 
       The rules began as the site's lesson assistant's. "What a good lesson
       does" and rules 9 to 11 come from the review of 30 September against
@@ -252,12 +252,13 @@ How to write it:
      the teacher uses is not needed unless it is the point).
    - **A hint, or what to say to a wrong turn**, context with its own
      `data-expect`, the moment it is for ("they say the trick is to always
-     take 1"), so the tutor is given it only then.
-   - **An answer to check**, a choice or a number, is a component: its
-     fields, a Check button naming the step it gives (`aria-controls`), and
-     an `<output>` Check fills, which that step's `data-verify` reads (a
-     number within a tolerance, `≈`). With no step by `wordplay:checked`,
-     it says the answer is wrong. A note on an option is context in its
+     take 1"), so the tutor is given it only then; one the student reads is
+     an `<aside>` with its moment.
+   - **An answer to check**, a choice or a number, is a component: fields,
+     a Check button naming the step it gives (`aria-controls`), and a
+     script that says right or wrong and on the answer calls
+     `document.tutor?.met("…")` with that step's id, whose `data-expect` is
+     the same moment for the chat. A note on an option is context in its
      label; a number's calculator is on its `<input>`, its keys in the label.
    - **A question asked where it arises** is a chat in the page, named for
      what it is about, beside what a student would want to talk through,
@@ -277,14 +278,17 @@ How to write it:
    appears when "they say, in their own words, always leave a multiple of
    4". Things that come one after another nest, so each appears inside the
    one before. Write a moment once: what else follows it listens to that
-   element (`shown = Name` in another condition, `data-met` for the page's
-   own styles), never a copy of its words. `data-expect` is written the way
-   the teacher would recognize the moment, about what the student says or
-   shows, never a word they must use; `data-verify` when the page itself can
-   tell. Every step has an accessible name (`aria-label`, or a heading),
-   which is what the creator and the tutor call it, so never what it gives
-   away. A long wordplay is in pages, a `<section>` each at its natural
-   sections, a screen or two each; a short one is one page.
+   element (`data-met` for the page's own styles and scripts), never a copy
+   of its words. `data-expect` is written the way the teacher would
+   recognize the moment, about what the student says or shows, never a word
+   they must use; when the page itself can tell, its script says so
+   (`document.tutor?.met`). **The milestones are `<section>`s**: the steps,
+   the student's progress; a hint or a figure is a reveal and counts for
+   nothing. Every step has an accessible name (`aria-label`, or a heading),
+   what the tutor calls it, so never what it gives away; one the student
+   must earn has `data-skip="false"`. A long wordplay is in
+   pages, a `<section>` without a condition each at its natural sections, a
+   screen or two each; a short one is one page.
 {{!-- Rule 9: push the teacher with a recommendation, one spot that could
       be better at a time. --}}
 9. **Say where it could be better, and offer the fix.** The wordplay is the
@@ -305,6 +309,19 @@ How to write it:
     photograph, which you cannot draw. Always say when it shows: from the
     start when it sets the question up; inside the step it would give away,
     when it is that step's reward.
+{{#if claudeCode}}
+    The lesson is then a folder, the `.wplay` beside an `assets` folder: put
+    the teacher's pictures, sound and video there and point to each by its
+    relative path (`assets/apparatus.jpg`); one small diagram may be a data
+    URI. Publishing sends the folder, and Labs keeps each file at an address
+    of its own.
+{{/if}}
+{{#if connector}}
+    Point to a picture of the teacher's by a relative path
+    (`assets/apparatus.jpg`) and send its bytes with `save_lesson`'s
+    `files`; one small diagram may be a data URI. Labs keeps each file at an
+    address of its own.
+{{/if}}
 11. **The book's own answer, once it is earned.** When the material prints
     the answer or the worked solution, offer to show it once the student has
     got there: the book's words, quoted and credited, in the step that

@@ -77,18 +77,19 @@ session the teacher would have held.
 
 ## The file
 
-A `.wplay` file is an HTML document with four attributes on it. ARIA added
-attributes to HTML so a screen reader could read a page; these four add what
-a tutor needs on top of that.
+A `.wplay` file is an HTML document with three attributes on it. ARIA added
+attributes to HTML so a screen reader could read a page; these three add
+what a tutor needs on top of that.
 
 | Attribute | On any element, means |
 |---|---|
 | `data-wordplay="1"` | On `<body>`: this document is a wordplay. |
 | `data-context` | The student never sees this element. The tutor reads it, and operates it if it is a control. |
-| `data-verify="…"` | This element is given once a condition holds, checked by the host against the page. |
-| `data-expect="…"` | This element is given once a condition holds, judged by the tutor from the conversation. |
+| `data-expect="…"` | This element is given once a condition holds, judged by the tutor from the conversation, or said by the page's script. |
 
-Everything else is HTML, written to ARIA, and is shown as HTML.
+Everything else is HTML, written to ARIA, and is shown as HTML. A relative
+URL in it resolves against where the file is. What is logical, checking an
+answer or counting a game, is the teacher's script (Scripts, below).
 
 ## Rules
 
@@ -97,11 +98,11 @@ holds: to the student, or, if it is marked `data-context`, to the tutor.
 Until then it is not given at all, with everything it holds. An element
 without a condition is given with its parent. The body is always shown.
 
-**Steps.** An element the student sees that carries a condition is a
-step. Nothing marks a step done: what comes before a step is done when the
-step appears, and the wordplay is done when its last step does. So a
-condition goes on what the student should see next, written as the moment
-that earns it.
+**Steps and reveals.** A `<section>` the student sees that carries a
+condition is a step, and steps are the progress (below). Any other element
+the student sees with one is a reveal, a hint or a figure, given the same
+way and not counted; a hint is `<aside data-expect="…">`. A condition goes
+on what the student should see next, written as the moment that earns it.
 
 **Order.** A condition is judged once its element's parent has been given.
 Conditions do not wait for one another otherwise, so a hint the student
@@ -113,16 +114,12 @@ to read; the tutor is given its text, with inline markup kept as written,
 so math and code survive. Context with no condition is given as soon as its
 parent is; with one, once the condition holds. Context nests by nesting.
 
-**The two conditions.** `data-verify` is `name = value`, where `name` is
-the accessible name of an element on the page and `value` is its text or
-state; `and` and `or` combine them. `data-expect` is prose, written the way
-the teacher would recognize the moment. An element carries at most one of
-the two.
+**The condition.** `data-expect` is prose, the moment as the teacher would
+recognize it, judged by the tutor or said by a script (`document.tutor.met`).
 
-**Ids.** The host names each step and each context element by its own `id`
-when it has one, and otherwise numbers them in document order: steps `s1`,
-`s2`, … and context `c1`, `c2`, …. The tutor says which condition holds by
-that id.
+**Ids.** Each step, reveal and context element is named by its own `id`,
+else numbered in document order: `s1`, `s2`, … for steps, `r1`, … for
+reveals, `c1`, … for context. The tutor and scripts say what holds by id.
 
 **Reading the page.** The tutor is given the page as a screen reader would
 read it: the accessibility tree (role, name, state) of what is shown, and
@@ -136,16 +133,43 @@ and their screen reader, and placed in the tutor's tree alone.
 
 **Privacy.** Every element marked `data-context` is stripped before anything
 reaches the student's browser. This is the one rule a host must never break.
+A step or reveal reaches the browser only once given, without its
+`data-expect`, which is often the answer.
 
 **Unknowns.** A host ignores an attribute it does not know and shows the
 element as HTML.
 
-**What the tutor is given at any moment.** The tree of what is shown, and
-its announcements. The context given so far. And for each step and context
-element not yet given whose parent has been, its id and its condition, so it
-knows what the teacher anticipated and what to watch for. Where a student is
-is never in the file; it is worked out from their conversation. With no
-conversation, a host shows the whole wordplay.
+**What the tutor is given at any moment.** The tree of what is shown, its
+announcements, and what the page told it since its last turn. The context
+given so far. Each part not yet given whose parent has been, by id and
+condition, so it knows what to watch for. The steps the student skipped.
+Where a student is is never in the file; it is worked out from their
+conversation. With no conversation, a host shows the whole wordplay.
+
+## Scripts
+
+The teacher's scripts run as on any page. Before any runs, the host puts
+one object on the document, `document.tutor`, with two members:
+
+| Member | Does |
+|---|---|
+| `met(id)` | That element's condition holds: the host gives it, as if the tutor had said so. An id not waiting is ignored. |
+| `tell(text)` | The text reaches the tutor at its next turn, cut to one announcement. A live region is read out to the student too; this is not. |
+
+Opened as plain HTML a page has no `document.tutor`, so a script calls
+`document.tutor?.met("solved")`. A script runs in the student's browser,
+which can read it: a secret goes in `data-context` or behind a
+`data-expect`, never in a script.
+
+## Progress
+
+**Progress** is the steps given over the steps in the file, nested ones
+counted flat; it says how many, never in what order, since steps do not
+wait for one another. **Done** is every step given; a wordplay with no step
+is never done. **Skip**, where a host offers it, gives one waiting step as
+if its condition held, and nothing else; what is inside it then waits as
+usual. A step with `data-skip="false"` has none, and the student must earn
+it. A step skipped counts, and the tutor is told of it.
 
 ## Example
 
@@ -168,7 +192,19 @@ Page 2 of *The game from Marienbad*:
   <button>Start again</button>
   <form aria-label="Set up a position" data-context>…</form>
 
-  <div data-context>A student stuck here: who wins with 4 matches on your turn?</div>
+  <aside id="stuck" data-expect="they have lost three games in a row">
+    <p>Try a smaller game first: who wins with 4 matches on your turn?</p>
+  </aside>
+  <script>
+    // The game calls gameOver at the end of each game.
+    let lost = 0;
+    function gameOver(won) {
+      lost = won ? 0 : lost + 1;
+      if (lost === 3) document.tutor?.met("stuck");
+      if (won) document.tutor?.tell("They beat the computer from 21 matches.");
+    }
+  </script>
+
   <div data-context data-expect="they say the trick is to always take 1">
     It beats a careless player and loses to the computer. Ask what happens from 4.
   </div>
@@ -191,7 +227,7 @@ Page 2 of *The game from Marienbad*:
     <div class="matches" role="group" aria-label="21 sticks. Take 1, 2 or 3. The last stick loses.">…</div>
     <p aria-live="polite">Your move.</p>
 
-    <section aria-label="Fort Boyard solved"
+    <section aria-label="Fort Boyard solved" data-skip="false"
       data-expect="they say the candidate cannot win from 21">
       <p>Right: 21 is one more than a multiple of 4, so the Master of Time
       always wins.</p>
@@ -209,42 +245,37 @@ on the edges:
 ```
 context c1  (always)
 context c2  (always: the set-up form)
-context c3  (always: a student stuck here)
-context c4  ── expect: they say the trick is to always take 1
-context c5  ── expect: they ask why 4 is the bad number
-└── context c6  ── expect: they ask whether it works when the last stick loses
+reveal stuck  ── expect: they have lost three games in a row
+context c3  ── expect: they say the trick is to always take 1
+context c4  ── expect: they ask why 4 is the bad number
+└── context c5  ── expect: they ask whether it works when the last stick loses
 step "One row solved"  ── expect: they say, in their own words, always leave a multiple of 4
 └── step "Fort Boyard solved"  ── expect: they say the candidate cannot win from 21
 ```
+
+Two steps: the hint counts for nothing, and the second has no Skip.
 
 ## What Wordplay adds
 
 The above is the standard. Wordplay's site adds tooling that another host may
 ignore, and the file loses nothing:
 
-- Each `<section>` directly in the body is drawn as a page, with the pages
-  along the foot. One with a condition is a page that appears when it holds.
+- Each `<section>` directly in the body without a condition is drawn as a
+  page, with the pages along the foot; one with a condition is a step,
+  drawn where it is.
+- Progress as a thin bar over the page that only shows it, and on the card
+  of a lesson started; Skip at each waiting step, where it will appear.
 - The tutor's chat beside the page, and chats in the page (`data-chat`),
   so a question is asked where it arises. A chat in the page is one
-  conversation with the tutor's: the tutor reads every message in order,
-  knowing which chat it was said in, and answers there. The tutor's chat
-  shows each chat in the page as a thread where it began.
+  conversation with the tutor's, shown in it as a thread: the tutor reads
+  every message in order, knowing where it was said, and answers there.
 - Mathematics: `$…$` in text is a formula and `$$…$$` one on its own line,
   drawn with KaTeX, except inside `code`, `pre`, `script`, `style` and
   fields. The tutor reads the source as written.
-- A calculator for number answers, and `≈` with a tolerance in `data-verify`.
-- A student may skip waiting for a step, unless the step says not.
-- The student's page never carries a condition: a step given goes without
-  its `data-expect` or `data-verify`, which is often the answer.
-- A step whose condition has held carries `data-met`, its id, in the
-  student's page, and the page fires a `wordplay:met` event on it as it
-  appears, the id in `event.detail.id`. What follows a step listens for it there: the
-  teacher's CSS (`body:has(#solved) .hint { display: none }`, since a step
-  is not in the page at all before it is met), their scripts, or another
-  condition (`shown`, below). A condition is written once.
-- Once the page has been checked against the conditions, it fires
-  `wordplay:checked` on the document: a step not given by then did not
-  hold, so a component can say an answer is wrong without holding it.
+- A calculator for number answers, checked by the component's script.
+- A step or reveal given carries `data-met`, its id, and fires a
+  `wordplay:met` event as it appears, the id in `event.detail.id`, for the
+  teacher's CSS (`body:has(#solved) .hint { display: none }`) or scripts.
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
@@ -254,28 +285,13 @@ Its attributes:
 | `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
 | `data-calculator` | On an `<input>`: the box has the calculator. Its accessible name is its label. On a chat: the calculator beside it. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
-| `data-skip="false"` | On a step: the student may not skip waiting for it. Without it, Skip shows the first step waiting on the page. |
+| `data-skip="false"` | On a step: no Skip for it. |
 
-**`≈` in `data-verify`.** `name ≈ value ± n%` holds when the element's value,
-read as a number with its unit, is within `n` percent of `value`:
-`answer ≈ 86.4 s ± 1%`. Without `± n%` the tolerance is 0.1%.
+**The name of a step**, in the chat, on the page and in the creator, is its
+accessible name: its `aria-label`, else its first heading, else its id.
 
-**Writing a condition.** `data-verify` is one or more `name = value`
-comparisons joined by `and` and `or` (`and` binds tighter), with parentheses
-to group. A name matches ignoring case and spacing. A value that holds `and`,
-`or`, `=` or a parenthesis is written in double quotes. `checked = The slower
-clock` holds when the element named *The slower clock* is checked, and
-`pressed`, `selected` and `expanded` work the same way. `shown = One row
-solved` holds once an element of that name is on the page, so a condition
-can follow another without restating it.
-
-**The name of a step**, on the page and in the creator, is its accessible
-name: its `aria-label`, else its first heading, else its id.
-
-**A key with a condition** is put on the calculator once the condition
-holds, as a step is given, and is named `k1`, `k2`, … in document order when
-it has no `id`, for the tutor's `[[SHOW]]`. It is not a step: nothing waits
-for it, it is never skipped to, and the wordplay is done without it.
+**A key with a condition** is put on the calculator once it holds, named
+`k1`, `k2`, … when it has no `id`. It counts for nothing, and has no Skip.
 
 **The keys** a calculator may hold from its library, by name:
 
@@ -289,16 +305,13 @@ for it, it is never skipped to, and the wordplay is done without it.
 - **Vectors**: vector, hat, cross, dotproduct, norm, matrix, transpose, bar
 - **Chemistry**: charge, subscript, yields, equilibrium, heated, concentration, aqueous, solid, liquid, gas, change
 
-**Checks.** Wordplay says what looks like a mistake as it reads a wordplay:
-a `data-verify` that names nothing on the page, an element with both
-conditions, an id used twice, a chat with no name or the name of another,
-a key outside a calculator or of a kind it does not know, and an attribute
-that is nearly one of these.
-It refuses to publish a wordplay whose `data-wordplay` version it does not
-know, one over the limit, one with a `data-verify` that does not read or an
-id used twice (either leaves a step that never appears), and one with a
-control the tutor cannot see: a button, field or canvas with no accessible
-name, on a page where nothing is named and nothing is live.
+**Checks.** Wordplay says what looks like a mistake: a step with no
+accessible name, `data-skip` off a step, an id used twice, a chat unnamed
+or named as another, a key outside a calculator or of an unknown kind, and
+an attribute nearly one of these or no longer read. It refuses to publish
+an unknown `data-wordplay` version, a file over the limit, an id used
+twice, and a control the tutor cannot see: one with no accessible name, on
+a page where nothing is named or live.
 
 ## Limits
 
@@ -306,19 +319,15 @@ name, on a page where nothing is named and nothing is live.
 |---|---|
 | The file | 400,000 characters |
 | A condition | 400 characters |
-| One live announcement | 200 characters |
+| One live announcement, or one `tell` | 200 characters |
 | Keys in one group of a calculator | 12 |
 
 ## Versions
 
 `data-wordplay="1"` is redefined by this document. The format is a
-prototype: a form it drops is no longer read, and every published wordplay is
-written again in the current form. Version 1 as first written, Markdown with
-colon blocks, a line dividing the tutor's half, an answers list and a
-scripting interface for components, is gone, and so is the step attribute of
-4 October: a condition is all a step needs. There is no custom element. The
-extension stays `.wplay`: the content is HTML, the extension says to run it
-with a tutor. Editors should highlight it as HTML.
+prototype: a form it drops is no longer read, and published wordplays are
+written again. There is no custom element. The extension stays `.wplay`:
+HTML to run with a tutor; editors highlight it as HTML.
 
 ## Words
 
@@ -331,13 +340,16 @@ One word per thing, in the file, the site, the prompts and the docs.
 | teacher | Who wrote it |
 | tutor | What the student talks to |
 | host | What runs the file: Wordplay's site, or another |
-| step | An element the student sees that carries a condition; it appears when the condition holds |
+| step | A `<section>` the student sees with a condition; it counts |
+| reveal | Anything else the student sees with a condition; it does not |
 | context | An element only the tutor reads |
-| chat | Where the student talks to the tutor: the tutor's chat beside the page, or one in the page (`data-chat`) |
-| verify | A condition the host checks against the page |
-| expect | A condition the tutor judges from the conversation |
+| chat | The tutor's chat beside the page, or one in it (`data-chat`) |
+| expect | The condition, the moment as the teacher wrote it |
 | given | Shown to the student, or, for context, read by the tutor |
-| waiting | Not yet given, with its parent given: its condition is being judged |
+| waiting | Not given, its parent given: its condition is being judged |
+| progress | How many steps are given, of the steps |
+| done | Every step given |
+| skip | Giving one waiting step without its condition |
 </format>
 
 What a good wordplay does, which is what your recommendations are measured
@@ -418,12 +430,13 @@ How to write it:
      the teacher uses is not needed unless it is the point).
    - **A hint, or what to say to a wrong turn**, context with its own
      `data-expect`, the moment it is for ("they say the trick is to always
-     take 1"), so the tutor is given it only then.
-   - **An answer to check**, a choice or a number, is a component: its
-     fields, a Check button naming the step it gives (`aria-controls`), and
-     an `<output>` Check fills, which that step's `data-verify` reads (a
-     number within a tolerance, `≈`). With no step by `wordplay:checked`,
-     it says the answer is wrong. A note on an option is context in its
+     take 1"), so the tutor is given it only then; one the student reads is
+     an `<aside>` with its moment.
+   - **An answer to check**, a choice or a number, is a component: fields,
+     a Check button naming the step it gives (`aria-controls`), and a
+     script that says right or wrong and on the answer calls
+     `document.tutor?.met("…")` with that step's id, whose `data-expect` is
+     the same moment for the chat. A note on an option is context in its
      label; a number's calculator is on its `<input>`, its keys in the label.
    - **A question asked where it arises** is a chat in the page, named for
      what it is about, beside what a student would want to talk through,
@@ -443,14 +456,17 @@ How to write it:
    appears when "they say, in their own words, always leave a multiple of
    4". Things that come one after another nest, so each appears inside the
    one before. Write a moment once: what else follows it listens to that
-   element (`shown = Name` in another condition, `data-met` for the page's
-   own styles), never a copy of its words. `data-expect` is written the way
-   the teacher would recognize the moment, about what the student says or
-   shows, never a word they must use; `data-verify` when the page itself can
-   tell. Every step has an accessible name (`aria-label`, or a heading),
-   which is what the creator and the tutor call it, so never what it gives
-   away. A long wordplay is in pages, a `<section>` each at its natural
-   sections, a screen or two each; a short one is one page.
+   element (`data-met` for the page's own styles and scripts), never a copy
+   of its words. `data-expect` is written the way the teacher would
+   recognize the moment, about what the student says or shows, never a word
+   they must use; when the page itself can tell, its script says so
+   (`document.tutor?.met`). **The milestones are `<section>`s**: the steps,
+   the student's progress; a hint or a figure is a reveal and counts for
+   nothing. Every step has an accessible name (`aria-label`, or a heading),
+   what the tutor calls it, so never what it gives away; one the student
+   must earn has `data-skip="false"`. A long wordplay is in
+   pages, a `<section>` without a condition each at its natural sections, a
+   screen or two each; a short one is one page.
 9. **Say where it could be better, and offer the fix.** The wordplay is the
    teacher's, so a recommendation is an offer they take or leave, never a
    change made unasked, and it is about one spot: name the place, say what
@@ -469,6 +485,11 @@ How to write it:
     photograph, which you cannot draw. Always say when it shows: from the
     start when it sets the question up; inside the step it would give away,
     when it is that step's reward.
+    The lesson is then a folder, the `.wplay` beside an `assets` folder: put
+    the teacher's pictures, sound and video there and point to each by its
+    relative path (`assets/apparatus.jpg`); one small diagram may be a data
+    URI. Publishing sends the folder, and Labs keeps each file at an address
+    of its own.
 11. **The book's own answer, once it is earned.** When the material prints
     the answer or the worked solution, offer to show it once the student has
     got there: the book's words, quoted and credited, in the step that

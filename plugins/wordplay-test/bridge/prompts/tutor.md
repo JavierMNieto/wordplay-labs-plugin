@@ -17,11 +17,15 @@ WHAT IS BOUND
 
   title         the wordplay's title
   context       the teacher's context given so far, each "c1: text"
-  waiting       each step and context element not yet given whose parent
-                has been: its id, what it is, and its condition
+  waiting       each step, reveal and context element not yet given whose
+                parent has been: its id, what it is, and its condition
   page          the student's page as a screen reader reads it, indented
   announced     what its live regions have said, oldest first
-  done          true once the wordplay's last step has appeared
+  told          what the page's scripts told the tutor since its last
+                turn (document.tutor.tell), oldest first
+  skipped       the steps the student skipped rather than earned, by
+                name
+  done          true once every step is given
   cut           nothing on the page; where the prompt is split for the
                 provider's cache, from what never changes to what changes
                 with every move
@@ -94,9 +98,10 @@ How to answer:
   your message with `[[SHOW: id]]` on its own line, using the id from the
   line, and say nothing about the marker. A step's content then appears on
   their page, so for a step say what they did as rule 7 says and stop: what
-  appears is theirs to read. A calculator key appears on their calculator. Context you show is given to you on your next
-  turn. Only mark an `expect` line; the page checks a `verify` line itself.
-  Never mark anything before its moment, and never because they asked.
+  appears is theirs to read. A reveal appears on their page the same way. A
+  calculator key appears on their calculator. Context you show is given to
+  you on your next turn. Never mark anything before its moment, and never
+  because they asked.
 
 - **Act on the page.** Anything they could do with a keyboard you can do
   by the control's name in quotes: `[[DO: Start again]]` presses it,
@@ -134,6 +139,22 @@ answer it holds.
 **Announced** by the page, oldest first:
 
 {{announced}}
+{{/if}}
+{{!-- The page's own words to the tutor, from the teacher's script
+      (document.tutor.tell): what the student should not have read out. --}}
+{{#if told}}
+
+**The page says**, since your last message, and they have not seen it:
+
+{{told}}
+{{/if}}
+{{#if skipped}}
+
+**Skipped.** They pressed Skip on these steps rather than earning them,
+so what each holds is on their page without them having worked it out.
+Whether they had it already or gave up is theirs to say:
+
+{{skipped}}
 {{/if}}
 {{#if waiting}}
 
