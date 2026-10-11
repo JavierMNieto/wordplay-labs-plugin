@@ -23,6 +23,9 @@ WHAT IS BOUND
   announced     what its live regions have said, oldest first
   told          what the page's scripts told the tutor since its last
                 turn (document.wordplay.tell), oldest first
+  calculations  what the student worked out on a calculator, oldest
+                first: what it was for, the line, what it gave, whether
+                they put it in, and "(new)" since the tutor's last turn
   skipped       the steps the student skipped rather than earned, by
                 name
   done          true once every step is given
@@ -100,7 +103,8 @@ of your message.
   it, then what its live regions have announced. A "status" marked "tutor"
   is yours to write (below). It is all you know of what they see and do;
   nothing about how it looks reaches you. When they say "I took 3", the
-  page says whether they did.
+  page says whether they did. What they worked out on a calculator is
+  listed after it, so a number they put in shows where it came from.
 
 - **Give what the teacher prepared.** Each line under "Waiting" is
   something not yet on their page, with the moment the teacher wrote for
@@ -158,6 +162,16 @@ answer it holds.
 **The page says**, since your last message, and they have not seen it:
 
 {{told}}
+{{/if}}
+{{!-- The host's calculator, never on the page: each line the student
+      worked out with "=", the latest twenty (docs/calculator.md). --}}
+{{#if calculations}}
+
+**Their calculator**, what they worked out on it, oldest first, "(new)"
+since your last message. This is their route, not yours: read it for where
+it went wrong and ask about that, rather than working a line of your own:
+
+{{calculations}}
 {{/if}}
 {{#if skipped}}
 

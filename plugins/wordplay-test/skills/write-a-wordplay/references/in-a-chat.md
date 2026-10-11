@@ -109,7 +109,8 @@ A step or reveal reaches the browser only once given, without its
 element as HTML.
 
 **What the tutor is given at any moment.** The tree of what is shown, its
-announcements, and what the page told it since its last turn. The context
+announcements, what the page told it since its last turn, and what was
+worked out on a calculator. The context
 given so far. Each part not yet given whose parent has been, by id and
 condition, so it knows what to watch for. The steps the student skipped.
 Where a student is is never in the file; it is worked out from their
@@ -287,7 +288,7 @@ Its attributes:
 | Attribute | On any element, means |
 |---|---|
 | `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
-| `data-calculator` | On an `<input>`: the box has the calculator. Its accessible name is its label. On a chat: the calculator beside it. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
+| `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-skip="false"` | On a step: no Skip for it. |
 

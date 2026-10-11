@@ -44678,7 +44678,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "4e636ade1a89";
+var PREVIEW_BUILD = false ? "source" : "16ad076d9812";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -72986,6 +72986,7 @@ init_define_WORDPLAY_ENGINE();
 init_define_WORDPLAY_ENGINE();
 var MAX_ANNOUNCED = 40;
 var MAX_TOLD = 20;
+var MAX_CALCULATIONS = 20;
 function tutorEnvelope(wordplay, source, title, view) {
   const given = givenParts(wordplay, view.held);
   return {
@@ -73001,6 +73002,7 @@ function tutorEnvelope(wordplay, source, title, view) {
     tree: view.tree?.length ? view.tree : documentTree(studentDocument(source, view.held).body),
     announced: (view.announced ?? []).slice(-MAX_ANNOUNCED),
     told: (view.told ?? []).slice(-MAX_TOLD),
+    calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
     skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
     done: isDone(wordplay, view.held)
   };
@@ -73011,6 +73013,10 @@ var WHAT = {
   context: () => "context",
   key: (name) => `the calculator key "${name}"`
 };
+function calculationLine({ on, line, value, error: error62, put, seen }) {
+  const gave = value !== void 0 ? `${line} = ${value}` : `${line} gave no value: ${error62}`;
+  return `- for "${on}": ${gave}${put ? ", put in it" : ""}${seen ? "" : " (new)"}`;
+}
 function envelopeBindings(envelope) {
   return {
     title: envelope.title,
@@ -73021,6 +73027,7 @@ function envelopeBindings(envelope) {
     page: treeText(envelope.tree),
     announced: envelope.announced.map((line) => `- ${line}`),
     told: envelope.told.map((line) => `- ${line}`),
+    calculations: envelope.calculations.map(calculationLine),
     skipped: envelope.skipped.map((name) => `- "${name}"`),
     done: envelope.done
   };
@@ -73113,11 +73120,33 @@ function readWrote(value) {
 function readTold(value) {
   return readAnnounced(value).map((line) => line.trim()).filter(Boolean).slice(-MAX_TOLD);
 }
+var plain = (value) => typeof value === "string" ? value.replace(/\[\[|\]\]|\n/g, " ").trim().slice(0, MAX_ANNOUNCEMENT) : "";
+function readCalculations(value) {
+  return (Array.isArray(value) ? value : []).flatMap((one) => {
+    if (!one || typeof one !== "object") return [];
+    const sent = one;
+    const on = plain(sent.on);
+    const line = plain(sent.line);
+    const worked = plain(sent.value);
+    const error62 = plain(sent.error);
+    if (!on || !line || !worked && !error62) return [];
+    return [
+      {
+        on,
+        line,
+        ...worked ? { value: worked } : { error: error62 },
+        ...sent.put === true ? { put: true } : {},
+        ...sent.seen === true ? { seen: true } : {}
+      }
+    ];
+  }).slice(-MAX_CALCULATIONS);
+}
 function readView(sent) {
   return {
     tree: readTree(sent.tree),
     announced: readAnnounced(sent.announced),
-    told: readTold(sent.told)
+    told: readTold(sent.told),
+    calculations: readCalculations(sent.calculations)
   };
 }
 
@@ -74157,7 +74186,8 @@ var Preview = class {
           skipped: turn.skipped,
           tree: turn.tree,
           announced: turn.announced,
-          told: turn.told
+          told: turn.told,
+          calculations: turn.calculations
         },
         turn.sent.tutor
       );
