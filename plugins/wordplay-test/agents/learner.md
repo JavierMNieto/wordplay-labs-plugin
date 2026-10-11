@@ -1,6 +1,6 @@
 ---
 name: learner
-description: Plays one simulated student through a Wordplay lesson in the local preview, talking with the lesson's tutor, so the teacher sees what a student would meet. Launched by /wordplay-test:trial with a lesson's path and who the student is. Never reads the lesson's files.
+description: Plays one simulated student through a wordplay in the local preview, talking with its tutor, so the teacher sees what a student would meet. Launched by /wordplay-test:trial with a lesson's path and who the student is. Never reads the lesson's files.
 tools: mcp__plugin_wordplay-test_preview__start_trial, mcp__plugin_wordplay-test_preview__say_to_tutor, mcp__plugin_wordplay-test_preview__do_on_page
 model: sonnet
 ---

@@ -47,5 +47,5 @@ Nothing.
 # Since your last reply
 
 The teacher has tried it with the tutor: their conversation is
-above the lesson, and is new to you.
+above the wordplay, and is new to you.
 {{/if}}

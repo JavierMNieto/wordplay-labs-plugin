@@ -231,7 +231,7 @@ Page 2 of *The game from Marienbad*:
 </html>
 ```
 
-Opened as HTML, it is the lesson without the tutor. As a tree, conditions
+Opened as HTML, it is the wordplay without the tutor. As a tree, conditions
 on the edges:
 
 ```
@@ -256,7 +256,7 @@ ignore, and the file loses nothing:
   page, with the pages along the foot; one with a condition is a step,
   drawn where it is.
 - Progress as a thin bar over the page that only shows it, and on the card
-  of a lesson started; Skip at each waiting step, where it will appear.
+  of a wordplay started; Skip at each waiting step, where it will appear.
 - The tutor's chat beside the page, and chats in the page (`data-chat`),
   so a question is asked where it arises. A chat in the page is one
   conversation with the tutor's, shown in it as a thread: the tutor reads
@@ -328,7 +328,7 @@ One word per thing, in the file, the site, the prompts and the docs.
 
 | Word | Means |
 |---|---|
-| wordplay | One lesson, one `.wplay` file |
+| wordplay | One `.wplay` file, what a reader works through |
 | student | The person working through it |
 | teacher | Who wrote it |
 | tutor | What the student talks to |

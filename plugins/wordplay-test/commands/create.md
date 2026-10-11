@@ -1,5 +1,5 @@
 ---
-description: Open Wordplay's creator in the browser, on a lesson in this folder or a new one
+description: Open Wordplay's creator in the browser, on a wordplay in this folder or a new one
 argument-hint: [a .wplay file, or what the lesson is about]
 ---
 

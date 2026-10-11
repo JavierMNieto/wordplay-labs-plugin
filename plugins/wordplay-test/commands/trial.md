@@ -1,5 +1,5 @@
 ---
-description: Play a lesson through with simulated students, then report what a machine can check
+description: Play a wordplay through with simulated students, then report what a machine can check
 argument-hint: <the lesson's .wplay file> [who the students are]
 ---
 
