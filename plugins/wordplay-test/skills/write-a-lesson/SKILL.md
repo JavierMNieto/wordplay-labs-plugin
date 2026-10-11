@@ -7,7 +7,7 @@ description: How to write a lesson from your own material, a book, notes or a co
 
 Writing a lesson is the same everywhere; how the author tries it is not.
 
-- **If you have the `preview_lesson` tool**, you are in Claude Code or Cowork, on the author's computer: read `references/with-the-preview.md` and follow it.
+- **If you have the `preview_wordplay` tool**, you are in Claude Code or Cowork, on the author's computer: read `references/with-the-preview.md` and follow it.
 - **If you do not**, you are in a chat: read `references/in-a-chat.md` and follow it.
 
 Read the one that applies in full before you start, and do not mix them.

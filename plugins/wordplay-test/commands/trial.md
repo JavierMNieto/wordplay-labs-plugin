@@ -5,7 +5,7 @@ argument-hint: <the lesson's .wplay file> [who the students are]
 
 Run an automated trial of the Wordplay lesson at: $ARGUMENTS
 
-1. Call `preview_lesson` with the lesson's path, and tell the teacher
+1. Call `preview_wordplay` with the lesson's path, and tell the teacher
    anything it says is wrong with the lesson. If it cannot open the lesson,
    stop there.
 2. Launch the simulated students with the Agent tool, `subagent_type:

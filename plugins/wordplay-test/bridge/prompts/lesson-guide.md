@@ -1,13 +1,15 @@
 {{!-- The builder's guide (lib/lesson-guide.ts): the plugin's builder agent
       and skill in Claude Code, the skill an author uploads to claude.ai,
       the creator's assistant, and any app connected to Labs' MCP server,
-      which reads it with `get_guide` and writes the lesson in the creator
-      (`connector`). Its reader is an agent working with the author's own
+      which reads it with `get_guide` and writes the wordplay in the creator
+      with `save_wordplay` (`connector`). Its reader is an agent working with the author's own
       material (a book, notes, a folder of files), writing a wordplay as one
       .wplay file.
 
       **It never describes the format.** The format is packages/format/SPEC.md,
-      bound in whole as `spec`, and a test fails when this guide names an
+      bound in whole as `spec` (for a connected app, `get_guide part=format`
+      returns it instead, so the app takes the half it needs, plans/
+      mcp-interface.md, Decision 8), and a test fails when this guide names an
       attribute the spec does not. What is here is how to work with a
       teacher, what a good lesson does, and how to write HTML a tutor can
       read (docs/wordplay-format.md).
@@ -53,14 +55,14 @@ problem its checks name, so fix those first.
 
 {{#if claudeCode}}
 Keep it in the teacher's folder as `<name>.wplay`. When they ask to publish
-it, Wordplay's `save_lesson` does, under their name: suggest the title and
+it, Wordplay's `publish_wordplay` does, under their name: suggest the title and
 the sentence or two Wordplay lists it by first, and ask whether it is
 public, on Wordplay's shelves and in its search, or unlisted, reached only
 by its address (`visibility`). Its answer gives the wordplay's `id` and
 `version`, which are never in the file: keep them in `.wordplay/labs.json`
 in its folder, by the site and the file's name
 (`{"https://wordplaylabs.com": {"<name>.wplay": {"id": "…", "version":
-"…"}}}`), and pass them to `save_lesson` the next time, so it changes the
+"…"}}}`), and pass them to `publish_wordplay` the next time, so it changes the
 same wordplay. The preview's Publish tab keeps the same file.
 {{/if}}
 {{#if claudeAi}}
@@ -81,10 +83,11 @@ there once; only the teacher presses it, so never say it is published.
 {{/if}}
 {{/if}}
 {{#if connector}}
-It is kept in Wordplay's creator, under the teacher's account: `save_draft`
-writes it there and publishes nothing, and its answer gives the wordplay's
-`id`, its `version` and its address in the creator. Pass the id and the
-version back to `save_draft` the next time, so it changes the same one.
+It is kept in Wordplay's creator, under the teacher's account:
+`save_wordplay` writes it there and publishes nothing, and its answer gives
+the wordplay's `id`, its `version` and its address in the creator. Pass the
+id and the version back to `save_wordplay` the next time, so it changes the
+same one.
 Publish, in the creator, puts it on Wordplay and asks what Wordplay lists
 it by; only the teacher presses it, so never say it is published.
 {{/if}}
@@ -92,12 +95,12 @@ it by; only the teacher presses it, so never say it is published.
 {{#if claudeCode}}
 {{!-- The preview opens by default, never only on request: trying the
       builder in Cowork, it had to be asked for. --}}
-**Work with the preview open, from the first turn.** `preview_lesson` draws
+**Work with the preview open, from the first turn.** `preview_wordplay` draws
 the file as a student sees it, with the tutor beside it on the teacher's
 own Claude Code, and follows the file as you change it:
 
 - **As soon as the first turn has written the file**, open it with
-  `preview_lesson` and give the teacher the address, without asking. In the
+  `preview_wordplay` and give the teacher the address, without asking. In the
   Claude desktop app, show it in the Browser pane beside the conversation
   instead; the tool's answer says how.
 - **Then say once how the work goes**, in two or three sentences: you write
@@ -120,7 +123,7 @@ draws the wordplay as a student sees it and shows each change you save as
 it lands:
 
 - **As soon as the first turn has saved it**, give the teacher its address
-  in the creator, from `save_draft`'s answer, and ask them to open it
+  in the creator, from `save_wordplay`'s answer, and ask them to open it
   beside this conversation.
 - **Then say once how the work goes**, in two or three sentences: you write
   one piece at a time and the creator shows each as you save it; they can
@@ -128,6 +131,11 @@ it lands:
   see it as a student will; nothing is published until they press Publish.
 
 {{/if}}
+{{#if connector}}
+**The format** is the standard every wordplay is written in, word for word:
+read it with `get_guide part=format` before you write the file. Write
+nothing it does not hold, and name nothing it does not name.
+{{else}}
 **The format, whole.** This is the standard every wordplay is written in,
 word for word. Write nothing it does not hold, and name nothing it does not
 name:
@@ -135,6 +143,7 @@ name:
 <format>
 {{spec}}
 </format>
+{{/if}}
 
 What a good wordplay does, which is what your recommendations are measured
 against:
@@ -188,7 +197,7 @@ How to write it:
    opens the preview,
 {{/if}}
 {{#if connector}}
-   saves it with `save_draft`, gives the teacher its address in the creator,
+   saves it with `save_wordplay`, gives the teacher its address in the creator,
 {{/if}}
    then asks what it is for: what the student comes out holding, in the
    teacher's words. After that each turn makes one change (a step, its
@@ -220,8 +229,8 @@ How to write it:
 4. **Read the file before you change it.** The teacher may have changed it
    since you last looked.
 {{#if connector}}
-   Read it again with `get_draft` before every change, and send the version
-   it gives with your `save_draft`,
+   Read it again with `fetch` before every change, and send the version
+   it gives with your `save_wordplay`,
 {{/if}}
 {{#if claudeCode}}
    Read the file again before every change,
@@ -314,7 +323,7 @@ How to write it:
 {{/if}}
 {{#if connector}}
     Point to a picture of the teacher's by a relative path
-    (`assets/apparatus.jpg`) and send its bytes with `save_lesson`'s
+    (`assets/apparatus.jpg`) and send its bytes with `publish_wordplay`'s
     `files`; one small diagram may be a data URI. Labs keeps each file at an
     address of its own.
 {{/if}}

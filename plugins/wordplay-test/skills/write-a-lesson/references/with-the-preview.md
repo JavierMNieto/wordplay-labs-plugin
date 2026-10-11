@@ -21,22 +21,22 @@ tried it, and never publish unasked. Wordplay refuses to publish one with a
 problem its checks name, so fix those first.
 
 Keep it in the teacher's folder as `<name>.wplay`. When they ask to publish
-it, Wordplay's `save_lesson` does, under their name: suggest the title and
+it, Wordplay's `publish_wordplay` does, under their name: suggest the title and
 the sentence or two Wordplay lists it by first, and ask whether it is
 public, on Wordplay's shelves and in its search, or unlisted, reached only
 by its address (`visibility`). Its answer gives the wordplay's `id` and
 `version`, which are never in the file: keep them in `.wordplay/labs.json`
 in its folder, by the site and the file's name
 (`{"https://wordplaylabs.com": {"<name>.wplay": {"id": "…", "version":
-"…"}}}`), and pass them to `save_lesson` the next time, so it changes the
+"…"}}}`), and pass them to `publish_wordplay` the next time, so it changes the
 same wordplay. The preview's Publish tab keeps the same file.
 
-**Work with the preview open, from the first turn.** `preview_lesson` draws
+**Work with the preview open, from the first turn.** `preview_wordplay` draws
 the file as a student sees it, with the tutor beside it on the teacher's
 own Claude Code, and follows the file as you change it:
 
 - **As soon as the first turn has written the file**, open it with
-  `preview_lesson` and give the teacher the address, without asking. In the
+  `preview_wordplay` and give the teacher the address, without asking. In the
   Claude desktop app, show it in the Browser pane beside the conversation
   instead; the tool's answer says how.
 - **Then say once how the work goes**, in two or three sentences: you write

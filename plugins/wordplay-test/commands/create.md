@@ -22,7 +22,7 @@ What they gave, if anything: $ARGUMENTS
    ```
 
    Never overwrite a file that is already there.
-2. Call `preview_lesson` with its path. If it cannot open it, say why in a
+2. Call `preview_wordplay` with its path. If it cannot open it, say why in a
    sentence and stop.
 3. Tell the author, in two or three sentences, and nothing more: the
    creator is open in their browser (or, if the tool says it could not
@@ -31,7 +31,7 @@ What they gave, if anything: $ARGUMENTS
    the file as they type; this terminal has to stay open while they
    work, since the creator runs from it; and any lesson in this folder can
    be tried alone as a student, beside the creator, at the student's
-   address `preview_lesson` gives.
+   address `preview_wordplay` gives.
 
 Do not write the lesson here unless they ask: the creator's own assistant
 does that, in the page.
