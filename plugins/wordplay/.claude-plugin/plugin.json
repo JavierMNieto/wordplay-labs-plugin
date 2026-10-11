@@ -1,17 +1,17 @@
 {
   "name": "wordplay",
   "displayName": "Wordplay",
-  "version": "2026.1004.154728",
-  "description": "Write lessons from your own material as .wplay files in your folder, try them on your machine with the tutor, and publish them on Wordplay through its MCP server.",
+  "version": "2026.1011.43225",
+  "description": "Write wordplays from your own material as .wplay files in your folder, try them with the tutor and simulated students on your own Claude plan, and publish them on Wordplay when you say so.",
   "author": {
     "name": "Wordplay Labs",
     "url": "https://wordplaylabs.com"
   },
-  "homepage": "https://wordplaylabs.com/mcp",
+  "homepage": "https://creator.wordplaylabs.com/claude",
   "repository": "https://github.com/JavierMNieto/wordplay-labs-plugin",
   "license": "MIT",
   "keywords": [
-    "lessons",
+    "wordplay",
     "tutor",
     "teaching",
     "education",
