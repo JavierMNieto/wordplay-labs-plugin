@@ -1,0 +1,20 @@
+{
+  "name": "wordplay-openai-test",
+  "interface": {
+    "displayName": "Wordplay (test site)"
+  },
+  "plugins": [
+    {
+      "name": "wordplay-test",
+      "source": {
+        "source": "local",
+        "path": "./plugins/wordplay-openai-test"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Education"
+    }
+  ]
+}
