@@ -12,7 +12,7 @@ numbers in double braces are bound from packages/format/src/limits.ts.
 
 As agreed on 4 and 5 October 2026, from the discussion posted to the
 Wordplay Labs group:
-https://forum.wordplaylabs.com/p/cmuun53g200122ppbn1eb314m, simplified on
+https://wordplaytalk.com/p/cmuun53g200122ppbn1eb314m, simplified on
 5 October, and on 8 October, after the company meeting of 7 October, to
 data-expect and data-context, with document.wordplay for scripts and sections
 as the steps that count; and on 9 October with data-tutor, the one place
