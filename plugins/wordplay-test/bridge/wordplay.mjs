@@ -38921,7 +38921,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "d0048bb2a2f7";
+var PREVIEW_BUILD = false ? "source" : "b5b5c05f4139";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67257,7 +67257,8 @@ var WHAT = {
   key: (name) => `the calculator key "${name}"`
 };
 function calculationLine({ on, line, value, error: error62, put, seen }) {
-  const gave = value !== void 0 ? `${line} = ${value}` : `${line} gave no value: ${error62}`;
+  const shown = line.replace(/\s*\*\s*/g, " \xD7 ");
+  const gave = value !== void 0 ? `${shown} = ${value}` : `${shown} gave no value: ${error62}`;
   return `- for "${on}": ${gave}${put ? ", put in it" : ""}${seen ? "" : " (new)"}`;
 }
 function envelopeBindings(envelope) {
@@ -67274,6 +67275,68 @@ function envelopeBindings(envelope) {
     skipped: envelope.skipped.map((name) => `- "${name}"`),
     done: envelope.done
   };
+}
+
+// packages/player/src/lib/calculator-state.ts
+init_define_WORDPLAY_ENGINE();
+var plain = (value) => typeof value === "string" ? value.replace(/\[\[|\]\]|\n/g, " ").trim().slice(0, MAX_ANNOUNCEMENT) : "";
+function readCalculations(value) {
+  return (Array.isArray(value) ? value : []).flatMap((one) => {
+    if (!one || typeof one !== "object") return [];
+    const sent = one;
+    const on = plain(sent.on);
+    const line = plain(sent.line);
+    const worked = plain(sent.value);
+    const error62 = plain(sent.error);
+    if (!on || !line || !worked && !error62) return [];
+    return [
+      {
+        on,
+        line,
+        ...worked ? { value: worked } : { error: error62 },
+        ...sent.put === true ? { put: true } : {},
+        ...sent.seen === true ? { seen: true } : {}
+      }
+    ];
+  }).slice(-MAX_CALCULATIONS);
+}
+function readCalculatorState(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (new TextEncoder().encode(JSON.stringify(value)).length > MAX_KEPT) return null;
+  const sent = value;
+  const memories = {};
+  const entries2 = sent.memories && typeof sent.memories === "object" ? sent.memories : {};
+  for (const [name, raw] of Object.entries(entries2).slice(0, 100)) {
+    if (!name || name.length > 200 || !raw || typeof raw !== "object") continue;
+    const memory = raw;
+    if (typeof memory.line !== "string") continue;
+    const history = (Array.isArray(memory.history) ? memory.history : []).flatMap((entry) => {
+      if (!entry || typeof entry !== "object" || typeof entry.latex !== "string") return [];
+      const quantity = entry.quantity;
+      if (!quantity || typeof quantity !== "object" || typeof quantity.number !== "number" || !Number.isFinite(quantity.number) || !(quantity.unit === null || typeof quantity.unit === "string"))
+        return [];
+      return [
+        {
+          latex: entry.latex.slice(0, 4e3),
+          quantity: {
+            number: quantity.number,
+            unit: quantity.unit === null ? null : quantity.unit.slice(0, 200)
+          }
+        }
+      ];
+    }).slice(-40);
+    Object.defineProperty(memories, name, {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: {
+        line: memory.line.slice(0, 4e3),
+        history,
+        ...memory.evaluated === true ? { evaluated: true } : {}
+      }
+    });
+  }
+  return { memories, calculations: readCalculations(sent.calculations) };
 }
 
 // packages/player/src/runtime/protocol.ts
@@ -67303,6 +67366,8 @@ function readPage(value) {
   }
   if (typeof sent.at === "number" && Number.isInteger(sent.at) && sent.at >= 0 && sent.at < 1e3)
     page.at = sent.at;
+  const calculators = readCalculatorState(sent.calculators);
+  if (calculators) page.calculators = calculators;
   return page;
 }
 
@@ -67362,27 +67427,6 @@ function readWrote(value) {
 }
 function readTold(value) {
   return readAnnounced(value).map((line) => line.trim()).filter(Boolean).slice(-MAX_TOLD);
-}
-var plain = (value) => typeof value === "string" ? value.replace(/\[\[|\]\]|\n/g, " ").trim().slice(0, MAX_ANNOUNCEMENT) : "";
-function readCalculations(value) {
-  return (Array.isArray(value) ? value : []).flatMap((one) => {
-    if (!one || typeof one !== "object") return [];
-    const sent = one;
-    const on = plain(sent.on);
-    const line = plain(sent.line);
-    const worked = plain(sent.value);
-    const error62 = plain(sent.error);
-    if (!on || !line || !worked && !error62) return [];
-    return [
-      {
-        on,
-        line,
-        ...worked ? { value: worked } : { error: error62 },
-        ...sent.put === true ? { put: true } : {},
-        ...sent.seen === true ? { seen: true } : {}
-      }
-    ];
-  }).slice(-MAX_CALCULATIONS);
 }
 function readView(sent) {
   return {
