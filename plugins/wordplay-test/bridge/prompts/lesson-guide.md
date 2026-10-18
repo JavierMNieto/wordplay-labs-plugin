@@ -284,6 +284,24 @@ How to write it:
      have answered, so nobody sees the class before they commit. A number
      the page reports is the student's claim; rank by a fact the server
      counts (`facts`) or by the tutor's judgement (`tutor: true`).
+{{!-- plans/home-and-authors.md, section 3: the author reads the wall back and
+     the result is content of the file, never a second channel. --}}
+{{#if labsTools}}
+     Once readers have shared, `read_shared` reads every entry back (or the
+     teacher's Download beside Share on the wordplay's page), to compute
+     with: for a game whose players are programs the students wrote, GOPS
+     say, run the tournament in a sandbox of your own, since Wordplay runs
+     nothing, then `fetch` the file, put the leaderboard in it as a table or
+     a `<script type="application/json">` the page's script draws,
+     `save_wordplay` it and `publish_wordplay` when the teacher asks. The
+     result is the wordplay's content, in the file, never a second channel.
+{{else}}
+     Once readers have shared, the teacher downloads every entry from the
+     Download beside Share on the wordplay's page, to compute with on their
+     own machine; a result, a tournament's leaderboard say, goes back into
+     the file, as a table or a `<script type="application/json">` the page's
+     script draws, and is published again.
+{{/if}}
 
    When the material is a conversation in which somebody worked the idea
    out, it is the best source context has: where they got stuck becomes a

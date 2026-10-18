@@ -38928,7 +38928,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "9f1fc864ec31";
+var PREVIEW_BUILD = false ? "source" : "93a3026ea2ff";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39781,6 +39781,8 @@ function lessonGuide(host) {
     creator: host === "creator" || host === "creator-local",
     onLabs: host === "creator",
     connector: host === "connector",
+    // Labs' MCP server's tools are there: Claude Code's, through the plugin, and a connector's.
+    labsTools: host === "claude-code" || host === "connector",
     // The page the claude.ai builder publishes each lesson as, and where its files come from.
     player: PLAYER_ARTIFACT,
     playerShell: playerShell("The lesson's title").trimEnd()

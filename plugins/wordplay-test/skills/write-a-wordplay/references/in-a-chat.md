@@ -534,6 +534,11 @@ How to write it:
      have answered, so nobody sees the class before they commit. A number
      the page reports is the student's claim; rank by a fact the server
      counts (`facts`) or by the tutor's judgement (`tutor: true`).
+     Once readers have shared, the teacher downloads every entry from the
+     Download beside Share on the wordplay's page, to compute with on their
+     own machine; a result, a tournament's leaderboard say, goes back into
+     the file, as a table or a `<script type="application/json">` the page's
+     script draws, and is published again.
 
    When the material is a conversation in which somebody worked the idea
    out, it is the best source context has: where they got stuck becomes a
