@@ -38400,12 +38400,19 @@ function aiModel(role = "assistant") {
     if (process.env.AI_BUILDER_MODEL) return process.env.AI_BUILDER_MODEL;
     if (provider() === "anthropic") return DEFAULT_BUILDER_MODEL;
   }
+  if (role === "student") {
+    if (process.env.AI_STUDENT_MODEL) return process.env.AI_STUDENT_MODEL;
+    if (provider() === "anthropic") return DEFAULT_STUDENT_MODEL;
+    return aiModel("tutor");
+  }
   return assistantModel();
 }
+var DEFAULT_STUDENT_MODEL = "claude-haiku-5-5";
 var DEFAULT_BUILDER_MODEL = "claude-opus-5-5";
 var ROLE_EFFORT = {
   builder: "medium",
-  tutor: "medium",
+  tutor: "low",
+  student: "medium",
   assistant: null
 };
 var EFFORTS = ["low", "medium", "high", "xhigh", "max"];
@@ -38416,7 +38423,7 @@ function aiEffort(role = "assistant") {
   return ROLE_EFFORT[role];
 }
 function takesEffort(model) {
-  return /claude-(fable|mythos|opus-5|opus-4-[5-8]|sonnet-5|sonnet-4-6)/i.test(model);
+  return /claude-(fable|mythos|opus-5|opus-4-[5-8]|sonnet-5|sonnet-4-6|haiku-5)/i.test(model);
 }
 var THINKING_ROOM = 8e3;
 function extraBody() {
@@ -38921,7 +38928,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "b5b5c05f4139";
+var PREVIEW_BUILD = false ? "source" : "9f4c69575f99";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39323,6 +39330,11 @@ var MAX_ANNOUNCEMENT = 200;
 var MAX_WRITTEN = 400;
 var MAX_SAID = 2e3;
 var MAX_KEPT = 65536;
+var MAX_SHARED = 4096;
+var MAX_SHARED_TEXT = 280;
+var MAX_SHARES = 60;
+var SHARED_ENTRIES = 200;
+var MAX_SHARED_ENTRIES = 1e3;
 var MAX_KEYS = 12;
 var WORDPLAY_VERSION = "1";
 
@@ -39743,6 +39755,11 @@ function specText() {
     maxSaid: count(MAX_SAID),
     maxKept: count(MAX_KEPT),
     maxPageSays: count(MAX_PAGE_SAYS),
+    maxShared: count(MAX_SHARED),
+    maxShares: count(MAX_SHARES),
+    maxSharedText: count(MAX_SHARED_TEXT),
+    sharedEntries: count(SHARED_ENTRIES),
+    maxSharedEntries: count(MAX_SHARED_ENTRIES),
     maxKeys: count(MAX_KEYS),
     keys: symbolCatalogue().map((line) => {
       const [group, names] = line.split(": ");
@@ -39786,6 +39803,162 @@ function keyElementsOf(calculator) {
   return Array.from(scope.querySelectorAll("data[data-key]")).filter(
     (one) => calculatorOf(one) === calculator
   );
+}
+
+// packages/format/src/shared.ts
+init_define_WORDPLAY_ENGINE();
+var SHARED_TYPE = "application/wordplay-shared";
+var SHARED_FACTS = ["seconds", "steps", "messages", "skips"];
+var KEYS = /* @__PURE__ */ new Set(["fields", "names", "guests", "entries", "facts", "tutor"]);
+var MAX_FIELDS = 40;
+var isPlain = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+function readField(name, sent) {
+  const at = `The shared block's field "${name}"`;
+  if (!isPlain(sent)) return `${at} is not an object with a type.`;
+  switch (sent.type) {
+    case "number": {
+      const { min, max } = sent;
+      if (typeof min !== "number" || typeof max !== "number" || !(min <= max))
+        return `${at} is a number without both bounds: give it "min" and "max".`;
+      return { type: "number", min, max };
+    }
+    case "choice": {
+      const of = Array.isArray(sent.of) ? sent.of.filter(
+        (one) => typeof one === "string" || typeof one === "number"
+      ) : [];
+      if (!of.length || of.length !== sent.of.length)
+        return `${at} is a choice without a list: give it "of", the choices as words or numbers.`;
+      return { type: "choice", of };
+    }
+    case "boolean":
+      return { type: "boolean" };
+    case "text": {
+      const max = sent.max === void 0 ? MAX_SHARED_TEXT : sent.max;
+      if (typeof max !== "number" || !Number.isInteger(max) || max < 1 || max > MAX_SHARED_TEXT)
+        return `${at} is text of at most ${MAX_SHARED_TEXT} characters: its "max" is over that.`;
+      return { type: "text", max };
+    }
+    default:
+      return `${at} has a type Wordplay does not know: number, choice, boolean or text.`;
+  }
+}
+function readSharedJson(text3) {
+  let sent;
+  try {
+    sent = JSON.parse(text3);
+  } catch {
+    return { block: null, problems: ["The shared block is not JSON: write it as a JSON object."] };
+  }
+  if (!isPlain(sent)) return { block: null, problems: ["The shared block is not a JSON object."] };
+  const problems = [];
+  for (const key2 of Object.keys(sent))
+    if (!KEYS.has(key2))
+      problems.push(
+        `The shared block's "${key2}" is not one Wordplay reads: ${[...KEYS].join(", ")}.`
+      );
+  let fields = null;
+  if (sent.fields !== void 0) {
+    if (!isPlain(sent.fields)) problems.push(`The shared block's "fields" is not an object.`);
+    else {
+      fields = {};
+      const names = Object.keys(sent.fields);
+      if (names.length > MAX_FIELDS)
+        problems.push(`The shared block has ${names.length} fields; it may have ${MAX_FIELDS}.`);
+      for (const name of names.slice(0, MAX_FIELDS)) {
+        const field = readField(name, sent.fields[name]);
+        if (typeof field === "string") problems.push(field);
+        else fields[name] = field;
+      }
+    }
+  }
+  const facts = [];
+  if (sent.facts !== void 0) {
+    for (const fact of Array.isArray(sent.facts) ? sent.facts : [sent.facts]) {
+      if (SHARED_FACTS.includes(fact)) facts.push(fact);
+      else
+        problems.push(
+          `The shared block asks for the fact "${String(fact)}", which Wordplay does not know: ${SHARED_FACTS.join(", ")}.`
+        );
+    }
+  }
+  let entries2 = SHARED_ENTRIES;
+  if (sent.entries !== void 0) {
+    const n = sent.entries;
+    if (typeof n !== "number" || !Number.isInteger(n) || n < 1 || n > MAX_SHARED_ENTRIES)
+      problems.push(
+        `The shared block's "entries" is a whole number from 1 to ${MAX_SHARED_ENTRIES}.`
+      );
+    else entries2 = n;
+  }
+  for (const key2 of ["names", "guests", "tutor"])
+    if (sent[key2] !== void 0 && typeof sent[key2] !== "boolean")
+      problems.push(`The shared block's "${key2}" is true or false.`);
+  return {
+    block: {
+      fields,
+      names: sent.names === true,
+      guests: sent.guests !== false,
+      entries: entries2,
+      facts: [...new Set(facts)],
+      tutor: sent.tutor === true
+    },
+    problems
+  };
+}
+var blocksIn = (document2) => Array.from(document2.querySelectorAll("script[type]")).filter(
+  (script2) => script2.getAttribute("type")?.trim().toLowerCase() === SHARED_TYPE
+);
+function readSharedBlock(document2) {
+  const blocks = blocksIn(document2);
+  if (!blocks.length) return { block: null, problems: [] };
+  const read = readSharedJson(blocks[0].textContent ?? "");
+  if (blocks.length > 1)
+    read.problems.push("The file has two shared blocks; it may have one. Join them.");
+  return read;
+}
+function sharesIn(document2) {
+  if (blocksIn(document2).length) return true;
+  return Array.from(document2.querySelectorAll("script")).some(
+    (script2) => /\bwordplay\??\.(share|shared|person)\b/.test(script2.textContent ?? "")
+  );
+}
+var jsonBytes = (text3) => new TextEncoder().encode(text3).length;
+function refusalOfShared(block, value) {
+  if (value === null) return null;
+  let text3;
+  try {
+    text3 = JSON.stringify(value);
+  } catch {
+    text3 = void 0;
+  }
+  if (text3 === void 0) return "What is shared is a value JSON can write.";
+  if (jsonBytes(text3) > MAX_SHARED)
+    return `What is shared is at most ${MAX_SHARED.toLocaleString("en-US")} bytes.`;
+  const fields = block?.fields;
+  if (!fields) return null;
+  if (!isPlain(value)) return "What is shared is an object of the fields the wordplay names.";
+  for (const [name, one] of Object.entries(value)) {
+    const field = fields[name];
+    if (!field) return `"${name}" is not a field this wordplay shares.`;
+    switch (field.type) {
+      case "number":
+        if (typeof one !== "number" || !Number.isFinite(one) || one < field.min || one > field.max)
+          return `"${name}" is a number from ${field.min} to ${field.max}.`;
+        break;
+      case "choice":
+        if (!field.of.includes(one))
+          return `"${name}" is one of ${field.of.map((choice) => JSON.stringify(choice)).join(", ")}.`;
+        break;
+      case "boolean":
+        if (typeof one !== "boolean") return `"${name}" is true or false.`;
+        break;
+      case "text":
+        if (typeof one !== "string" || [...one].length > field.max)
+          return `"${name}" is text of at most ${field.max} characters.`;
+        break;
+    }
+  }
+  return null;
 }
 
 // packages/format/src/tree.ts
@@ -51769,7 +51942,7 @@ function treeText(nodes, depth = 0) {
   for (const node2 of nodes) {
     const pad2 = "  ".repeat(depth);
     if (node2.role === "text") {
-      lines.push(`${pad2}${node2.name}`);
+      lines.push(`${pad2}${JSON.stringify(node2.name ?? "")}`);
       continue;
     }
     const bits = [node2.role];
@@ -51812,7 +51985,8 @@ var WORDPLAY_ATTRIBUTES = [
   "data-chat",
   "data-calculator",
   "data-key",
-  "data-skip"
+  "data-skip",
+  "data-person"
 ];
 var KNOWN_ATTRIBUTES = [...STANDARD_ATTRIBUTES, ...WORDPLAY_ATTRIBUTES];
 var isPageElement = (element) => isSection(element) && !isContext(element) && !hasCondition(element);
@@ -51931,6 +52105,7 @@ function parseWordplay(source) {
     pages,
     chats,
     version: version3,
+    shared: readSharedBlock(document2).block,
     problems: []
   };
   wordplay.problems = readableProblems(wordplay);
@@ -52189,6 +52364,7 @@ function readableProblems(wordplay) {
   }
   for (const id of repeatedIds(wordplay))
     problems.push(`Two parts have the id "${id}". Each part's id is its own.`);
+  problems.push(...readSharedBlock(document2).problems);
   for (const step of wordplay.steps)
     if (!nameOfElement(step.element, ""))
       problems.push(
@@ -52249,7 +52425,8 @@ function publishableProblems(wordplay, source) {
       `This is data-wordplay="${wordplay.version}", and Wordplay reads version ${WORDPLAY_VERSION}.`
     );
   for (const problem of wordplay.problems)
-    if (/^Two parts have the id/.test(problem)) problems.push(problem);
+    if (/^Two parts have the id|^The (file has two )?shared block/.test(problem))
+      problems.push(problem);
   for (const region of regions(wordplay)) problems.push(...unseenControls(region));
   return problems;
 }
@@ -67082,17 +67259,23 @@ function inFolder(document2, folder) {
 
 // packages/player/src/lib/wordplay-state.ts
 init_define_WORDPLAY_ENGINE();
-var MARKER = /^[ \t]*\[\[\s*(SHOW|DO|WRITE)\s*:\s*((?:[^\]\n]|\](?!\]))*?)\s*\]\][ \t]*$/gim;
+var MARKER = /^[ \t]*\[\[\s*(SHOW|DO|WRITE|SHARE)\s*:\s*((?:[^\]\n]|\](?!\]))*?)\s*\]\][ \t]*$/gim;
 function readMarkers(reply) {
   const show = [];
   const actions = [];
   const writes = [];
+  const shares = [];
   for (const found of reply.matchAll(MARKER)) {
     const what2 = found[2].trim();
     if (!what2) continue;
     const kind = found[1].toUpperCase();
     if (kind === "SHOW") show.push(what2);
-    else if (kind === "WRITE") {
+    else if (kind === "SHARE") {
+      try {
+        shares.push(JSON.parse(what2));
+      } catch {
+      }
+    } else if (kind === "WRITE") {
       const at = what2.indexOf(":");
       const name = what2.slice(0, at).trim();
       if (at > 0 && name)
@@ -67108,7 +67291,7 @@ function readMarkers(reply) {
     }
   }
   const text3 = reply.replace(MARKER, "").replace(/\n{3,}/g, "\n\n").trim();
-  return { text: text3, show, actions, writes };
+  return { text: text3, show, actions, writes, shares };
 }
 var union2 = (held, more) => [.../* @__PURE__ */ new Set([...held, ...more])];
 function heldAfterReply(wordplay, held, reply) {
@@ -67222,6 +67405,39 @@ function localLesson(source, held, meta3, events = []) {
 // packages/player/src/lib/local-host.ts
 init_define_WORDPLAY_ENGINE();
 
+// packages/player/src/lib/history.ts
+init_define_WORDPLAY_ENGINE();
+
+// packages/player/src/lib/chats.ts
+init_define_WORDPLAY_ENGINE();
+var LINE = /^\[(?:In the chat “([^”\n]{1,200})”(, from the page)?|(From the page))\]\n/;
+function chatOfMessage(content) {
+  const found = LINE.exec(content);
+  return found ? {
+    chat: found[1] ?? null,
+    page: Boolean(found[2] || found[3]),
+    text: content.slice(found[0].length)
+  } : { chat: null, page: false, text: content };
+}
+
+// packages/player/src/lib/history.ts
+function summaryOf(wordplay, row) {
+  const given = givenParts(wordplay, row.held);
+  const skipped = new Set(row.skipped ?? []);
+  const said2 = row.turns.find((turn) => turn.role === "user")?.content ?? "";
+  const iso = (at) => typeof at === "string" ? at : at.toISOString();
+  return {
+    id: row.id,
+    firstLine: chatOfMessage(said2).text.replace(/\s+/g, " ").trim().slice(0, 120),
+    startedAt: iso(row.createdAt ?? row.lastAskedAt),
+    lastAt: iso(row.lastAskedAt),
+    messages: row.turns.length,
+    stepsEarned: wordplay.steps.filter((step) => given.has(step.id) && !skipped.has(step.id)).length,
+    pageAt: row.page?.at ?? 0,
+    done: isDone(wordplay, row.held)
+  };
+}
+
 // packages/player/src/lib/play-view.ts
 init_define_WORDPLAY_ENGINE();
 
@@ -67247,8 +67463,16 @@ function tutorEnvelope(wordplay, source, title, view) {
     told: (view.told ?? []).slice(-MAX_TOLD),
     calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
     skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
-    done: isDone(wordplay, view.held)
+    done: isDone(wordplay, view.held),
+    share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null
   };
+}
+function fieldsInWords(fields) {
+  if (!fields || !Object.keys(fields).length) return "any JSON value";
+  return Object.entries(fields).map(([name, field]) => {
+    const what2 = field.type === "number" ? `a number from ${field.min} to ${field.max}` : field.type === "choice" ? field.of.map((one) => JSON.stringify(one)).join(" or ") : field.type === "boolean" ? "true or false" : `text of at most ${field.max} characters`;
+    return `"${name}": ${what2}`;
+  }).join("; ");
 }
 var WHAT = {
   step: (name) => `the step "${name}"`,
@@ -67261,6 +67485,7 @@ function calculationLine({ on, line, value, error: error62, put, seen }) {
   const gave = value !== void 0 ? `${shown} = ${value}` : `${shown} gave no value: ${error62}`;
   return `- for "${on}": ${gave}${put ? ", put in it" : ""}${seen ? "" : " (new)"}`;
 }
+var asData = (line) => line.replace(/<\/?\s*browser\s*>/gi, "");
 function envelopeBindings(envelope) {
   return {
     title: envelope.title,
@@ -67268,12 +67493,13 @@ function envelopeBindings(envelope) {
     waiting: envelope.waiting.map(
       (one) => `- ${one.id}, ${WHAT[one.kind](one.name ?? "")} (expect: ${one.condition})`
     ),
-    page: treeText(envelope.tree),
-    announced: envelope.announced.map((line) => `- ${line}`),
-    told: envelope.told.map((line) => `- ${line}`),
-    calculations: envelope.calculations.map(calculationLine),
+    page: treeText(envelope.tree).map(asData),
+    announced: envelope.announced.map((line) => `- ${asData(line)}`),
+    told: envelope.told.map((line) => `- ${asData(line)}`),
+    calculations: envelope.calculations.map((one) => asData(calculationLine(one))),
     skipped: envelope.skipped.map((name) => `- "${name}"`),
-    done: envelope.done
+    done: envelope.done,
+    share: envelope.share
   };
 }
 
@@ -67375,20 +67601,28 @@ function readPage(value) {
 var MAX_NODES = 4e3;
 var MAX_TEXT = 2e3;
 var MAX_DEPTH = 40;
+var MAX_TREE_TEXT = 6e4;
+var oneLine = (text3) => text3.replace(/\[\[|\]\]/g, "").replace(/\s+/g, " ").trim();
 function readTree(value) {
   if (!Array.isArray(value)) return null;
   let left = MAX_NODES;
+  let text3 = MAX_TREE_TEXT;
+  const take = (value2) => {
+    const kept = oneLine(value2.slice(0, MAX_TEXT * 2)).slice(0, Math.min(MAX_TEXT, text3));
+    text3 -= kept.length;
+    return kept;
+  };
   const read = (list, depth) => {
     const out = [];
     for (const one of list) {
-      if (left <= 0 || depth > MAX_DEPTH) break;
+      if (left <= 0 || text3 <= 0 || depth > MAX_DEPTH) break;
       if (!one || typeof one !== "object") continue;
       const node2 = one;
       if (typeof node2.role !== "string") continue;
       left--;
-      const kept = { role: node2.role.slice(0, 40) };
-      if (typeof node2.name === "string") kept.name = node2.name.slice(0, MAX_TEXT);
-      if (typeof node2.value === "string") kept.value = node2.value.slice(0, MAX_TEXT);
+      const kept = { role: oneLine(node2.role).slice(0, 40) };
+      if (typeof node2.name === "string") kept.name = take(node2.name);
+      if (typeof node2.value === "string") kept.value = take(node2.value);
       if (Array.isArray(node2.state)) {
         const states = node2.state.filter(
           (state) => STATES.includes(state)
@@ -67408,7 +67642,7 @@ function readTree(value) {
   return read(value, 0);
 }
 function readAnnounced(value) {
-  return (Array.isArray(value) ? value : []).filter((line) => typeof line === "string").map((line) => line.replace(/\[\[|\]\]/g, "").slice(0, MAX_ANNOUNCEMENT)).slice(-MAX_ANNOUNCED);
+  return (Array.isArray(value) ? value : []).filter((line) => typeof line === "string").map((line) => oneLine(line.slice(0, MAX_ANNOUNCEMENT * 2)).slice(0, MAX_ANNOUNCEMENT)).slice(-MAX_ANNOUNCED);
 }
 function readIds(value) {
   return (Array.isArray(value) ? value : []).filter((one) => typeof one === "string" && one.trim() !== "").map((one) => one.trim().slice(0, 200)).slice(0, 200);
@@ -67437,19 +67671,8 @@ function readView(sent) {
   };
 }
 
-// packages/player/src/lib/chats.ts
-init_define_WORDPLAY_ENGINE();
-var LINE = /^\[(?:In the chat “([^”\n]{1,200})”(, from the page)?|(From the page))\]\n/;
-function chatOfMessage(content) {
-  const found = LINE.exec(content);
-  return found ? {
-    chat: found[1] ?? null,
-    page: Boolean(found[2] || found[3]),
-    text: content.slice(found[0].length)
-  } : { chat: null, page: false, text: content };
-}
-
 // packages/player/src/lib/local-host.ts
+var sharing = (wordplay) => sharesIn(wordplay.document);
 var json2 = (status, value, headers = {}) => new Response(JSON.stringify(value), {
   status,
   headers: { "Content-Type": "application/json", ...headers }
@@ -67469,6 +67692,7 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
     const conversation = new URLSearchParams(path2.split("?")[1] ?? "").get("conversation");
     const trial = find3(conversation);
     const { note, downloadable, saveAfter, words: words2, problems, ...rest } = meta3();
+    const wordplay = parseWordplay(source());
     return {
       ...localLesson(
         source(),
@@ -67477,6 +67701,8 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         trial?.events ?? []
       ),
       ...trial?.page ? { pageState: trial.page } : {},
+      // The wall, for a file that shares (SPEC.md, "Sharing").
+      ...sharing(wordplay) ? { shared: wall(wordplay) } : {},
       ...note ? { note } : {},
       ...downloadable ? { downloadable } : {},
       ...saveAfter ? { saveAfter } : {},
@@ -67581,6 +67807,8 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         events: now?.events ?? [],
         ...now?.page ? { page: now.page } : {}
       };
+      const judged = readMarkers(answer).shares.at(-1);
+      const shared = judged !== void 0 && wordplay.shared?.tutor && judged !== null && !refusalOfShared(wordplay.shared, judged) ? { shared: { value: judged, at: (/* @__PURE__ */ new Date()).toISOString(), by: "tutor" } } : {};
       trials.save({
         ...now ?? {},
         id,
@@ -67591,7 +67819,8 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
           was,
           { held: heldAfterReply(wordplay, was.held, answer) },
           { by: "tutor", reply: repliesIn(after2) }
-        )
+        ),
+        ...shared
       });
     };
     const shown = new ReadableStream({
@@ -67619,17 +67848,78 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
     headers.set("X-Conversation-Id", id);
     return new Response(shown, { status: response.status, headers });
   }
+  function wall(wordplay) {
+    const block = wordplay.shared;
+    const steps = new Set(wordplay.steps.map((step) => step.id));
+    const entryOf = (trial) => {
+      const one = trial.shared;
+      if (!one || refusalOfShared(block, one.value)) return null;
+      const events = trial.events ?? [];
+      const facts = {};
+      for (const fact of block?.facts ?? []) {
+        if (fact === "seconds") {
+          const end = events.find((event) => event.kind === "done")?.at;
+          const start = events[0]?.at;
+          if (end && start)
+            facts.seconds = Math.round((Date.parse(end) - Date.parse(start)) / 1e3);
+        } else if (fact === "steps")
+          facts.steps = events.filter(
+            (event) => event.kind === "given" && event.by === "tutor" && steps.has(event.id)
+          ).length;
+        else if (fact === "messages")
+          facts.messages = trial.turns.filter((turn) => turn.role === "user").length;
+        else if (fact === "skips") facts.skips = trial.skipped?.length ?? 0;
+      }
+      return {
+        value: one.value,
+        at: one.at,
+        guest: false,
+        ...one.by === "tutor" ? { by: "tutor" } : {},
+        ...block?.names ? { who: { name: trial.simulated?.student ?? "You", username: "", picture: null } } : {},
+        ...block?.facts.length ? { facts } : {}
+      };
+    };
+    const sharing2 = trials.list().filter((trial) => trial.shared).sort((a, b) => b.shared.at.localeCompare(a.shared.at));
+    const entries2 = sharing2.map(entryOf).filter((one) => one !== null);
+    const own2 = sharing2.find((trial) => !trial.simulated);
+    const mine = own2 ? entryOf(own2) : null;
+    return {
+      ...mine ? { mine } : {},
+      entries: entries2.slice(0, block?.entries ?? SHARED_ENTRIES),
+      count: entries2.length
+    };
+  }
+  function share(init) {
+    const sent = readBody(init);
+    const wordplay = parseWordplay(source());
+    const value = sent.value === void 0 ? null : sent.value;
+    const refusal = refusalOfShared(wordplay.shared, value);
+    if (refusal) return json2(400, { error: refusal });
+    const before2 = find3(sent.conversationId);
+    const id = before2?.id ?? (typeof sent.conversationId === "string" && sent.conversationId ? sent.conversationId : newId());
+    const kept = {
+      ...before2 ?? { turns: [], held: [], lastAskedAt: (/* @__PURE__ */ new Date()).toISOString() },
+      id
+    };
+    if (value === null) delete kept.shared;
+    else kept.shared = { value, at: (/* @__PURE__ */ new Date()).toISOString() };
+    trials.save(kept);
+    return json2(200, { conversationId: id, shared: wall(wordplay) });
+  }
   function history() {
     const wordplay = parseWordplay(source());
     const sorted = [...trials.list().filter((trial) => trial.turns.length || trial.page)].sort(
       (a, b) => b.lastAskedAt.localeCompare(a.lastAskedAt)
     );
     return json2(200, {
+      // The list's facts (`summaryOf`), and the turns, which the preview's trials read.
       conversations: sorted.map((trial) => ({
-        id: trial.id,
+        ...summaryOf(wordplay, {
+          ...trial,
+          createdAt: trial.events?.[0]?.at ?? trial.lastAskedAt
+        }),
         lastAskedAt: trial.lastAskedAt,
         turns: trial.turns,
-        done: isDone(wordplay, trial.held),
         events: shownEvents(wordplay, trial.events ?? [])
       }))
     });
@@ -67645,6 +67935,10 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         return tutor(init);
       case "GET tutor/history":
         return history();
+      case "POST lesson/shared":
+        return share(init);
+      case "GET lesson/shared":
+        return json2(200, { shared: wall(parseWordplay(source())) });
       case "DELETE tutor/history": {
         const id = new URLSearchParams(path2.split("?")[1] ?? "").get("id");
         if (!trials.remove || !find3(id))
@@ -67850,7 +68144,7 @@ async function simulate(source, persona, id, host) {
         ended = "the lesson is complete";
         break;
       }
-      const spent2 = host.spend?.() ?? null;
+      const spent2 = await host.spend?.() ?? null;
       if (spent2) {
         ended = spent2;
         break;
@@ -68432,7 +68726,7 @@ var FOLDER_TYPES = {
 };
 var MAX_MESSAGE = 4e3;
 var MAX_TURNS2 = 40;
-var PLAY_ROUTES = /* @__PURE__ */ new Set(["lesson", "lesson/state", "tutor", "tutor/history"]);
+var PLAY_ROUTES = /* @__PURE__ */ new Set(["lesson", "lesson/state", "lesson/shared", "tutor", "tutor/history"]);
 var Preview = class {
   constructor(options) {
     this.options = options;

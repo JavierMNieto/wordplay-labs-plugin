@@ -276,6 +276,12 @@ How to write it:
      choice's words.
    - **A case the tutor can show** is a named field the page's script draws
      from; the tutor sets it by name.
+   - **What the class did**, how everyone chose, a wall of attempts, the
+     fastest times, is shared (the format's Sharing): the script shares
+     the student's entry and draws the wall in a part revealed once they
+     have answered, so nobody sees the class before they commit. A number
+     the page reports is the student's claim; rank by a fact the server
+     counts (`facts`) or by the tutor's judgement (`tutor: true`).
 
    When the material is a conversation in which somebody worked the idea
    out, it is the best source context has: where they got stuck becomes a
