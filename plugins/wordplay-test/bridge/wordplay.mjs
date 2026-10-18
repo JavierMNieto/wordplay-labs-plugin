@@ -38928,7 +38928,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "9f4c69575f99";
+var PREVIEW_BUILD = false ? "source" : "9f1fc864ec31";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39335,6 +39335,7 @@ var MAX_SHARED_TEXT = 280;
 var MAX_SHARES = 60;
 var SHARED_ENTRIES = 200;
 var MAX_SHARED_ENTRIES = 1e3;
+var MAX_OPENING = 400;
 var MAX_KEYS = 12;
 var WORDPLAY_VERSION = "1";
 
@@ -39755,6 +39756,7 @@ function specText() {
     maxSaid: count(MAX_SAID),
     maxKept: count(MAX_KEPT),
     maxPageSays: count(MAX_PAGE_SAYS),
+    maxOpening: count(MAX_OPENING),
     maxShared: count(MAX_SHARED),
     maxShares: count(MAX_SHARES),
     maxSharedText: count(MAX_SHARED_TEXT),
@@ -51986,7 +51988,8 @@ var WORDPLAY_ATTRIBUTES = [
   "data-calculator",
   "data-key",
   "data-skip",
-  "data-person"
+  "data-person",
+  "data-opening"
 ];
 var KNOWN_ATTRIBUTES = [...STANDARD_ATTRIBUTES, ...WORDPLAY_ATTRIBUTES];
 var isPageElement = (element) => isSection(element) && !isContext(element) && !hasCondition(element);
@@ -52365,6 +52368,17 @@ function readableProblems(wordplay) {
   for (const id of repeatedIds(wordplay))
     problems.push(`Two parts have the id "${id}". Each part's id is its own.`);
   problems.push(...readSharedBlock(document2).problems);
+  for (const element of Array.from(document2.querySelectorAll("[data-opening]"))) {
+    if (element !== body2 && !element.hasAttribute("data-chat"))
+      problems.push(
+        `data-opening goes on the <body> or a chat (data-chat), not on a ${describe3(element)}.`
+      );
+    const line = (element.getAttribute("data-opening") ?? "").replace(/\s+/g, " ").trim();
+    if (line.length > MAX_OPENING)
+      problems.push(
+        `An opening line is ${line.length} characters; it may be ${MAX_OPENING}, a sentence or two.`
+      );
+  }
   for (const step of wordplay.steps)
     if (!nameOfElement(step.element, ""))
       problems.push(
@@ -52551,6 +52565,21 @@ function stoppedIn(text3) {
 
 // packages/player/src/lib/local-preview.ts
 init_define_WORDPLAY_ENGINE();
+
+// packages/format/src/openings.ts
+init_define_WORDPLAY_ENGINE();
+var squash3 = (text3) => text3.replace(/\s+/g, " ").trim();
+function openingOf(wordplay) {
+  return squash3(wordplay.body?.getAttribute("data-opening") ?? "") || null;
+}
+function chatOpenings(wordplay) {
+  const lines = {};
+  for (const chat of wordplay.chats) {
+    const line = squash3(chat.element.getAttribute("data-opening") ?? "");
+    if (line && !(chat.name in lines)) lines[chat.name] = line;
+  }
+  return lines;
+}
 
 // packages/player/src/lib/frame-document.ts
 init_define_WORDPLAY_ENGINE();
@@ -67390,6 +67419,7 @@ function localLesson(source, held, meta3, events = []) {
     done: isDone(wordplay, held),
     progress: progressOf(wordplay, held),
     events: shownEvents(wordplay, events),
+    openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
     problems: [
       .../* @__PURE__ */ new Set([
         ...meta3.problems,
@@ -67464,7 +67494,13 @@ function tutorEnvelope(wordplay, source, title, view) {
     calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
     skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
     done: isDone(wordplay, view.held),
-    share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null
+    share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null,
+    openings: [
+      ...openingOf(wordplay) ? [`In your chat: ${openingOf(wordplay)}`] : [],
+      ...Object.entries(chatOpenings(wordplay)).map(
+        ([name, line]) => `In the chat \u201C${name}\u201D: ${line}`
+      )
+    ]
   };
 }
 function fieldsInWords(fields) {
@@ -67499,7 +67535,8 @@ function envelopeBindings(envelope) {
     calculations: envelope.calculations.map((one) => asData(calculationLine(one))),
     skipped: envelope.skipped.map((name) => `- "${name}"`),
     done: envelope.done,
-    share: envelope.share
+    share: envelope.share,
+    openings: envelope.openings.map((line) => `- ${line}`)
   };
 }
 

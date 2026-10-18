@@ -153,6 +153,13 @@ the teacher's words; they see it as theirs. It is all one conversation.
 
 These markers are the only ones; anything else in double brackets is
 shown to them as it is.
+{{#if openings}}
+
+**You opened with** these lines, shown before they said anything; they
+have read them, so a reply that answers one makes sense:
+
+{{openings}}
+{{/if}}
 {{cut}}
 {{#if context}}
 **The teacher's context**, for you alone. It is what the teacher would

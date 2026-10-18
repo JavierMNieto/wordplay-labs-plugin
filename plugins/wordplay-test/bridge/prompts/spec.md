@@ -291,6 +291,7 @@ Its attributes:
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-skip="false"` | On a step: no Skip for it. |
 | `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
+| `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
 
 **The name of a step**, in the chat, on the page and in the creator, is its
 accessible name: its `aria-label`, else its first heading, else its id.
@@ -362,7 +363,8 @@ or named as another, a key outside a calculator or of an unknown kind, an
 output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
 attribute nearly one of these or no longer read, `document.tutor`, the
-object's old name, in a script, and a shared block it cannot read. It
+object's old name, in a script, `data-opening` on anything but the body or
+a chat or over {{maxOpening}} characters, and a shared block it cannot read. It
 refuses to publish an unknown `data-wordplay` version, a file over the
 limit, an id used twice, a shared block it cannot read, and a control the
 tutor cannot see: one with no accessible name, on a page where nothing is
@@ -377,6 +379,7 @@ named or live.
 | One live announcement, or one `tell` | {{maxAnnouncement}} characters |
 | One line the tutor writes | {{maxWritten}} characters |
 | One `say` | {{maxSaid}} characters |
+| An opening line (`data-opening`) | {{maxOpening}} characters |
 | What a page keeps (`keep`) | {{maxKept}} bytes |
 | One entry shared (`share`) | {{maxShared}} bytes, {{maxShares}} a minute |
 | A shared text field | {{maxSharedText}} characters |

@@ -268,7 +268,9 @@ How to write it:
      Its step's condition says the same moment in words, for the chat.
    - **A question asked where it arises** is a chat in the page, named for
      what it is about, beside what a student would want to talk through,
-     with context inside it for that conversation alone.
+     with context inside it for that conversation alone. Its first line, a
+     question that starts the conversation where the page cannot, is
+     `data-opening` on it; the tutor's own chat's is on the body.
    - **Words the tutor says on the page**, a character's line, a caption, a
      verdict, go in an `<output>` the tutor writes (`data-tutor`), named for
      who or what it is. Characters talking with the student are a chat the
