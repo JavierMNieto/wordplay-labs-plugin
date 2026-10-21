@@ -1,0 +1,44 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "wordplay",
+  "version": "2026.1021.175609",
+  "description": "Write and publish wordplays from your own material.",
+  "author": {
+    "name": "Wordplay Labs",
+    "email": "plugin@wordplaylabs.com",
+    "url": "https://wordplaylabs.com"
+  },
+  "homepage": "https://wordplaylabs.com/create/ai?app=chatgpt",
+  "repository": "https://github.com/JavierMNieto/wordplay-labs-plugin",
+  "license": "MIT",
+  "keywords": [
+    "wordplay",
+    "writing",
+    "education",
+    "wplay"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Wordplay",
+        "shortDescription": "Write and publish wordplays from your own material.",
+        "longDescription": "Turn your notes into wordplays with your AI app. Save them in Wordplay's creator, revise them together, and publish when you choose.",
+        "developerName": "Wordplay Labs",
+        "category": "Education",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://wordplaylabs.com",
+        "privacyPolicyURL": "https://wordplaylabs.com/privacy",
+        "defaultPrompt": [
+          "Help me write a wordplay from my notes.",
+          "Continue my wordplay.",
+          "Revise my wordplay with me."
+        ],
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      }
+    }
+  }
+}

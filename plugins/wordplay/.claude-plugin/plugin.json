@@ -1,7 +1,7 @@
 {
   "name": "wordplay",
   "displayName": "Wordplay",
-  "version": "2026.1011.124238",
+  "version": "2026.1021.175609",
   "description": "Write wordplays from your own material as .wplay files in your folder, try them with the tutor and simulated students on your own Claude plan, and publish them on Wordplay when you say so.",
   "author": {
     "name": "Wordplay Labs",

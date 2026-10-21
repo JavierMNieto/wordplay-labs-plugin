@@ -103,13 +103,17 @@ and how they are drawn is the teacher's.
 **Privacy.** Every element marked `data-context` is stripped before anything
 reaches the student's browser. This is the one rule a host must never break.
 A step or reveal reaches the browser only once given, without its
-`data-expect`, which is often the answer.
+`data-expect`, which is often the answer. Where a host lets readers share
+(Wordplay's `share`, below), what a reader shares is seen by every reader
+of the wordplay, with their profile only where the teacher asks for names
+and the reader has not chosen to be anonymous.
 
 **Unknowns.** A host ignores an attribute it does not know and shows the
 element as HTML.
 
 **What the tutor is given at any moment.** The tree of what is shown, its
-announcements, and what the page told it since its last turn. The context
+announcements, what the page told it since its last turn, and what was
+worked out on a calculator. The context
 given so far. Each part not yet given whose parent has been, by id and
 condition, so it knows what to watch for. The steps the student skipped.
 Where a student is is never in the file; it is worked out from their
@@ -158,7 +162,9 @@ one conversation's: starting over starts from the file. It is one value,
 not a store: what the page needs to draw itself again.
 
 Opened as plain HTML a page has no `document.wordplay`, so a script calls
-`document.wordplay?.met("solved")`. A script runs in the student's browser,
+`document.wordplay?.met("solved")`. A host may add members of its own
+("What Wordplay adds"), which a script tests for:
+`document.wordplay?.share?.(…)`. A script runs in the student's browser,
 which can read it: a secret goes in `data-context` or behind a
 `data-expect`, never in a script.
 
@@ -170,7 +176,8 @@ wait for one another. **Done** is every step given; a wordplay with no step
 is never done. **Skip**, where a host offers it, gives one waiting step as
 if its condition held, and nothing else; what is inside it then waits as
 usual. A step with `data-skip="false"` has none, and the student must earn
-it. A step skipped counts, and the tutor is told of it.
+it. A step skipped counts, and the tutor is told of it. A part `met` gives
+is the browser's report, counted apart from what the tutor gave.
 
 ## Example
 
@@ -280,6 +287,8 @@ ignore, and the file loses nothing:
   `wordplay:met` event as it appears and again as the page is drawn, the
   id in `event.detail.id`, for the teacher's CSS
   (`body:has(#solved) .hint { display: none }`) or scripts ("Scripts").
+- A wall every reader of a wordplay shares, written by the page's scripts
+  ("Sharing", below).
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
@@ -287,9 +296,11 @@ Its attributes:
 | Attribute | On any element, means |
 |---|---|
 | `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
-| `data-calculator` | On an `<input>`: the box has the calculator. Its accessible name is its label. On a chat: the calculator beside it. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
+| `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-skip="false"` | On a step: no Skip for it. |
+| `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
+| `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
 
 **The name of a step**, in the chat, on the page and in the creator, is its
 accessible name: its `aria-label`, else its first heading, else its id.
@@ -309,16 +320,72 @@ accessible name: its `aria-label`, else its first heading, else its id.
 - **Vectors**: vector, hat, cross, dotproduct, norm, matrix, transpose, bar
 - **Chemistry**: charge, subscript, yields, equilibrium, heated, concentration, aqueous, solid, liquid, gas, change
 
+**Sharing.** Each reader has one entry on the wordplay's wall, which the
+page's script writes, and every reader reads the whole wall:
+
+| Member | Does | At most |
+|---|---|---|
+| `share(value)` | This reader's entry, any JSON, replacing their last; `null` takes it away. A value the block below refuses is not sent, with a warning in the console. | 4,096 bytes, 60 a minute |
+| `shared` | The wall, `{ mine, entries, count }`: this reader's entry, every reader's newest first (200 unless the block says), and how many in all. An entry is `{ value, at, guest, by?, who?, facts? }`. There before the first script runs. | |
+| `person(who)` | The site's chip for an entry's `who`, or the anonymous one for `null`. | |
+
+**`wordplay:shared`** fires on the document when the wall changes. An
+element marked `data-person` is filled with its entry's chip.
+
+What the page shares is the reader's claim, since the page runs in their
+browser. `by: "tutor"` (the tutor's judgement) and `facts` (the server's
+count of the attempt) are not: rank by those where fairness matters.
+
+One optional `<script type="application/wordplay-shared">` bounds an entry,
+as JSON, every key optional:
+
+| Key | Means |
+|---|---|
+| `fields` | The entry is an object of these fields only: `{ "type": "number", "min", "max" }`, `{ "type": "choice", "of": [...] }`, `{ "type": "boolean" }` or `{ "type": "text", "max" }` (at most 280) |
+| `names` | `true`: each entry carries `who`, its reader's name, handle and picture, `null` for a guest or a reader anonymous by choice |
+| `guests` | `false`: a guest of a device may not share |
+| `entries` | How many are sent, at most 1,000 |
+| `facts` | Any of `"seconds"` (start to done), `"steps"` (the tutor gave), `"messages"`, `"skips"` |
+| `tutor` | `true`: the tutor may write a reader's entry as it judges it |
+
+The class's guesses, shown once the student has guessed:
+
+```html
+<body data-wordplay="1">
+  <script type="application/wordplay-shared">
+    { "fields": { "guess": { "type": "number", "min": 0, "max": 100 } } }
+  </script>
+  <label>Your guess <input id="guess" type="number"></label>
+  <button id="send">Send</button>
+  <p id="guessed" data-expect="The student has guessed">The class: <output id="class"></output></p>
+  <script>
+    const draw = () => {
+      const all = (document.wordplay?.shared?.entries ?? []).map((one) => one.value.guess);
+      const out = document.querySelector("#class");
+      if (out) out.textContent = all.join(", ");
+    };
+    document.querySelector("#send").onclick = () => {
+      document.wordplay?.share?.({ guess: Number(document.querySelector("#guess").value) });
+      document.wordplay?.met("guessed");
+    };
+    document.addEventListener("wordplay:shared", draw);
+    document.addEventListener("wordplay:met", draw);
+  </script>
+</body>
+```
+
 **Checks.** Wordplay says what looks like a mistake: a step with no
-accessible name, `data-skip` off a step, an id used twice, a chat unnamed
-or named as another, a key outside a calculator or of an unknown kind, an
+accessible name, `data-skip` off a step, an id used twice, a chat unnamed,
+named as another or for its box ("Chat about …"), a key outside a calculator or of an unknown kind, an
 output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
-attribute nearly one of these or no longer read, and `document.tutor`, the
-object's old name, in a script. It refuses to publish
-an unknown `data-wordplay` version, a file over the limit, an id used
-twice, and a control the tutor cannot see: one with no accessible name, on
-a page where nothing is named or live.
+attribute nearly one of these or no longer read, `document.tutor`, the
+object's old name, in a script, `data-opening` on anything but the body or
+a chat or over 400 characters, and a shared block it cannot read. It
+refuses to publish an unknown `data-wordplay` version, a file over the
+limit, an id used twice, a shared block it cannot read, and a control the
+tutor cannot see: one with no accessible name, on a page where nothing is
+named or live.
 
 ## Limits
 
@@ -329,7 +396,11 @@ a page where nothing is named or live.
 | One live announcement, or one `tell` | 200 characters |
 | One line the tutor writes | 400 characters |
 | One `say` | 2,000 characters |
+| An opening line (`data-opening`) | 400 characters |
 | What a page keeps (`keep`) | 65,536 bytes |
+| One entry shared (`share`) | 4,096 bytes, 60 a minute |
+| A shared text field | 280 characters |
+| Entries sent | 1,000 |
 | Keys in one group of a calculator | 12 |
 
 ## Versions
@@ -373,15 +444,23 @@ against:
 - **The student tinkers before they are told.** The first thing asks them
   to try, count, guess or observe on a concrete case; the name and the
   statement come after it, in a step that appears once they have tried.
+  The first step's condition is that try alone, so a student's first
+  message earns a step within a minute and the page shows, before anything
+  is hard, that writing is what grows it.
 - **Only the object of the wordplay is formal.** An idea needed on the way is
   said in plain words, and its precise form is context for when they ask.
 - **One idea, with a clear edge.** What the material touches beside it is a
   line of further reading at the end, never a second wordplay inside this one.
 - **A picture wherever a sentence cannot carry it, and something to try
   wherever a picture cannot**, shown at the right moment (rules 10 and 12).
-- **Practice once the idea is reached**: a step that runs it again on a new
-  case, one that stretches it, and the book's own answer once it is earned
-  (rule 11).
+- **A question is asked where it arises**: a chat in the page beside the
+  figure or the claim it is about (rule 6), so the student talks about the
+  thing in front of them; the tutor's own column is for the whole.
+- **Practice once the idea is reached, in a game's shape: develop, twist,
+  resolve.** A step that runs it again on a new case; one that turns it
+  against what the student now expects, the case where the rule seems to
+  break and does not, which is where the tutor earns its keep; and the
+  book's own answer once it is earned (rule 11).
 - **The tutor is prepared** (rule 6): what counts as each moment, a hint for
   where they get stuck, the wrong turns the material or the teacher know of,
   each with what to say back, a second road where there is one, and for
@@ -446,8 +525,11 @@ How to write it:
      script that tells the tutor when it is right (the format's Scripts).
      Its step's condition says the same moment in words, for the chat.
    - **A question asked where it arises** is a chat in the page, named for
-     what it is about, beside what a student would want to talk through,
-     with context inside it for that conversation alone.
+     its subject, which is its tab ("The far side", never "Chat about …"),
+     beside what a student would want to talk through, with context inside
+     it for that conversation alone. Its first line, a question that starts
+     the conversation where the page cannot, is `data-opening` on it; the
+     tutor's own chat's is on the body.
    - **Words the tutor says on the page**, a character's line, a caption, a
      verdict, go in an `<output>` the tutor writes (`data-tutor`), named for
      who or what it is. Characters talking with the student are a chat the
@@ -455,6 +537,17 @@ How to write it:
      choice's words.
    - **A case the tutor can show** is a named field the page's script draws
      from; the tutor sets it by name.
+   - **What the class did**, how everyone chose, a wall of attempts, the
+     fastest times, is shared (the format's Sharing): the script shares
+     the student's entry and draws the wall in a part revealed once they
+     have answered, so nobody sees the class before they commit. A number
+     the page reports is the student's claim; rank by a fact the server
+     counts (`facts`) or by the tutor's judgement (`tutor: true`).
+     Once readers have shared, the teacher downloads every entry from the
+     Download beside Share on the wordplay's page, to compute with on their
+     own machine; a result, a tournament's leaderboard say, goes back into
+     the file, as a table or a `<script type="application/json">` the page's
+     script draws, and is published again.
 
    When the material is a conversation in which somebody worked the idea
    out, it is the best source context has: where they got stuck becomes a

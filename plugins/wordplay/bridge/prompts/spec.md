@@ -94,13 +94,17 @@ and how they are drawn is the teacher's.
 **Privacy.** Every element marked `data-context` is stripped before anything
 reaches the student's browser. This is the one rule a host must never break.
 A step or reveal reaches the browser only once given, without its
-`data-expect`, which is often the answer.
+`data-expect`, which is often the answer. Where a host lets readers share
+(Wordplay's `share`, below), what a reader shares is seen by every reader
+of the wordplay, with their profile only where the teacher asks for names
+and the reader has not chosen to be anonymous.
 
 **Unknowns.** A host ignores an attribute it does not know and shows the
 element as HTML.
 
 **What the tutor is given at any moment.** The tree of what is shown, its
-announcements, and what the page told it since its last turn. The context
+announcements, what the page told it since its last turn, and what was
+worked out on a calculator. The context
 given so far. Each part not yet given whose parent has been, by id and
 condition, so it knows what to watch for. The steps the student skipped.
 Where a student is is never in the file; it is worked out from their
@@ -149,7 +153,9 @@ one conversation's: starting over starts from the file. It is one value,
 not a store: what the page needs to draw itself again.
 
 Opened as plain HTML a page has no `document.wordplay`, so a script calls
-`document.wordplay?.met("solved")`. A script runs in the student's browser,
+`document.wordplay?.met("solved")`. A host may add members of its own
+("What Wordplay adds"), which a script tests for:
+`document.wordplay?.share?.(…)`. A script runs in the student's browser,
 which can read it: a secret goes in `data-context` or behind a
 `data-expect`, never in a script.
 
@@ -161,7 +167,8 @@ wait for one another. **Done** is every step given; a wordplay with no step
 is never done. **Skip**, where a host offers it, gives one waiting step as
 if its condition held, and nothing else; what is inside it then waits as
 usual. A step with `data-skip="false"` has none, and the student must earn
-it. A step skipped counts, and the tutor is told of it.
+it. A step skipped counts, and the tutor is told of it. A part `met` gives
+is the browser's report, counted apart from what the tutor gave.
 
 ## Example
 
@@ -271,6 +278,8 @@ ignore, and the file loses nothing:
   `wordplay:met` event as it appears and again as the page is drawn, the
   id in `event.detail.id`, for the teacher's CSS
   (`body:has(#solved) .hint { display: none }`) or scripts ("Scripts").
+- A wall every reader of a wordplay shares, written by the page's scripts
+  ("Sharing", below).
 - Limits on size, and checks before a wordplay is published.
 
 Its attributes:
@@ -278,9 +287,11 @@ Its attributes:
 | Attribute | On any element, means |
 |---|---|
 | `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
-| `data-calculator` | On an `<input>`: the box has the calculator. Its accessible name is its label. On a chat: the calculator beside it. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
+| `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-skip="false"` | On a step: no Skip for it. |
+| `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
+| `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
 
 **The name of a step**, in the chat, on the page and in the creator, is its
 accessible name: its `aria-label`, else its first heading, else its id.
@@ -292,16 +303,72 @@ accessible name: its `aria-label`, else its first heading, else its id.
 
 {{keys}}
 
+**Sharing.** Each reader has one entry on the wordplay's wall, which the
+page's script writes, and every reader reads the whole wall:
+
+| Member | Does | At most |
+|---|---|---|
+| `share(value)` | This reader's entry, any JSON, replacing their last; `null` takes it away. A value the block below refuses is not sent, with a warning in the console. | {{maxShared}} bytes, {{maxShares}} a minute |
+| `shared` | The wall, `{ mine, entries, count }`: this reader's entry, every reader's newest first ({{sharedEntries}} unless the block says), and how many in all. An entry is `{ value, at, guest, by?, who?, facts? }`. There before the first script runs. | |
+| `person(who)` | The site's chip for an entry's `who`, or the anonymous one for `null`. | |
+
+**`wordplay:shared`** fires on the document when the wall changes. An
+element marked `data-person` is filled with its entry's chip.
+
+What the page shares is the reader's claim, since the page runs in their
+browser. `by: "tutor"` (the tutor's judgement) and `facts` (the server's
+count of the attempt) are not: rank by those where fairness matters.
+
+One optional `<script type="application/wordplay-shared">` bounds an entry,
+as JSON, every key optional:
+
+| Key | Means |
+|---|---|
+| `fields` | The entry is an object of these fields only: `{ "type": "number", "min", "max" }`, `{ "type": "choice", "of": [...] }`, `{ "type": "boolean" }` or `{ "type": "text", "max" }` (at most {{maxSharedText}}) |
+| `names` | `true`: each entry carries `who`, its reader's name, handle and picture, `null` for a guest or a reader anonymous by choice |
+| `guests` | `false`: a guest of a device may not share |
+| `entries` | How many are sent, at most {{maxSharedEntries}} |
+| `facts` | Any of `"seconds"` (start to done), `"steps"` (the tutor gave), `"messages"`, `"skips"` |
+| `tutor` | `true`: the tutor may write a reader's entry as it judges it |
+
+The class's guesses, shown once the student has guessed:
+
+```html
+<body data-wordplay="1">
+  <script type="application/wordplay-shared">
+    { "fields": { "guess": { "type": "number", "min": 0, "max": 100 } } }
+  </script>
+  <label>Your guess <input id="guess" type="number"></label>
+  <button id="send">Send</button>
+  <p id="guessed" data-expect="The student has guessed">The class: <output id="class"></output></p>
+  <script>
+    const draw = () => {
+      const all = (document.wordplay?.shared?.entries ?? []).map((one) => one.value.guess);
+      const out = document.querySelector("#class");
+      if (out) out.textContent = all.join(", ");
+    };
+    document.querySelector("#send").onclick = () => {
+      document.wordplay?.share?.({ guess: Number(document.querySelector("#guess").value) });
+      document.wordplay?.met("guessed");
+    };
+    document.addEventListener("wordplay:shared", draw);
+    document.addEventListener("wordplay:met", draw);
+  </script>
+</body>
+```
+
 **Checks.** Wordplay says what looks like a mistake: a step with no
-accessible name, `data-skip` off a step, an id used twice, a chat unnamed
-or named as another, a key outside a calculator or of an unknown kind, an
+accessible name, `data-skip` off a step, an id used twice, a chat unnamed,
+named as another or for its box ("Chat about …"), a key outside a calculator or of an unknown kind, an
 output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
-attribute nearly one of these or no longer read, and `document.tutor`, the
-object's old name, in a script. It refuses to publish
-an unknown `data-wordplay` version, a file over the limit, an id used
-twice, and a control the tutor cannot see: one with no accessible name, on
-a page where nothing is named or live.
+attribute nearly one of these or no longer read, `document.tutor`, the
+object's old name, in a script, `data-opening` on anything but the body or
+a chat or over {{maxOpening}} characters, and a shared block it cannot read. It
+refuses to publish an unknown `data-wordplay` version, a file over the
+limit, an id used twice, a shared block it cannot read, and a control the
+tutor cannot see: one with no accessible name, on a page where nothing is
+named or live.
 
 ## Limits
 
@@ -312,7 +379,11 @@ a page where nothing is named or live.
 | One live announcement, or one `tell` | {{maxAnnouncement}} characters |
 | One line the tutor writes | {{maxWritten}} characters |
 | One `say` | {{maxSaid}} characters |
+| An opening line (`data-opening`) | {{maxOpening}} characters |
 | What a page keeps (`keep`) | {{maxKept}} bytes |
+| One entry shared (`share`) | {{maxShared}} bytes, {{maxShares}} a minute |
+| A shared text field | {{maxSharedText}} characters |
+| Entries sent | {{maxSharedEntries}} |
 | Keys in one group of a calculator | {{maxKeys}} |
 
 ## Versions
