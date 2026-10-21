@@ -473,15 +473,23 @@ against:
 - **The student tinkers before they are told.** The first thing asks them
   to try, count, guess or observe on a concrete case; the name and the
   statement come after it, in a step that appears once they have tried.
+  The first step's condition is that try alone, so a student's first
+  message earns a step within a minute and the page shows, before anything
+  is hard, that writing is what grows it.
 - **Only the object of the wordplay is formal.** An idea needed on the way is
   said in plain words, and its precise form is context for when they ask.
 - **One idea, with a clear edge.** What the material touches beside it is a
   line of further reading at the end, never a second wordplay inside this one.
 - **A picture wherever a sentence cannot carry it, and something to try
   wherever a picture cannot**, shown at the right moment (rules 10 and 12).
-- **Practice once the idea is reached**: a step that runs it again on a new
-  case, one that stretches it, and the book's own answer once it is earned
-  (rule 11).
+- **A question is asked where it arises**: a chat in the page beside the
+  figure or the claim it is about (rule 6), so the student talks about the
+  thing in front of them; the tutor's own column is for the whole.
+- **Practice once the idea is reached, in a game's shape: develop, twist,
+  resolve.** A step that runs it again on a new case; one that turns it
+  against what the student now expects, the case where the rule seems to
+  break and does not, which is where the tutor earns its keep; and the
+  book's own answer once it is earned (rule 11).
 - **The tutor is prepared** (rule 6): what counts as each moment, a hint for
   where they get stuck, the wrong turns the material or the teacher know of,
   each with what to say back, a second road where there is one, and for

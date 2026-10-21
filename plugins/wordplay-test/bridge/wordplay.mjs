@@ -38928,7 +38928,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "725d9b4beed5";
+var PREVIEW_BUILD = false ? "source" : "5a380131e4f1";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -52572,6 +52572,24 @@ function stoppedIn(text3) {
 
 // packages/player/src/lib/local-preview.ts
 init_define_WORDPLAY_ENGINE();
+
+// packages/player/src/lib/active-time.ts
+init_define_WORDPLAY_ENGINE();
+var IDLE_SECONDS = 5 * 60;
+function activeSeconds(moments) {
+  const times = moments.map((one) => one instanceof Date ? one.getTime() : one ? Date.parse(one) : NaN).filter((time3) => Number.isFinite(time3)).sort((a, b) => a - b);
+  let total = 0;
+  for (let at = 1; at < times.length; at++)
+    total += Math.min(times[at] - times[at - 1], IDLE_SECONDS * 1e3);
+  return Math.round(total / 1e3);
+}
+function localRunFacts(turns, events) {
+  if (!events.some((event) => event.kind === "done")) return {};
+  return {
+    messages: turns.filter((turn) => turn.role === "user").length,
+    seconds: activeSeconds(events.map((event) => event.at))
+  };
+}
 
 // packages/format/src/openings.ts
 init_define_WORDPLAY_ENGINE();
@@ -67398,13 +67416,25 @@ function keptAfter(wordplay, kept, change, cause) {
     ...page ? { page } : {}
   };
 }
-function shownEvents(wordplay, events) {
+function shownEvents(wordplay, events, run2 = {}) {
+  const kindOf = (id) => wordplay.parts.find((one) => one.id === id)?.kind;
   return events.flatMap((event) => {
     if (event.kind === "pressed" || event.kind === "set" || event.kind === "changed")
       return [{ ...event, name: event.id, step: false }];
     if (event.kind === "done") {
       const skipped = new Set(events.filter((one) => one.kind === "skipped").map((one) => one.id));
-      return [{ ...event, name: "", step: false, skipped: skipped.size }];
+      const tutors = events.filter((one) => one.kind === "given" && one.by === "tutor");
+      return [
+        {
+          ...event,
+          name: "",
+          step: false,
+          skipped: skipped.size,
+          hints: tutors.filter((one) => kindOf(one.id) === "reveal").length,
+          steps: tutors.filter((one) => kindOf(one.id) === "step").length,
+          ...run2
+        }
+      ];
     }
     const part = wordplay.parts.find((one) => one.id === event.id);
     if (!part || part.kind !== "step" && part.kind !== "reveal") return [];
@@ -67415,7 +67445,7 @@ function shownEvents(wordplay, events) {
 }
 
 // packages/player/src/lib/local-preview.ts
-function localLesson(source, held, meta3, events = []) {
+function localLesson(source, held, meta3, events = [], turns = []) {
   const wordplay = parseWordplay(source);
   const given = givenParts(wordplay, held);
   return {
@@ -67428,7 +67458,7 @@ function localLesson(source, held, meta3, events = []) {
     given: wordplay.slotted.filter((step) => given.has(step.id)).map((step) => step.id),
     done: isDone(wordplay, held),
     progress: progressOf(wordplay, held),
-    events: shownEvents(wordplay, events),
+    events: shownEvents(wordplay, events, localRunFacts(turns, events)),
     openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
     problems: [
       .../* @__PURE__ */ new Set([
@@ -67745,7 +67775,8 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         source(),
         trial?.held ?? [],
         { ...rest, problems: problems ?? [], ...folder ? { folder } : {} },
-        trial?.events ?? []
+        trial?.events ?? [],
+        trial?.turns ?? []
       ),
       ...trial?.page ? { pageState: trial.page } : {},
       // The wall, for a file that shares (SPEC.md, "Sharing").
@@ -67806,7 +67837,7 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
       done: isDone(wordplay, held),
       progress: progressOf(wordplay, held),
       skipped,
-      events: shownEvents(wordplay, events)
+      events: shownEvents(wordplay, events, localRunFacts(before2?.turns ?? [], events))
     });
   }
   async function tutor(init) {
@@ -67967,7 +67998,11 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         }),
         lastAskedAt: trial.lastAskedAt,
         turns: trial.turns,
-        events: shownEvents(wordplay, trial.events ?? [])
+        events: shownEvents(
+          wordplay,
+          trial.events ?? [],
+          localRunFacts(trial.turns, trial.events ?? [])
+        )
       }))
     });
   }
