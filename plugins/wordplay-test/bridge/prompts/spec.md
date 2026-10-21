@@ -358,8 +358,8 @@ The class's guesses, shown once the student has guessed:
 ```
 
 **Checks.** Wordplay says what looks like a mistake: a step with no
-accessible name, `data-skip` off a step, an id used twice, a chat unnamed
-or named as another, a key outside a calculator or of an unknown kind, an
+accessible name, `data-skip` off a step, an id used twice, a chat unnamed,
+named as another or for its box ("Chat about …"), a key outside a calculator or of an unknown kind, an
 output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
 attribute nearly one of these or no longer read, `document.tutor`, the

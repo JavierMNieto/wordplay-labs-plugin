@@ -38928,7 +38928,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "93a3026ea2ff";
+var PREVIEW_BUILD = false ? "source" : "725d9b4beed5";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -52248,6 +52248,7 @@ function repeatedIds(wordplay) {
   for (const part of wordplay.parts) (seen.has(part.id) ? twice : seen).add(part.id);
   return [...twice];
 }
+var BOX_NAME = /^\s*(chat about|ask about|chat:|ask:)/i;
 function readableProblems(wordplay) {
   const problems = [];
   const { document: document2, body: body2 } = wordplay;
@@ -52290,6 +52291,10 @@ function readableProblems(wordplay) {
       problems.push(`data-calculator goes on an <input> or a chat, not on a ${describe3(element)}.`);
     if (chat && element.closest("[data-context]"))
       problems.push("A chat inside context is never shown: move it out of the context.");
+    if (chat && BOX_NAME.test(chatName(element)))
+      problems.push(
+        `The chat "${chatName(element)}" is named for the box, not its subject. Name it for what it is about, in a few words.`
+      );
     const key2 = element.getAttribute("data-key");
     if (key2 !== null && element.tagName.toLowerCase() !== "data")
       problems.push(`data-key goes on a <data> element, not on a ${describe3(element)}.`);
@@ -67397,7 +67402,10 @@ function shownEvents(wordplay, events) {
   return events.flatMap((event) => {
     if (event.kind === "pressed" || event.kind === "set" || event.kind === "changed")
       return [{ ...event, name: event.id, step: false }];
-    if (event.kind === "done") return [{ ...event, name: "", step: false }];
+    if (event.kind === "done") {
+      const skipped = new Set(events.filter((one) => one.kind === "skipped").map((one) => one.id));
+      return [{ ...event, name: "", step: false, skipped: skipped.size }];
+    }
     const part = wordplay.parts.find((one) => one.id === event.id);
     if (!part || part.kind !== "step" && part.kind !== "reveal") return [];
     const unnamed = part.name === part.id;

@@ -404,8 +404,8 @@ The class's guesses, shown once the student has guessed:
 ```
 
 **Checks.** Wordplay says what looks like a mistake: a step with no
-accessible name, `data-skip` off a step, an id used twice, a chat unnamed
-or named as another, a key outside a calculator or of an unknown kind, an
+accessible name, `data-skip` off a step, an id used twice, a chat unnamed,
+named as another or for its box ("Chat about …"), a key outside a calculator or of an unknown kind, an
 output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
 attribute nearly one of these or no longer read, `document.tutor`, the
@@ -547,10 +547,11 @@ How to write it:
      script that tells the tutor when it is right (the format's Scripts).
      Its step's condition says the same moment in words, for the chat.
    - **A question asked where it arises** is a chat in the page, named for
-     what it is about, beside what a student would want to talk through,
-     with context inside it for that conversation alone. Its first line, a
-     question that starts the conversation where the page cannot, is
-     `data-opening` on it; the tutor's own chat's is on the body.
+     its subject, which is its tab ("The far side", never "Chat about …"),
+     beside what a student would want to talk through, with context inside
+     it for that conversation alone. Its first line, a question that starts
+     the conversation where the page cannot, is `data-opening` on it; the
+     tutor's own chat's is on the body.
    - **Words the tutor says on the page**, a character's line, a caption, a
      verdict, go in an `<output>` the tutor writes (`data-tutor`), named for
      who or what it is. Characters talking with the student are a chat the
