@@ -8868,6 +8868,50 @@ var require_canvas = __commonJS({
 // packages/player/src/bridge/main.ts
 init_define_WORDPLAY_ENGINE();
 import { dirname as dirname3, join as join8 } from "node:path";
+
+// packages/format/src/limits.ts
+init_define_WORDPLAY_ENGINE();
+var MAX_FILE = 4e5;
+var MAX_CONDITION = 400;
+var MAX_ANNOUNCEMENT = 200;
+var MAX_WRITTEN = 400;
+var MAX_SAID = 2e3;
+var MAX_KEPT = 65536;
+var MAX_SHARED = 4096;
+var MAX_SHARED_TEXT = 280;
+var MAX_SHARES = 60;
+var SHARED_ENTRIES = 200;
+var MAX_SHARED_ENTRIES = 1e3;
+var MAX_OPENING = 400;
+var MAX_KEYS = 12;
+var WORDPLAY_VERSION = "1";
+var MAX_TURNS = 40;
+var MAX_TUTOR_MESSAGE = 4e3;
+var MAX_PICTURE = 5 * 1024 * 1024;
+var FOLDER_TYPES = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  avif: "image/avif",
+  svg: "image/svg+xml",
+  mp3: "audio/mpeg",
+  ogg: "audio/ogg",
+  wav: "audio/wav",
+  m4a: "audio/mp4",
+  weba: "audio/webm",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  ogv: "video/ogg",
+  pdf: "application/pdf",
+  woff2: "font/woff2",
+  woff: "font/woff",
+  ttf: "font/ttf",
+  otf: "font/otf"
+};
+
+// packages/player/src/bridge/main.ts
 import { fileURLToPath } from "node:url";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
@@ -38991,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "72d943d7fe9c";
+var PREVIEW_BUILD = false ? "source" : "5b68b830c0b1";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39385,23 +39429,6 @@ init_define_WORDPLAY_ENGINE();
 import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
 import { join as join2 } from "node:path";
 
-// packages/format/src/limits.ts
-init_define_WORDPLAY_ENGINE();
-var MAX_FILE = 4e5;
-var MAX_CONDITION = 400;
-var MAX_ANNOUNCEMENT = 200;
-var MAX_WRITTEN = 400;
-var MAX_SAID = 2e3;
-var MAX_KEPT = 65536;
-var MAX_SHARED = 4096;
-var MAX_SHARED_TEXT = 280;
-var MAX_SHARES = 60;
-var SHARED_ENTRIES = 200;
-var MAX_SHARED_ENTRIES = 1e3;
-var MAX_OPENING = 400;
-var MAX_KEYS = 12;
-var WORDPLAY_VERSION = "1";
-
 // packages/player/src/lib/calc-symbols.ts
 init_define_WORDPLAY_ENGINE();
 var SYMBOLS = {
@@ -39653,7 +39680,6 @@ var SYMBOLS = {
   gas: { label: "(g)", insert: "(\\mathrm{g})", name: "Gas", small: true, group: "Chemistry" },
   change: { label: "\u0394", insert: "\\Delta", name: "Change in", group: "Chemistry" }
 };
-var SYMBOL_NAMES = Object.keys(SYMBOLS).sort();
 function symbolCatalogue() {
   const groups = /* @__PURE__ */ new Map();
   for (const [name, key2] of Object.entries(SYMBOLS)) {
@@ -40855,6 +40881,12 @@ init_define_WORDPLAY_ENGINE();
 
 // node_modules/dom-accessibility-api/dist/is-disabled.mjs
 init_define_WORDPLAY_ENGINE();
+
+// packages/format/src/page.ts
+init_define_WORDPLAY_ENGINE();
+function isPageAttrs(tag, has) {
+  return tag.toLowerCase() === "section" && !["data-context", "data-expect", "data-met"].some((name) => has(name));
+}
 
 // packages/format/src/dom.ts
 init_define_WORDPLAY_ENGINE();
@@ -52024,7 +52056,7 @@ function treeText(nodes, depth = 0) {
   }
   return lines;
 }
-var isPage = (element) => element.tagName.toLowerCase() === "section" && !["data-context", "data-expect", "data-met"].some((name) => element.hasAttribute(name));
+var isPage = (element) => isPageAttrs(element.tagName, (name) => element.hasAttribute(name));
 var pagesOf = (body2) => Array.from(body2.children).filter(isPage);
 function documentTree(body2, current = 0) {
   const pages = pagesOf(body2);
@@ -52057,7 +52089,7 @@ var WORDPLAY_ATTRIBUTES = [
   "data-opening"
 ];
 var KNOWN_ATTRIBUTES = [...STANDARD_ATTRIBUTES, ...WORDPLAY_ATTRIBUTES];
-var isPageElement = (element) => isSection(element) && !isContext(element) && !hasCondition(element);
+var isPageElement = (element) => isPageAttrs(element.tagName, (name) => element.hasAttribute(name));
 var isContext = (element) => element.hasAttribute("data-context");
 var hasCondition = (element) => element.hasAttribute("data-expect");
 var isSection = (element) => element.tagName.toLowerCase() === "section";
@@ -52516,7 +52548,6 @@ function publishableProblems(wordplay, source) {
 }
 
 // packages/player/src/lib/builder-turn.ts
-var MAX_TURNS = 40;
 var MAX_BUILD_MESSAGE = 3e4;
 var TRIAL_TURNS = 30;
 var TRIAL_CHARS = 2e3;
@@ -68310,7 +68341,7 @@ async function simulate(source, persona, id, host) {
         maxTokens: LEARNER_MAX_TOKENS
       })).trim();
       if (!student || DONE.test(student)) break;
-      turns.push({ role: "user", content: student.slice(0, 4e3) });
+      turns.push({ role: "user", content: student.slice(0, MAX_TUTOR_MESSAGE) });
       host.send({ role: "user", content: student });
       const { parts } = tutorTurn(wordplay, source, title, { held });
       const tutor = await host.ask({
@@ -68856,30 +68887,7 @@ function listTrials(dir, stem, take = 12) {
 // packages/player/src/bridge/preview.ts
 var FOLDER = "/preview/folder/";
 var PLAY = "/play/";
-var FOLDER_TYPES = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  gif: "image/gif",
-  webp: "image/webp",
-  avif: "image/avif",
-  svg: "image/svg+xml",
-  mp3: "audio/mpeg",
-  ogg: "audio/ogg",
-  wav: "audio/wav",
-  m4a: "audio/mp4",
-  weba: "audio/webm",
-  mp4: "video/mp4",
-  webm: "video/webm",
-  ogv: "video/ogg",
-  pdf: "application/pdf",
-  woff2: "font/woff2",
-  woff: "font/woff",
-  ttf: "font/ttf",
-  otf: "font/otf"
-};
 var MAX_MESSAGE = 4e3;
-var MAX_TURNS2 = 40;
 var PLAY_ROUTES = /* @__PURE__ */ new Set(["lesson", "lesson/state", "lesson/shared", "tutor", "tutor/history"]);
 var Preview = class {
   constructor(options) {
@@ -68915,7 +68923,7 @@ var Preview = class {
         play,
         turn.source,
         turn.conversationId,
-        turn.messages.slice(-MAX_TURNS2),
+        turn.messages.slice(-MAX_TURNS),
         {
           held: turn.held,
           skipped: turn.skipped,
@@ -69608,8 +69616,8 @@ var Preview = class {
     let size = 0;
     for await (const chunk of request) {
       size += chunk.length;
-      if (size > 5 * 1024 * 1024) {
-        return json3(response, 413, { error: "Pictures must be under 4 MB. Use a smaller one." });
+      if (size > MAX_PICTURE) {
+        return json3(response, 413, { error: "Pictures must be under 5 MB. Use a smaller one." });
       }
       chunks.push(chunk);
     }
@@ -69746,8 +69754,8 @@ var Preview = class {
    */
   async say(id, said2) {
     const { play, source, trial } = this.simulated(id);
-    if (trial.turns.length >= MAX_TURNS2) {
-      throw new Error(`Trial ${id} has had its ${MAX_TURNS2} turns; start another.`);
+    if (trial.turns.length >= MAX_TURNS) {
+      throw new Error(`Trial ${id} has had its ${MAX_TURNS} turns; start another.`);
     }
     const wordplay = parseWordplay(source);
     const operations = trial.operations ?? [];
@@ -70232,7 +70240,7 @@ server.registerTool(
     description: "The simulated student's next message to the tutor, in a trial begun with start_trial. Answers with the tutor's reply as the page shows it, and what changed on the page (a step appearing, the tutor operating a control, the wordplay complete), with the page as it now reads when anything did.",
     inputSchema: {
       trial: external_exports.string().min(1).describe("The trial's id, from start_trial."),
-      message: external_exports.string().min(1).max(4e3).describe("What the student says.")
+      message: external_exports.string().min(1).max(MAX_TUTOR_MESSAGE).describe("What the student says.")
     },
     annotations: TRIAL
   },
