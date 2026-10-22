@@ -39035,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "5b68b830c0b1";
+var PREVIEW_BUILD = false ? "source" : "7902ef27f51f";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67988,20 +67988,12 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         events: now?.events ?? [],
         ...now?.page ? { page: now.page } : {}
       };
-      const judged = readMarkers(answer).shares.at(-1);
-      const shared = judged !== void 0 && wordplay.shared?.tutor && judged !== null && !refusalOfShared(wordplay.shared, judged) ? { shared: { value: judged, at: (/* @__PURE__ */ new Date()).toISOString(), by: "tutor" } } : {};
       trials.save({
         ...now ?? {},
         id,
         lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
         turns: after2,
-        ...keptAfter(
-          wordplay,
-          was,
-          { held: heldAfterReply(wordplay, was.held, answer) },
-          { by: "tutor", reply: repliesIn(after2) }
-        ),
-        ...shared
+        ...keptReply(wordplay, was, answer, after2)
       });
     };
     const shown = new ReadableStream({
@@ -68134,6 +68126,19 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
       default:
         return null;
     }
+  };
+}
+function keptReply(wordplay, was, answer, turns, did) {
+  const judged = readMarkers(answer).shares.at(-1);
+  const shared = judged !== void 0 && wordplay.shared?.tutor && judged !== null && !refusalOfShared(wordplay.shared, judged) ? { shared: { value: judged, at: (/* @__PURE__ */ new Date()).toISOString(), by: "tutor" } } : {};
+  return {
+    ...keptAfter(
+      wordplay,
+      was,
+      { held: heldAfterReply(wordplay, was.held, answer), ...did ? { did } : {} },
+      { by: "tutor", reply: repliesIn(turns) }
+    ),
+    ...shared
   };
 }
 
@@ -69257,7 +69262,7 @@ var Preview = class {
     return json3(response, 200, { changed: hashOf(text3) });
   }
   /**
-   * **The preview's page is the creator** (plans/plugin-as-creator.md; Javi,
+   * **The preview's page is the creator** (docs/creator.md; Javi,
    * 1 October: the plugin "should be the same" as Labs' creator), bundled
    * into the plugin beside the player (`scripts/creator-build.ts`), which it
    * falls back to in a plugin built before it.
@@ -69347,7 +69352,7 @@ var Preview = class {
     return relay(response, answer ?? Response.json({ error: "Nothing here." }, { status: 404 }));
   }
   /**
-   * **A student's preview of a play, by its path** (plans/preview-by-path.md):
+   * **A student's preview of a play, by its path** (docs/creator.md):
    * `/play/<path>` is the bare player on that file, `/play/<path>/api/…` its
    * routes and `/play/<path>/folder/…` the files beside it, read afresh on
    * every request, its trials beside it. The path is from the root, its parts
@@ -69488,16 +69493,12 @@ var Preview = class {
       sent.fresh !== false
     );
     const settings = withChoice(this.builderSettings(), this.builderChoices(), sent.builder);
-    const reply = settings.backend === "key" ? keyReply(settings, {
+    const reply = replyOn(settings, {
       system,
       messages,
       role: "builder",
-      maxTokens: BUILD_MAX_TOKENS
-    }) : tutorReply(settings, {
-      system: system.join(""),
-      message: replayed(messages, ["Author", "You"]),
-      session: randomUUID(),
-      resume: false
+      maxTokens: BUILD_MAX_TOKENS,
+      names: ["Author", "You"]
     });
     return this.streamTo(response, reply, "The assistant");
   }
@@ -69518,12 +69519,7 @@ var Preview = class {
     const wordplay = parseWordplay(file2);
     const { parts } = tutorTurn(wordplay, file2, titleOf(wordplay), { held, ...readView(sent) });
     const settings = withChoice(this.settings(), this.choices(), sent.tutor);
-    const reply = settings.backend === "key" ? keyReply(settings, { system: parts, messages }) : tutorReply(settings, {
-      system: parts.join(""),
-      message: replayed(messages),
-      session: randomUUID(),
-      resume: false
-    });
+    const reply = replyOn(settings, { system: parts, messages });
     return this.streamTo(response, reply, "The tutor");
   }
   /**
@@ -69554,14 +69550,11 @@ var Preview = class {
     await simulate(file2, persona, `sim-${randomUUID().slice(0, 8)}`, {
       ask: async ({ who, system, messages, maxTokens }) => {
         if (gone) throw new Error("The page went.");
-        const reply = settings.backend === "key" ? keyReply(settings, { system, messages, maxTokens }) : tutorReply(settings, {
-          system: system.join(""),
-          message: replayed(
-            messages,
-            who === "learner" ? ["Tutor", "You (the student)"] : ["Student", "Tutor (you)"]
-          ),
-          session: randomUUID(),
-          resume: false
+        const reply = replyOn(settings, {
+          system,
+          messages,
+          maxTokens,
+          names: who === "learner" ? ["Tutor", "You (the student)"] : ["Student", "Tutor (you)"]
         });
         asking = reply.cancel;
         let answer = "";
@@ -69681,7 +69674,7 @@ var Preview = class {
       choices,
       choice
     );
-    const reply = settings.backend === "key" ? keyReply(settings, { system: parts, messages }) : tutorReply(settings, { system: parts.join(""), message, session, resume });
+    const reply = replyOn(settings, { system: parts, messages, message, session, resume });
     const save = (usage, model) => {
       const now = readTrial(dir, stem, id);
       const replies = messages.filter((turn) => turn.role === "assistant").length + 1;
@@ -69804,11 +69797,12 @@ var Preview = class {
       ...kept,
       lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
       turns,
-      ...keptAfter(
+      ...keptReply(
         wordplay,
         { held: kept.held, skipped: kept.skipped ?? [], events: kept.events ?? [] },
-        { held, did: performed },
-        { by: "tutor", reply: repliesIn(turns) }
+        answer,
+        turns,
+        performed
       ),
       operations: now
     });
@@ -70078,6 +70072,19 @@ function said(response, words2) {
   response.end(
     `<!doctype html><meta charset="utf-8"><title>Wordplay</title><p style="font:15px system-ui;padding:2rem">${safe} <a href="/preview/local">Back to the lesson</a></p>`
   );
+}
+function replyOn(settings, turn) {
+  return settings.backend === "key" ? keyReply(settings, {
+    system: turn.system,
+    messages: turn.messages,
+    ...turn.role ? { role: turn.role } : {},
+    ...turn.maxTokens ? { maxTokens: turn.maxTokens } : {}
+  }) : tutorReply(settings, {
+    system: turn.system.join(""),
+    message: turn.message ?? replayed(turn.messages, turn.names),
+    session: turn.session ?? randomUUID(),
+    resume: turn.resume ?? false
+  });
 }
 
 // packages/player/src/bridge/main.ts
