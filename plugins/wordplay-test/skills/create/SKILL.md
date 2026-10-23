@@ -18,7 +18,7 @@ What they gave, if anything: $ARGUMENTS
    ```html
    <!doctype html>
    <html lang="en">
-   <body data-wordplay="1">
+   <body data-wordplay="1" data-chat data-progress data-pages data-skip>
    </body>
    </html>
    ```

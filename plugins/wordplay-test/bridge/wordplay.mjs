@@ -39035,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "9f83c50b507a";
+var PREVIEW_BUILD = false ? "source" : "2c14509b6567";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39430,7 +39430,7 @@ function keyElementsOf(calculator) {
 init_define_WORDPLAY_ENGINE();
 var SHARED_TYPE = "application/wordplay-shared";
 var SHARED_FACTS = ["seconds", "steps", "messages", "skips"];
-var KEYS = /* @__PURE__ */ new Set(["fields", "names", "guests", "entries", "facts", "tutor"]);
+var KEYS = /* @__PURE__ */ new Set(["fields", "names", "guests", "entries", "facts", "tutor", "tally"]);
 var MAX_FIELDS = 40;
 var isPlain = (value) => !!value && typeof value === "object" && !Array.isArray(value);
 function readField(name, sent) {
@@ -39514,6 +39514,22 @@ function readSharedJson(text3) {
   for (const key2 of ["names", "guests", "tutor"])
     if (sent[key2] !== void 0 && typeof sent[key2] !== "boolean")
       problems.push(`The shared block's "${key2}" is true or false.`);
+  const tally = [];
+  if (sent.tally !== void 0) {
+    const named = Array.isArray(sent.tally) ? sent.tally : [sent.tally];
+    if (named.length > MAX_FIELDS)
+      problems.push(
+        `The shared block's "tally" names ${named.length} fields; it may name ${MAX_FIELDS}.`
+      );
+    for (const name of named.slice(0, MAX_FIELDS)) {
+      const field = typeof name === "string" ? fields?.[name] : void 0;
+      if (!field)
+        problems.push(`The shared block's "tally" names "${String(name)}", which is not a field.`);
+      else if (field.type === "text")
+        problems.push(`The shared block's "tally" cannot total "${name}", a text field.`);
+      else if (!tally.includes(name)) tally.push(name);
+    }
+  }
   return {
     block: {
       fields,
@@ -39521,7 +39537,8 @@ function readSharedJson(text3) {
       guests: sent.guests !== false,
       entries: entries2,
       facts: [...new Set(facts)],
-      tutor: sent.tutor === true
+      tutor: sent.tutor === true,
+      tally
     },
     problems
   };
@@ -39581,23 +39598,56 @@ function refusalOfShared(block, value) {
   }
   return null;
 }
-
-// packages/format/src/openings.ts
-init_define_WORDPLAY_ENGINE();
-var squash = (text3) => text3.replace(/\s+/g, " ").trim();
-function chatBeside(wordplay) {
-  return wordplay.body?.getAttribute("data-chat")?.trim().toLowerCase() !== "false";
-}
-function openingOf(wordplay) {
-  return squash(wordplay.body?.getAttribute("data-opening") ?? "") || null;
-}
-function chatOpenings(wordplay) {
-  const lines = {};
-  for (const chat of wordplay.chats) {
-    const line = squash(chat.element.getAttribute("data-opening") ?? "");
-    if (line && !(chat.name in lines)) lines[chat.name] = line;
+function tallyOf(block, value) {
+  const adds = {};
+  if (!block?.tally.length || !block.fields || !isPlain(value) || refusalOfShared(block, value))
+    return adds;
+  for (const name of block.tally) {
+    const field = block.fields[name];
+    const one = value[name];
+    if (!field || one === void 0) continue;
+    if (field.type === "number" && typeof one === "number") {
+      adds[`tally:${name}:n`] = 1;
+      adds[`tally:${name}:sum`] = one;
+    } else if (field.type === "choice" || field.type === "boolean")
+      adds[`tally:${name}:${String(one)}`] = 1;
   }
-  return lines;
+  return adds;
+}
+function tallyFrom(block, counts) {
+  if (!block?.tally.length || !block.fields) return void 0;
+  const of = (key2) => counts.get(key2) ?? 0;
+  const tally = {};
+  for (const name of block.tally) {
+    const field = block.fields[name];
+    if (field?.type === "number")
+      tally[name] = { n: of(`tally:${name}:n`), sum: of(`tally:${name}:sum`) };
+    else if (field?.type === "choice" || field?.type === "boolean") {
+      const values = field.type === "choice" ? field.of.map(String) : ["true", "false"];
+      tally[name] = Object.fromEntries(values.map((one) => [one, of(`tally:${name}:${one}`)]));
+    }
+  }
+  return tally;
+}
+function countsOver(block, values) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const value of values)
+    for (const [key2, n] of Object.entries(tallyOf(block, value)))
+      counts.set(key2, (counts.get(key2) ?? 0) + n);
+  return counts;
+}
+
+// packages/format/src/adds.ts
+init_define_WORDPLAY_ENGINE();
+var DECLARATIONS = ["data-chat", "data-progress", "data-pages", "data-skip"];
+function addsOf(wordplay) {
+  const has = (name) => wordplay.body?.hasAttribute(name) ?? false;
+  return {
+    chat: has("data-chat"),
+    progress: has("data-progress"),
+    pages: has("data-pages"),
+    skip: has("data-skip")
+  };
 }
 
 // packages/format/src/tree.ts
@@ -51445,10 +51495,10 @@ function hiddenFromReader(element) {
   return element.getAttribute("aria-hidden") === "true" || element.hasAttribute("hidden") || SKIPPED.has(element.tagName.toLowerCase());
 }
 function chatName(element) {
-  const label = squash2(element.getAttribute("aria-label") ?? "").trim();
+  const label = squash(element.getAttribute("aria-label") ?? "").trim();
   if (label) return label;
   const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-  return squash2(heading?.textContent ?? "").trim() || "Chat";
+  return squash(heading?.textContent ?? "").trim() || "Chat";
 }
 function isLive(element) {
   const live = element.getAttribute("aria-live");
@@ -51495,10 +51545,10 @@ function valueOf(element, role) {
   if (tag === "progress" || tag === "meter") return element.getAttribute("value") ?? void 0;
   return void 0;
 }
-var squash2 = (text3) => text3.replace(/\s+/g, " ");
+var squash = (text3) => text3.replace(/\s+/g, " ");
 var matchKey = (text3) => text3.toLowerCase().replace(/\s+/g, "");
 function nameOf(element) {
-  return squash2(
+  return squash(
     computeAccessibleName(element, {
       getComputedStyle: (one) => styleOf(one)
     })
@@ -51511,7 +51561,7 @@ function childrenOf(element, options) {
   const out = [];
   for (const child of Array.from(element.childNodes)) {
     if (child.nodeType === 3) {
-      const text3 = squash2(child.textContent ?? "");
+      const text3 = squash(child.textContent ?? "");
       if (text3.trim()) out.push({ role: "text", name: text3 });
       else if (text3) out.push({ role: "text", name: " " });
       continue;
@@ -51536,7 +51586,7 @@ function nodesOf(element, options) {
   const role = roleOf(element);
   if (element.hasAttribute("data-met") && (!role || role === "generic")) {
     const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-    const name2 = squash2(element.getAttribute("aria-label") ?? "").trim() || squash2(heading?.textContent ?? "").trim() || (element.getAttribute("data-met") ?? "");
+    const name2 = squash(element.getAttribute("aria-label") ?? "").trim() || squash(heading?.textContent ?? "").trim() || (element.getAttribute("data-met") ?? "");
     return [{ role: "group", name: name2, ...withChildren(childrenOf(element, options)) }];
   }
   const live = isLive(element);
@@ -51577,7 +51627,7 @@ function tidy(nodes) {
   const out = [];
   for (const node2 of nodes) {
     const last = out[out.length - 1];
-    if (node2.role === "text" && last?.role === "text") last.name = squash2(last.name + node2.name);
+    if (node2.role === "text" && last?.role === "text") last.name = squash(last.name + node2.name);
     else out.push(node2.role === "text" ? { ...node2 } : node2);
   }
   return out.map((node2) => node2.role === "text" ? { role: "text", name: node2.name.trim() } : node2).filter((node2) => node2.role !== "text" || node2.name);
@@ -51603,7 +51653,7 @@ function treeText(nodes, depth = 0) {
   return lines;
 }
 var isPage = (element) => isPageAttrs(element.tagName, (name) => element.hasAttribute(name));
-var pagesOf = (body2) => Array.from(body2.children).filter(isPage);
+var pagesOf = (body2) => addsOf({ body: body2 }).pages ? Array.from(body2.children).filter(isPage) : [];
 function documentTree(body2, current = 0) {
   const pages = pagesOf(body2);
   if (!pages.length) return accessibilityTree(body2);
@@ -51628,9 +51678,11 @@ var STANDARD_ATTRIBUTES = [
 ];
 var WORDPLAY_ATTRIBUTES = [
   "data-chat",
+  "data-progress",
+  "data-pages",
+  "data-skip",
   "data-calculator",
   "data-key",
-  "data-skip",
   "data-person",
   "data-opening"
 ];
@@ -51643,12 +51695,12 @@ function conditionOf(element) {
   const expect = element.getAttribute("data-expect");
   return expect === null ? null : expect.trim();
 }
-var squash3 = (text3) => text3.replace(/\s+/g, " ").trim();
+var squash2 = (text3) => text3.replace(/\s+/g, " ").trim();
 function nameOfElement(element, fallback) {
-  const label = squash3(element.getAttribute("aria-label") ?? "");
+  const label = squash2(element.getAttribute("aria-label") ?? "");
   if (label) return label;
   const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-  const text3 = squash3(heading?.textContent ?? "");
+  const text3 = squash2(heading?.textContent ?? "");
   return text3 || fallback;
 }
 function parseWordplay(source) {
@@ -51674,7 +51726,7 @@ function parseWordplay(source) {
           parent: holder,
           children: [],
           key: KEY_KINDS.includes(kind) ? kind : null,
-          label: squash3(child.textContent ?? ""),
+          label: squash2(child.textContent ?? ""),
           value: (child.getAttribute("value") ?? "").trim(),
           condition: conditionOf(child),
           calculator: calculatorOf(child)
@@ -51758,7 +51810,7 @@ function parseWordplay(source) {
   return wordplay;
 }
 function titleOf(wordplay) {
-  return squash3(wordplay.document.querySelector("title")?.textContent ?? "");
+  return squash2(wordplay.document.querySelector("title")?.textContent ?? "");
 }
 function givenParts(wordplay, held) {
   const holds = new Set(held);
@@ -51787,6 +51839,7 @@ function isDone(wordplay, held) {
   return total > 0 && given === total;
 }
 function skippable(wordplay, held) {
+  if (!addsOf(wordplay).skip) return [];
   return waitingParts(wordplay, held).filter(
     (part) => part.kind === "step" && part.skip
   );
@@ -51824,7 +51877,7 @@ function contextText(element) {
   const paragraphs = [];
   let line = "";
   const end = () => {
-    const text3 = squash3(line);
+    const text3 = squash2(line);
     if (text3) paragraphs.push(text3);
     line = "";
   };
@@ -51854,7 +51907,11 @@ function contextText(element) {
 }
 function serialize(document2) {
   const doctype = document2.doctype ? "<!doctype html>\n" : "";
-  return doctype + document2.documentElement.outerHTML + "\n";
+  const html = document2.documentElement.outerHTML.replace(
+    /<body\b[^>]*>/i,
+    (tag) => tag.replace(/ (data-(?:chat|progress|pages|skip))=""/g, " $1")
+  );
+  return doctype + html + "\n";
 }
 
 // packages/format/src/checks.ts
@@ -51919,12 +51976,20 @@ function readableProblems(wordplay) {
     }
     if (element !== body2 && element.hasAttribute("data-wordplay"))
       problems.push(`data-wordplay belongs on the <body>, not on a ${describe3(element)}.`);
-    const skip = element.getAttribute("data-skip");
-    if (skip !== null && skip !== "false" && skip !== "true")
-      problems.push(`data-skip is "false" or left out, not "${skip}".`);
-    if (skip !== null && (!hasCondition(element) || !isSection(element) || element.closest("[data-context]")))
+    for (const name of ["data-progress", "data-pages"])
+      if (element !== body2 && element.hasAttribute(name))
+        problems.push(`${name} goes on the <body>, not on this ${describe3(element)}.`);
+    const skip = element === body2 ? null : element.getAttribute("data-skip");
+    const step = hasCondition(element) && isSection(element) && !element.closest("[data-context]");
+    if (skip !== null && !step)
       problems.push(
-        `data-skip goes on a step, a <section> with a condition, not on this ${describe3(element)}.`
+        `data-skip goes on the <body>, or as data-skip="false" on a step, not on this ${describe3(element)}.`
+      );
+    else if (skip !== null && skip.trim().toLowerCase() !== "false")
+      problems.push(`data-skip on a step is "false" or left out, not "${skip}".`);
+    else if (skip !== null && body2 && !addsOf(wordplay).skip)
+      problems.push(
+        `This wordplay offers no Skip (no data-skip on its <body>), so data-skip="false" on the step "${nameOfElement(element, element.id || "unnamed")}" changes nothing. Take it off, or put data-skip on the <body>.`
       );
     const calculator = element.hasAttribute("data-calculator");
     const chat = element !== body2 && element.hasAttribute("data-chat");
@@ -51942,9 +52007,11 @@ function readableProblems(wordplay) {
     else if (key2 !== null && !KEY_KINDS.includes(key2.trim().toLowerCase()))
       problems.push(`data-key is ${KEY_KINDS.join(", ")}, not "${key2}".`);
   }
-  const beside = body2?.getAttribute("data-chat");
-  if (beside != null && beside.trim().toLowerCase() !== "false")
-    problems.push(`data-chat on the <body> is "false" or left out, not "${beside}".`);
+  for (const name of DECLARATIONS)
+    if (body2?.hasAttribute(name) && body2.getAttribute(name) !== "")
+      problems.push(
+        `${name} on the <body> takes no value: write it alone for what it adds, or leave it off.`
+      );
   if (body2?.hasAttribute("data-context"))
     problems.push("The <body> cannot be context: it is what the student sees.");
   if (body2 && hasCondition(body2))
@@ -52030,14 +52097,14 @@ function readableProblems(wordplay) {
         `An opening line is ${line.length} characters; it may be ${MAX_OPENING}, a sentence or two.`
       );
   }
-  if (!chatBeside(wordplay)) {
+  if (!addsOf(wordplay).chat) {
     if (body2?.hasAttribute("data-opening"))
       problems.push(
-        "This wordplay has no chat beside the page, so the opening line on its <body> is never shown. Put it on a chat in the page (data-opening on the data-chat element), or take it off."
+        "This wordplay has no chat beside the page (no data-chat on its <body>), so the opening line on its <body> is never shown. Put it on a chat in the page, or put data-chat on the <body>."
       );
     if (!wordplay.chats.length && wordplay.parts.some((part) => part.condition !== null))
       problems.push(
-        "This wordplay has no chat anywhere, so the tutor hears nothing: a condition holds only when a script says so (document.wordplay.met) or the step is skipped. Draw a chat in the page (data-chat), or take the attribute off the <body>."
+        "This wordplay has no chat anywhere, so the tutor hears nothing: a condition holds only when a script says so (document.wordplay.met) or the step is skipped. Put data-chat on the <body>, or draw a chat in the page (data-chat on a <div>)."
       );
   }
   for (const step of wordplay.steps)
@@ -52122,6 +52189,58 @@ function localRunFacts(turns, events) {
     messages: turns.filter((turn) => turn.role === "user").length,
     seconds: activeSeconds(events.map((event) => event.at))
   };
+}
+
+// packages/format/src/links.ts
+init_define_WORDPLAY_ENGINE();
+var NAME = /^[a-z0-9][a-z0-9_-]*$/i;
+function wordplayNameOf(href) {
+  const address = href.trim().split(/[?#]/)[0];
+  if (href.trim().startsWith("#")) return null;
+  const onSite = /^\/l\/([^/]+)\/?$/.exec(address)?.[1];
+  const name = onSite ?? address;
+  return NAME.test(name) ? name : null;
+}
+function linkedWordplays(document2) {
+  const names = /* @__PURE__ */ new Set();
+  for (const link of Array.from(document2.body?.querySelectorAll("a[href]") ?? [])) {
+    const name = wordplayNameOf(link.getAttribute("href") ?? "");
+    if (name) names.add(name);
+  }
+  return [...names];
+}
+
+// packages/format/src/standing.ts
+init_define_WORDPLAY_ENGINE();
+function emptyStandings(self, names, title = self) {
+  const none = (name) => ({
+    title: name,
+    completed: 0,
+    minutes: null,
+    mine: null
+  });
+  return {
+    self,
+    wordplays: {
+      ...Object.fromEntries(names.map((name) => [name, none(name)])),
+      [self]: { ...none(self), title }
+    }
+  };
+}
+
+// packages/format/src/openings.ts
+init_define_WORDPLAY_ENGINE();
+var squash3 = (text3) => text3.replace(/\s+/g, " ").trim();
+function openingOf(wordplay) {
+  return squash3(wordplay.body?.getAttribute("data-opening") ?? "") || null;
+}
+function chatOpenings(wordplay) {
+  const lines = {};
+  for (const chat of wordplay.chats) {
+    const line = squash3(chat.element.getAttribute("data-opening") ?? "");
+    if (line && !(chat.name in lines)) lines[chat.name] = line;
+  }
+  return lines;
 }
 
 // packages/player/src/lib/frame-document.ts
@@ -66982,7 +67101,12 @@ function localLesson(source, held, meta4, events = [], turns = []) {
     progress: progressOf(wordplay, held),
     events: shownEvents(wordplay, events, localRunFacts(turns, events)),
     openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
-    chat: chatBeside(wordplay),
+    adds: addsOf(wordplay),
+    standings: emptyStandings(
+      meta4.stem,
+      linkedWordplays(wordplay.document),
+      titleOf(wordplay) || meta4.stem
+    ),
     problems: [
       .../* @__PURE__ */ new Set([
         ...meta4.problems,
@@ -67503,11 +67627,24 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     const entries2 = sharing2.map(entryOf).filter((one) => one !== null);
     const own2 = sharing2.find((trial) => !trial.simulated);
     const mine = own2 ? entryOf(own2) : null;
+    const tally = tallyFrom(
+      block,
+      countsOver(
+        block,
+        entries2.map((one) => one.value)
+      )
+    );
     return {
       ...mine ? { mine } : {},
       entries: entries2.slice(0, block?.entries ?? SHARED_ENTRIES),
-      count: entries2.length
+      count: entries2.length,
+      ...tally ? { tally } : {}
     };
+  }
+  function everyonesWall(wordplay) {
+    const everyone = wall(wordplay);
+    delete everyone.mine;
+    return everyone;
   }
   function share(init) {
     const sent = readBody(init);
@@ -67562,7 +67699,9 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
       case "POST lesson/shared":
         return share(init);
       case "GET lesson/shared":
-        return json2(200, { shared: wall(parseWordplay(source())) });
+        return json2(200, {
+          shared: /[?&]mine=1\b/.test(path2) ? wall(parseWordplay(source())) : everyonesWall(parseWordplay(source()))
+        });
       case "DELETE tutor/history": {
         const id = new URLSearchParams(path2.split("?")[1] ?? "").get("id");
         if (!trials2.remove || !find3(id))

@@ -279,10 +279,16 @@ How to write it:
      beside what a student would want to talk through, with context inside
      it for that conversation alone. Its first line, a question that starts
      the conversation where the page cannot, is `data-opening` on it; the
-     tutor's own chat's is on the body. A wordplay whose questions are all
-     asked in chats on the page, or that asks none, says `data-chat="false"`
-     on its `<body>`: no chat beside it; an opening line then goes on a chat
-     in the page, not the body.
+     tutor's own chat's is on the body.
+   - **What Wordplay draws for it**: the body of a new wordplay declares
+     it, `data-chat`, the tutor's chat beside the page; `data-progress`;
+     `data-pages`; `data-skip`. Leave `data-chat` off a wordplay whose
+     questions are all asked in chats on the page, or that asks none; an
+     opening line then goes on a chat in the page, not the body. Leave
+     `data-pages` off a page that draws its own navigation or reads as one
+     scroll. Leave `data-progress` off a page with nothing to count. Leave
+     `data-skip` off a wordplay whose steps must be earned, and
+     `data-skip="false"` on the one step that must be.
    - **Words the tutor says on the page**, a character's line, a caption, a
      verdict, go in an `<output>` the tutor writes (`data-tutor`), named for
      who or what it is. Characters talking with the student are a chat the
@@ -293,9 +299,22 @@ How to write it:
    - **What the class did**, how everyone chose, a wall of attempts, the
      fastest times, is shared (the format's Sharing): the script shares
      the student's entry and draws the wall in a part revealed once they
-     have answered, so nobody sees the class before they commit. A number
+     have answered, so nobody sees the class before they commit. Each
+     reader has one entry, replaced when they share again, so a count over
+     entries counts each reader once. To show how many readers got
+     something, share it as a field of the entry (`"solved": { "type":
+     "boolean" }`, set once their script says so) and name it in `tally`,
+     which is totaled over everyone, not only the entries sent; the newest
+     entries are for showing who, the tally for how many. A number
      the page reports is the student's claim; rank by a fact the server
      counts (`facts`) or by the tutor's judgement (`tutor: true`).
+   - **A page of wordplays**, a table of elements, a map of chapters, a
+     list of puzzles, links each by name (`<a href="sodium-2">`) and
+     colors a link the reader finished with `a[data-done]` in its own
+     CSS, or draws from `document.wordplay.standing("sodium-2")`: how many
+     finished it, and the reader's own `mine`. A wordplay that wants to
+     say how many finished it reads its own with `standing()`; how readers
+     did on each of its steps is the wall's (`shared`, with `facts`).
 {{!-- plans/home-and-authors.md, section 3: the author reads the wall back and
      the result is content of the file, never a second channel. --}}
 {{#if labsTools}}
@@ -465,7 +484,7 @@ give all of it:
 <file>
 <!doctype html>
 <html lang="en">
-<body data-wordplay="1">
+<body data-wordplay="1" data-chat data-progress data-pages data-skip>
 <p>The opening.</p>
 </body>
 </html>
