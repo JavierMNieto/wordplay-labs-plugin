@@ -3027,7 +3027,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve2.call(this, root, ref);
+      let _sch = resolve4.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a5 = root.localRefs) === null || _a5 === void 0 ? void 0 : _a5[ref];
         const { schemaId } = this.opts;
@@ -3054,7 +3054,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve2(root, ref) {
+    function resolve4(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3887,7 +3887,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve2(baseURI, relativeURI, options) {
+    function resolve4(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const {
         parsed: baseParsed,
@@ -4256,7 +4256,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve2,
+      resolve: resolve4,
       resolveComponent,
       equal,
       serialize: serialize2,
@@ -4422,19 +4422,19 @@ var require_core = __commonJS({
         this.addKeyword("$async");
       }
       _addDefaultMetaSchema() {
-        const { $data, meta: meta3, schemaId } = this.opts;
+        const { $data, meta: meta4, schemaId } = this.opts;
         let _dataRefSchema = $dataRefSchema;
         if (schemaId === "id") {
           _dataRefSchema = { ...$dataRefSchema };
           _dataRefSchema.id = _dataRefSchema.$id;
           delete _dataRefSchema.$id;
         }
-        if (meta3 && $data)
+        if (meta4 && $data)
           this.addMetaSchema(_dataRefSchema, _dataRefSchema[schemaId], false);
       }
       defaultMeta() {
-        const { meta: meta3, schemaId } = this.opts;
-        return this.opts.defaultMeta = typeof meta3 == "object" ? meta3[schemaId] || meta3 : void 0;
+        const { meta: meta4, schemaId } = this.opts;
+        return this.opts.defaultMeta = typeof meta4 == "object" ? meta4[schemaId] || meta4 : void 0;
       }
       validate(schemaKeyRef, data) {
         let v;
@@ -4454,12 +4454,12 @@ var require_core = __commonJS({
         const sch = this._addSchema(schema, _meta);
         return sch.validate || this._compileSchemaEnv(sch);
       }
-      compileAsync(schema, meta3) {
+      compileAsync(schema, meta4) {
         if (typeof this.opts.loadSchema != "function") {
           throw new Error("options.loadSchema should be a function");
         }
         const { loadSchema } = this.opts;
-        return runCompileAsync.call(this, schema, meta3);
+        return runCompileAsync.call(this, schema, meta4);
         async function runCompileAsync(_schema, _meta) {
           await loadMetaSchema.call(this, _schema.$schema);
           const sch = this._addSchema(_schema, _meta);
@@ -4491,7 +4491,7 @@ var require_core = __commonJS({
           if (!this.refs[ref])
             await loadMetaSchema.call(this, _schema.$schema);
           if (!this.refs[ref])
-            this.addSchema(_schema, ref, meta3);
+            this.addSchema(_schema, ref, meta4);
         }
         async function _loadSchema(ref) {
           const p = this._loading[ref];
@@ -4708,7 +4708,7 @@ var require_core = __commonJS({
           }
         }
       }
-      _addSchema(schema, meta3, baseId, validateSchema = this.opts.validateSchema, addSchema = this.opts.addUsedSchema) {
+      _addSchema(schema, meta4, baseId, validateSchema = this.opts.validateSchema, addSchema = this.opts.addUsedSchema) {
         let id;
         const { schemaId } = this.opts;
         if (typeof schema == "object") {
@@ -4724,7 +4724,7 @@ var require_core = __commonJS({
           return sch;
         baseId = (0, resolve_1.normalizeId)(id || baseId);
         const localRefs = resolve_1.getSchemaRefs.call(this, schema, baseId);
-        sch = new compile_1.SchemaEnv({ schema, schemaId, meta: meta3, baseId, localRefs });
+        sch = new compile_1.SchemaEnv({ schema, schemaId, meta: meta4, baseId, localRefs });
         this._cache.set(sch.schema, sch);
         if (addSchema && !baseId.startsWith("#")) {
           if (baseId)
@@ -8070,12 +8070,12 @@ var require_CSSValueExpression = __commonJS({
         return false;
       }
     };
-    CSSOM.CSSValueExpression.prototype._parseJSString = function(token, idx, sep2) {
-      var endIdx = this._findMatchedIdx(token, idx, sep2), text3;
+    CSSOM.CSSValueExpression.prototype._parseJSString = function(token, idx, sep3) {
+      var endIdx = this._findMatchedIdx(token, idx, sep3), text3;
       if (endIdx === -1) {
         return false;
       } else {
-        text3 = token.substring(idx, endIdx + sep2.length);
+        text3 = token.substring(idx, endIdx + sep3.length);
         return {
           idx: endIdx,
           text: text3
@@ -8115,15 +8115,15 @@ var require_CSSValueExpression = __commonJS({
       if (!isLegal) {
         return false;
       } else {
-        var sep2 = "/";
-        return this._parseJSString(token, idx, sep2);
+        var sep3 = "/";
+        return this._parseJSString(token, idx, sep3);
       }
     };
-    CSSOM.CSSValueExpression.prototype._findMatchedIdx = function(token, idx, sep2) {
+    CSSOM.CSSValueExpression.prototype._findMatchedIdx = function(token, idx, sep3) {
       var startIdx = idx, endIdx;
       var NOT_FOUND = -1;
       while (true) {
-        endIdx = token.indexOf(sep2, startIdx + 1);
+        endIdx = token.indexOf(sep3, startIdx + 1);
         if (endIdx === -1) {
           endIdx = NOT_FOUND;
           break;
@@ -8867,7 +8867,7 @@ var require_canvas = __commonJS({
 
 // packages/player/src/bridge/main.ts
 init_define_WORDPLAY_ENGINE();
-import { dirname as dirname3, join as join8 } from "node:path";
+import { dirname as dirname5, join as join10 } from "node:path";
 
 // packages/format/src/limits.ts
 init_define_WORDPLAY_ENGINE();
@@ -17621,7 +17621,7 @@ var recursive = /* @__PURE__ */ new WeakMap();
 var NONE = 0;
 var ASSUMED = 1;
 var PROVEN = 2;
-function isRecursive(inst, stack, resolve2) {
+function isRecursive(inst, stack, resolve4) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -17631,7 +17631,7 @@ function isRecursive(inst, stack, resolve2) {
   let result = NONE;
   const check2 = (child) => {
     if (result !== PROVEN && child?._zod) {
-      const answer = isRecursive(child, stack, resolve2);
+      const answer = isRecursive(child, stack, resolve4);
       if (answer > result)
         result = answer;
     }
@@ -17642,7 +17642,7 @@ function isRecursive(inst, stack, resolve2) {
       const desc = Object.getOwnPropertyDescriptor(sh, key2);
       if (spread && !desc.enumerable)
         continue;
-      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve2) : NONE;
+      const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve4) : NONE;
       if (child > answer)
         answer = child;
     }
@@ -17706,7 +17706,7 @@ function isRecursive(inst, stack, resolve2) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner2 = def._cachedInner ?? (resolve2 ? inst._zod.innerType : void 0);
+      const inner2 = def._cachedInner ?? (resolve4 ? inst._zod.innerType : void 0);
       merge2(inner2 ? isRecursive(inner2, stack, false) : ASSUMED);
       break;
     }
@@ -25525,10 +25525,10 @@ var $ZodRegistry = class {
     this._idmap = /* @__PURE__ */ new Map();
   }
   add(schema, ..._meta) {
-    const meta3 = _meta[0];
-    this._map.set(schema, meta3);
-    if (meta3 && typeof meta3 === "object" && "id" in meta3) {
-      this._idmap.set(meta3.id, schema);
+    const meta4 = _meta[0];
+    this._map.set(schema, meta4);
+    if (meta4 && typeof meta4 === "object" && "id" in meta4) {
+      this._idmap.set(meta4.id, schema);
     }
     return this;
   }
@@ -25538,9 +25538,9 @@ var $ZodRegistry = class {
     return this;
   }
   remove(schema) {
-    const meta3 = this._map.get(schema);
-    if (meta3 && typeof meta3 === "object" && "id" in meta3) {
-      this._idmap.delete(meta3.id);
+    const meta4 = this._map.get(schema);
+    if (meta4 && typeof meta4 === "object" && "id" in meta4) {
+      this._idmap.delete(meta4.id);
     }
     this._map.delete(schema);
     return this;
@@ -28317,9 +28317,9 @@ function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
       ctx.seen.get(parent).isParent = true;
     }
   }
-  const meta3 = ctx.metadataRegistry.get(schema);
-  if (meta3)
-    assignProps(result.schema, meta3);
+  const meta4 = ctx.metadataRegistry.get(schema);
+  if (meta4)
+    assignProps(result.schema, meta4);
   if (ctx.io === "input" && isTransforming(schema)) {
     delete result.schema.examples;
     delete result.schema.default;
@@ -29638,8 +29638,8 @@ var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   brand() {
     return this;
   },
-  register(reg, meta3) {
-    reg.add(this, meta3);
+  register(reg, meta4) {
+    reg.add(this, meta4);
     return this;
   },
   apply(fn, ...args) {
@@ -30560,8 +30560,8 @@ var ZodType2 = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
   brand() {
     return this;
   },
-  register(reg, meta3) {
-    reg.add(this, meta3);
+  register(reg, meta4) {
+    reg.add(this, meta4);
     return this;
   },
   refine(check2, params) {
@@ -36014,13 +36014,13 @@ var Protocol = class {
     const capturedTransport = this._transport;
     const relatedTaskId = request.params?._meta?.[RELATED_TASK_META_KEY]?.taskId;
     const sessionId = capturedTransport?.sessionId;
-    const store = this._taskStore;
+    const store2 = this._taskStore;
     let relatedTaskFound = true;
     let relatedTaskLookup;
-    if (relatedTaskId && store && this._taskMessageQueue && sessionId !== void 0) {
+    if (relatedTaskId && store2 && this._taskMessageQueue && sessionId !== void 0) {
       relatedTaskFound = false;
       relatedTaskLookup = (async () => {
-        if (!await store.getTask(relatedTaskId, sessionId)) {
+        if (!await store2.getTask(relatedTaskId, sessionId)) {
           throw new McpError(ErrorCode.InvalidParams, `Task not found: ${relatedTaskId}`);
         }
         relatedTaskFound = true;
@@ -36291,7 +36291,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
+        await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error62) {
@@ -36308,7 +36308,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve4, reject) => {
       const earlyReject = (error62) => {
         reject(error62);
       };
@@ -36386,7 +36386,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve2(parseResult.data);
+            resolve4(parseResult.data);
           }
         } catch (error62) {
           reject(error62);
@@ -36648,12 +36648,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve2, reject) => {
+    return new Promise((resolve4, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve2, interval);
+      const timeoutId = setTimeout(resolve4, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -37443,8 +37443,8 @@ function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
 }
 function getCompleter(schema) {
-  const meta3 = schema[COMPLETABLE_SYMBOL];
-  return meta3?.complete;
+  const meta4 = schema[COMPLETABLE_SYMBOL];
+  return meta4?.complete;
 }
 var McpZodTypeKind;
 (function(McpZodTypeKind2) {
@@ -37796,7 +37796,7 @@ var McpServer = class {
     let task = createTaskResult.task;
     const pollInterval = task.pollInterval ?? 5e3;
     while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
+      await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
       const updatedTask = await extra.taskStore.getTask(taskId);
       if (!updatedTask) {
         throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
@@ -38462,12 +38462,12 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve2) => {
+    return new Promise((resolve4) => {
       const json4 = serializeMessage(message);
       if (this._stdout.write(json4)) {
-        resolve2();
+        resolve4();
       } else {
-        this._stdout.once("drain", resolve2);
+        this._stdout.once("drain", resolve4);
       }
     });
   }
@@ -39035,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "7902ef27f51f";
+var PREVIEW_BUILD = false ? "source" : "d63d467f1d37";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39207,7 +39207,7 @@ function tutorReply(settings, turn) {
   writeFileSync(promptFile, turn.system);
   let settle2 = () => {
   };
-  const end = new Promise((resolve2) => settle2 = resolve2);
+  const end = new Promise((resolve4) => settle2 = resolve4);
   const finish = (value) => {
     rmSync(scratch, { recursive: true, force: true });
     settle2(value);
@@ -39281,7 +39281,7 @@ function tutorReply(settings, turn) {
       for (; ; ) {
         while (queue.length) yield queue.shift();
         if (closed) return;
-        await new Promise((resolve2) => wake = resolve2);
+        await new Promise((resolve4) => wake = resolve4);
         wake = null;
       }
     }
@@ -39387,496 +39387,24 @@ function openInBrowser(url2) {
 
 // packages/player/src/bridge/preview.ts
 init_define_WORDPLAY_ENGINE();
-import { createHash as createHash3, randomUUID } from "node:crypto";
-import {
-  existsSync as existsSync6,
-  readdirSync as readdirSync2,
-  readFileSync as readFileSync7,
-  realpathSync,
-  renameSync as renameSync2,
-  statSync as statSync2,
-  writeFileSync as writeFileSync6
-} from "node:fs";
-import http from "node:http";
-import https from "node:https";
-import { basename as basename2, dirname as dirname2, join as join7, resolve, sep } from "node:path";
 
-// packages/player/src/lib/builder-turn.ts
+// packages/player/src/bridge/preview-plays.ts
 init_define_WORDPLAY_ENGINE();
+import { randomUUID as randomUUID4 } from "node:crypto";
+import { existsSync as existsSync8, readFileSync as readFileSync8, realpathSync as realpathSync2, statSync as statSync4 } from "node:fs";
+import { basename as basename4, dirname as dirname4, join as join9, resolve as resolve3, sep as sep2 } from "node:path";
 
-// packages/player/src/lib/lesson-guide.ts
+// packages/player/src/lib/ask-stream.ts
 init_define_WORDPLAY_ENGINE();
+var ANSWER_STOPPED = "";
+function stoppedIn(text3) {
+  const at = text3.indexOf(ANSWER_STOPPED);
+  if (at === -1) return { text: text3, stopped: null };
+  return { text: text3.slice(0, at), stopped: text3.slice(at + ANSWER_STOPPED.length).trim() };
+}
 
-// packages/player/src/player/shell.ts
+// packages/player/src/lib/local-preview.ts
 init_define_WORDPLAY_ENGINE();
-function playerShell(title = "A lesson", host = "artifact", at = "") {
-  const escaped = title.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  return `<title>${escaped}</title>
-<link rel="stylesheet" href="${at}player.css" />
-<div data-shell class="mx-auto flex w-full max-w-[1400px] gap-0 2xl:max-w-[1680px]">
-  <main class="min-w-0 flex-1 overflow-x-clip border-line pb-20 md:border-x lg:max-w-[52rem] 2xl:max-w-[68rem]">
-    <span data-preview-page hidden></span>
-    <div id="player"${host === "bridge" ? ' data-host="bridge"' : ""}><p class="px-4 py-6 text-[14px] text-ink-muted">Opening the wordplay\u2026</p></div>
-  </main>
-</div>
-<script type="module" src="${at}player.js"></script>
-`;
-}
-var PLAYER_ARTIFACT = "https://claude.ai/artifact/ANSJdy2JRLb7Bo3S8bBfBf";
-
-// packages/player/src/lib/prompts.ts
-init_define_WORDPLAY_ENGINE();
-import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
-import { join as join2 } from "node:path";
-
-// packages/player/src/lib/calc-symbols.ts
-init_define_WORDPLAY_ENGINE();
-var SYMBOLS = {
-  sqrt: { label: "\u221A", insert: "\\sqrt{#?}", name: "Square root", group: "Math" },
-  cbrt: { label: "\u221B", insert: "\\sqrt[3]{#?}", name: "Cube root", small: true, group: "Math" },
-  nthroot: { label: "\u207F\u221A", insert: "\\sqrt[#?]{#?}", name: "Nth root", small: true, group: "Math" },
-  square: { label: "x\xB2", insert: "#@^{2}", name: "Squared", postfix: true, group: "Math" },
-  cube: { label: "x\xB3", insert: "#@^{3}", name: "Cubed", postfix: true, group: "Math" },
-  power: { label: "x\u02B8", insert: "#@^{#?}", name: "To the power", postfix: true, group: "Math" },
-  inverse: {
-    label: "x\u207B\xB9",
-    insert: "#@^{-1}",
-    name: "Reciprocal",
-    small: true,
-    postfix: true,
-    group: "Math"
-  },
-  frac: { label: "a/b", insert: "\\frac{#?}{#?}", name: "Fraction", small: true, group: "Math" },
-  abs: {
-    label: "|x|",
-    insert: "\\left|#?\\right|",
-    name: "Absolute value",
-    small: true,
-    group: "Math"
-  },
-  factorial: { label: "n!", insert: "#@!", name: "Factorial", small: true, group: "Math" },
-  percent: { label: "%", insert: "\\%", name: "Per cent", group: "Math" },
-  choose: {
-    label: "nCr",
-    insert: "\\binom{#?}{#?}",
-    name: "Binomial coefficient",
-    small: true,
-    group: "Math"
-  },
-  pi: { label: "\u03C0", insert: "\\pi", name: "Pi", group: "Math" },
-  e: { label: "e", insert: "e", name: "Euler's number", group: "Math" },
-  ans: {
-    label: "Ans",
-    insert: "\\mathrm{Ans}",
-    name: "The last answer",
-    small: true,
-    group: "Math"
-  },
-  sin: { label: "sin", insert: "\\sin(#?)", name: "Sine", small: true, group: "Trig" },
-  cos: { label: "cos", insert: "\\cos(#?)", name: "Cosine", small: true, group: "Trig" },
-  tan: { label: "tan", insert: "\\tan(#?)", name: "Tangent", small: true, group: "Trig" },
-  asin: {
-    label: "sin\u207B\xB9",
-    insert: "\\arcsin(#?)",
-    name: "Inverse sine",
-    small: true,
-    group: "Trig"
-  },
-  acos: {
-    label: "cos\u207B\xB9",
-    insert: "\\arccos(#?)",
-    name: "Inverse cosine",
-    small: true,
-    group: "Trig"
-  },
-  atan: {
-    label: "tan\u207B\xB9",
-    insert: "\\arctan(#?)",
-    name: "Inverse tangent",
-    small: true,
-    group: "Trig"
-  },
-  sinh: {
-    label: "sinh",
-    insert: "\\sinh(#?)",
-    name: "Hyperbolic sine",
-    small: true,
-    group: "Trig"
-  },
-  cosh: {
-    label: "cosh",
-    insert: "\\cosh(#?)",
-    name: "Hyperbolic cosine",
-    small: true,
-    group: "Trig"
-  },
-  tanh: {
-    label: "tanh",
-    insert: "\\tanh(#?)",
-    name: "Hyperbolic tangent",
-    small: true,
-    group: "Trig"
-  },
-  // `\ln` and `\log` rather than `log(` and `log10(`: the name a book prints
-  // goes in, and `mathSource` is the one place that knows LaTeX's `\log` is
-  // base ten where mathjs's `log` is natural.
-  ln: { label: "ln", insert: "\\ln(#?)", name: "Natural logarithm", small: true, group: "Logs" },
-  log: {
-    label: "log",
-    insert: "\\log(#?)",
-    name: "Logarithm base ten",
-    small: true,
-    group: "Logs"
-  },
-  exp: { label: "e\u02E3", insert: "\\exp(#?)", name: "e to the power", small: true, group: "Logs" },
-  tenpow: { label: "10\u02E3", insert: "10^{#?}", name: "Ten to the power", small: true, group: "Logs" },
-  deg: { label: "\xB0", insert: "\\degree", name: "Degrees", group: "Trig" },
-  theta: { label: "\u03B8", insert: "\\theta", name: "Theta", group: "Greek" },
-  alpha: { label: "\u03B1", insert: "\\alpha", name: "Alpha", group: "Greek" },
-  beta: { label: "\u03B2", insert: "\\beta", name: "Beta", group: "Greek" },
-  gamma: { label: "\u03B3", insert: "\\gamma", name: "Gamma", group: "Greek" },
-  delta: { label: "\u0394", insert: "\\Delta", name: "Delta", group: "Greek" },
-  lambda: { label: "\u03BB", insert: "\\lambda", name: "Lambda", group: "Greek" },
-  mu: { label: "\u03BC", insert: "\\mu", name: "Mu", group: "Greek" },
-  omega: { label: "\u03C9", insert: "\\omega", name: "Omega", group: "Greek" },
-  epsilon: { label: "\u03B5", insert: "\\varepsilon", name: "Epsilon", group: "Greek" },
-  rho: { label: "\u03C1", insert: "\\rho", name: "Rho", group: "Greek" },
-  sigma: { label: "\u03C3", insert: "\\sigma", name: "Sigma", group: "Greek" },
-  tau: { label: "\u03C4", insert: "\\tau", name: "Tau", group: "Greek" },
-  phi: { label: "\u03C6", insert: "\\phi", name: "Phi", group: "Greek" },
-  psi: { label: "\u03C8", insert: "\\psi", name: "Psi", group: "Greek" },
-  eta: { label: "\u03B7", insert: "\\eta", name: "Eta", group: "Greek" },
-  nu: { label: "\u03BD", insert: "\\nu", name: "Nu", group: "Greek" },
-  Omega: { label: "\u03A9", insert: "\\Omega", name: "Capital omega", group: "Greek" },
-  Sigma: { label: "\u03A3", insert: "\\Sigma", name: "Capital sigma", group: "Greek" },
-  Phi: { label: "\u03A6", insert: "\\Phi", name: "Capital phi", group: "Greek" },
-  integral: { label: "\u222B", insert: "\\int_{#?}^{#?}#?", name: "Integral", group: "Calculus" },
-  sum: { label: "\u03A3", insert: "\\sum_{#?}^{#?}#?", name: "Sum", group: "Calculus" },
-  product: { label: "\u03A0", insert: "\\prod_{#?}^{#?}#?", name: "Product", group: "Calculus" },
-  derivative: {
-    label: "d/dx",
-    insert: "\\frac{d}{d#?}#?",
-    name: "Derivative",
-    small: true,
-    group: "Calculus"
-  },
-  partial: { label: "\u2202", insert: "\\partial", name: "Partial derivative", group: "Calculus" },
-  limit: {
-    label: "lim",
-    insert: "\\lim_{#?\\to#?}#?",
-    name: "Limit",
-    small: true,
-    group: "Calculus"
-  },
-  infinity: { label: "\u221E", insert: "\\infty", name: "Infinity", group: "Calculus" },
-  nabla: { label: "\u2207", insert: "\\nabla", name: "Nabla", group: "Calculus" },
-  contour: { label: "\u222E", insert: "\\oint_{#?}#?", name: "Contour integral", group: "Calculus" },
-  doubleintegral: {
-    label: "\u222C",
-    insert: "\\iint_{#?}#?",
-    name: "Double integral",
-    group: "Calculus"
-  },
-  // **Relations and set notation are for writing, not for working out.**
-  // mathjs cannot evaluate `∈` or `⇌` and never will — these are here because
-  // the box they type into is a message to the tutor, and saying "x ∈ [0, 1]"
-  // is the thing somebody wants to say. `=` simply finds no sum in a line
-  // like that, which is already its answer to a line of prose.
-  leq: { label: "\u2264", insert: "\\le", name: "Less than or equal to", group: "Relations" },
-  geq: { label: "\u2265", insert: "\\ge", name: "Greater than or equal to", group: "Relations" },
-  neq: { label: "\u2260", insert: "\\ne", name: "Not equal to", group: "Relations" },
-  approx: { label: "\u2248", insert: "\\approx", name: "Approximately equal to", group: "Relations" },
-  propto: { label: "\u221D", insert: "\\propto", name: "Proportional to", group: "Relations" },
-  equiv: { label: "\u2261", insert: "\\equiv", name: "Identical to", group: "Relations" },
-  plusminus: { label: "\xB1", insert: "\\pm", name: "Plus or minus", group: "Relations" },
-  implies: { label: "\u21D2", insert: "\\implies", name: "Implies", group: "Relations" },
-  iff: { label: "\u21D4", insert: "\\iff", name: "If and only if", group: "Relations" },
-  to: { label: "\u2192", insert: "\\to", name: "Tends to", group: "Relations" },
-  elem: { label: "\u2208", insert: "\\in", name: "Is a member of", group: "Sets" },
-  notelem: { label: "\u2209", insert: "\\notin", name: "Is not a member of", group: "Sets" },
-  subset: { label: "\u2282", insert: "\\subset", name: "Is a subset of", group: "Sets" },
-  union: { label: "\u222A", insert: "\\cup", name: "Union", group: "Sets" },
-  intersect: { label: "\u2229", insert: "\\cap", name: "Intersection", group: "Sets" },
-  emptyset: { label: "\u2205", insert: "\\emptyset", name: "The empty set", group: "Sets" },
-  forall: { label: "\u2200", insert: "\\forall", name: "For all", group: "Sets" },
-  exists: { label: "\u2203", insert: "\\exists", name: "There exists", group: "Sets" },
-  reals: { label: "\u211D", insert: "\\mathbb{R}", name: "The reals", group: "Sets" },
-  integers: { label: "\u2124", insert: "\\mathbb{Z}", name: "The integers", group: "Sets" },
-  vector: { label: "v\u20D7", insert: "\\vec{#?}", name: "Vector", small: true, group: "Vectors" },
-  hat: { label: "n\u0302", insert: "\\hat{#?}", name: "Unit vector", small: true, group: "Vectors" },
-  cross: { label: "\xD7", insert: "\\times", name: "Cross product", group: "Vectors" },
-  dotproduct: { label: "\xB7", insert: "\\cdot", name: "Dot product", group: "Vectors" },
-  norm: {
-    label: "\u2016v\u2016",
-    insert: "\\left\\|#?\\right\\|",
-    name: "Norm",
-    small: true,
-    group: "Vectors"
-  },
-  matrix: {
-    label: "[ ]",
-    insert: "\\begin{pmatrix}#? & #? \\\\ #? & #?\\end{pmatrix}",
-    name: "Matrix",
-    small: true,
-    group: "Vectors"
-  },
-  transpose: { label: "A\u1D40", insert: "#@^{T}", name: "Transpose", small: true, group: "Vectors" },
-  bar: { label: "x\u0304", insert: "\\bar{#?}", name: "Mean", small: true, group: "Vectors" },
-  // **Chemistry proper.** What was here before was a subscript key and three
-  // symbols that belong to every subject — asked about directly, and the
-  // honest answer was that the group was thin and half of it was not
-  // chemistry. What a reaction actually needs is the two arrows, charges and
-  // states, and concentration brackets.
-  charge: {
-    label: "x\u207A",
-    insert: "#@^{#?}",
-    name: "Charge",
-    small: true,
-    group: "Chemistry"
-  },
-  subscript: {
-    label: "x\u25A1",
-    insert: "#@_{#?}",
-    name: "Subscript",
-    small: true,
-    group: "Chemistry"
-  },
-  yields: { label: "\u2192", insert: "\\longrightarrow", name: "Yields", group: "Chemistry" },
-  equilibrium: {
-    label: "\u21CC",
-    insert: "\\rightleftharpoons",
-    name: "Equilibrium",
-    group: "Chemistry"
-  },
-  heated: {
-    label: "\u2192\u0394",
-    insert: "\\xrightarrow{\\Delta}",
-    name: "Heated",
-    small: true,
-    group: "Chemistry"
-  },
-  concentration: {
-    label: "[x]",
-    insert: "\\left[#?\\right]",
-    name: "Concentration of",
-    small: true,
-    group: "Chemistry"
-  },
-  aqueous: {
-    label: "(aq)",
-    insert: "(\\mathrm{aq})",
-    name: "Aqueous",
-    small: true,
-    group: "Chemistry"
-  },
-  solid: { label: "(s)", insert: "(\\mathrm{s})", name: "Solid", small: true, group: "Chemistry" },
-  liquid: {
-    label: "(l)",
-    insert: "(\\mathrm{l})",
-    name: "Liquid",
-    small: true,
-    group: "Chemistry"
-  },
-  gas: { label: "(g)", insert: "(\\mathrm{g})", name: "Gas", small: true, group: "Chemistry" },
-  change: { label: "\u0394", insert: "\\Delta", name: "Change in", group: "Chemistry" }
-};
-function symbolCatalogue() {
-  const groups = /* @__PURE__ */ new Map();
-  for (const [name, key2] of Object.entries(SYMBOLS)) {
-    groups.set(key2.group, [...groups.get(key2.group) ?? [], name]);
-  }
-  return [...groups].map(([group, names]) => `${group}: ${names.join(", ")}`);
-}
-
-// packages/player/src/lib/page-says.ts
-init_define_WORDPLAY_ENGINE();
-var MAX_PAGE_SAYS = 20;
-var WINDOW_MS = 6e4;
-var PAGE_SAYS_REFUSED = "The page sent the tutor too many messages in a minute. Wait a moment, then try again.";
-var windows = /* @__PURE__ */ new Map();
-function pageMaySay(conversation, now = Date.now()) {
-  for (const [key2, window3] of windows) if (now - window3.start >= WINDOW_MS) windows.delete(key2);
-  const window2 = windows.get(conversation);
-  if (!window2) {
-    windows.set(conversation, { start: now, count: 1 });
-    return true;
-  }
-  if (window2.count >= MAX_PAGE_SAYS) return false;
-  window2.count++;
-  return true;
-}
-
-// packages/player/src/lib/prompt-template.ts
-init_define_WORDPLAY_ENGINE();
-var ITEM = ".";
-var TAG = /\{\{\s*([^}]*?)\s*\}\}/g;
-function truthy(value) {
-  if (Array.isArray(value)) return value.some((one) => String(one).trim() !== "");
-  if (typeof value === "string") return value.trim() !== "";
-  return Boolean(value);
-}
-function text(value) {
-  if (Array.isArray(value)) return value.join("\n");
-  if (value === null || value === void 0 || value === false) return "";
-  return String(value);
-}
-function parse3(source, at, until) {
-  const nodes = [];
-  let cursor = at;
-  TAG.lastIndex = at;
-  for (let found = TAG.exec(source); found; found = TAG.exec(source)) {
-    const tag = found[1];
-    if (found.index > cursor) nodes.push({ kind: "text", text: source.slice(cursor, found.index) });
-    const after2 = found.index + found[0].length;
-    if (until.includes(tag)) return { nodes, end: after2, stopped: tag };
-    const opensIf = /^#if\s+(\S+)$/.exec(tag);
-    if (opensIf) {
-      const yes2 = parse3(source, after2, ["else", "/if"]);
-      if (yes2.stopped === null)
-        throw new Error(`prompt template: {{#if ${opensIf[1]}}} is never closed`);
-      let no = [];
-      let end = yes2.end;
-      if (yes2.stopped === "else") {
-        const other = parse3(source, yes2.end, ["/if"]);
-        if (other.stopped === null) throw new Error(`prompt template: {{else}} is never closed`);
-        no = other.nodes;
-        end = other.end;
-      }
-      nodes.push({ kind: "if", name: opensIf[1], yes: yes2.nodes, no });
-      cursor = end;
-      TAG.lastIndex = end;
-      continue;
-    }
-    const opensEach = /^#each\s+(\S+)$/.exec(tag);
-    if (opensEach) {
-      const body2 = parse3(source, after2, ["/each"]);
-      if (body2.stopped === null)
-        throw new Error(`prompt template: {{#each ${opensEach[1]}}} is never closed`);
-      nodes.push({ kind: "each", name: opensEach[1], body: body2.nodes });
-      cursor = body2.end;
-      TAG.lastIndex = body2.end;
-      continue;
-    }
-    if (tag.startsWith("#") || tag.startsWith("/")) {
-      throw new Error(`prompt template: unknown tag {{${tag}}}`);
-    }
-    nodes.push({ kind: "var", name: tag });
-    cursor = after2;
-  }
-  if (cursor < source.length) nodes.push({ kind: "text", text: source.slice(cursor) });
-  return { nodes, end: source.length, stopped: null };
-}
-function emit(nodes, bindings, item) {
-  return nodes.map((node2) => {
-    if (node2.kind === "text") return node2.text;
-    if (node2.kind === "var") {
-      if (node2.name === ITEM) return item ?? "";
-      return text(bindings[node2.name]);
-    }
-    if (node2.kind === "if") {
-      return emit(truthy(bindings[node2.name]) ? node2.yes : node2.no, bindings, item);
-    }
-    const value = bindings[node2.name];
-    const list = Array.isArray(value) ? value : value === void 0 || value === null ? [] : [String(value)];
-    return list.map((one) => emit(node2.body, bindings, String(one))).join("");
-  }).join("");
-}
-function render(template, bindings) {
-  const withoutComments = template.replace(/\{\{!--[\s\S]*?--\}\}[ \t]*\r?\n?/g, "");
-  const tightened = withoutComments.replace(
-    /^[ \t]*(\{\{\s*(?:[#/]|else)[^}]*\}\})[ \t]*\r?\n/gm,
-    "$1"
-  );
-  return emit(parse3(tightened, 0, []).nodes, bindings, null);
-}
-
-// packages/player/src/lib/prompts.ts
-var cache = /* @__PURE__ */ new Map();
-function load(name) {
-  const had = cache.get(name);
-  if (had !== void 0) return had;
-  const [where, file2] = name === "spec" ? ["format", "SPEC.md"] : ["player/prompts", `${name}.md`];
-  const dirs = process.env.PROMPTS_DIR ? [process.env.PROMPTS_DIR] : [
-    join2(
-      /*turbopackIgnore: true*/
-      process.cwd(),
-      "packages",
-      ...where.split("/")
-    ),
-    join2(
-      /*turbopackIgnore: true*/
-      process.cwd(),
-      "..",
-      "..",
-      "packages",
-      ...where.split("/")
-    )
-  ];
-  const own2 = process.env.PROMPTS_DIR ? `${name}.md` : file2;
-  const path2 = dirs.map((dir) => join2(dir, own2)).find((one) => existsSync2(
-    /*turbopackIgnore: true*/
-    one
-  )) ?? join2(dirs[0], own2);
-  let source;
-  try {
-    source = readFileSync2(
-      /*turbopackIgnore: true*/
-      path2,
-      "utf8"
-    );
-  } catch {
-    throw new Error(
-      `The ${name} prompt is missing at ${path2}. In the plugin that means \`npm run plugin\` stopped copying it beside the bridge; anywhere else, that the file was moved or renamed, or PROMPTS_DIR is not set.`
-    );
-  }
-  cache.set(name, source);
-  return source;
-}
-function prompt(name, bindings) {
-  return render(load(name), bindings).trimEnd();
-}
-var count = (n) => n.toLocaleString("en-US");
-function specText() {
-  return render(load("spec"), {
-    maxFile: count(MAX_FILE),
-    maxCondition: count(MAX_CONDITION),
-    maxAnnouncement: count(MAX_ANNOUNCEMENT),
-    maxWritten: count(MAX_WRITTEN),
-    maxSaid: count(MAX_SAID),
-    maxKept: count(MAX_KEPT),
-    maxPageSays: count(MAX_PAGE_SAYS),
-    maxOpening: count(MAX_OPENING),
-    maxShared: count(MAX_SHARED),
-    maxShares: count(MAX_SHARES),
-    maxSharedText: count(MAX_SHARED_TEXT),
-    sharedEntries: count(SHARED_ENTRIES),
-    maxSharedEntries: count(MAX_SHARED_ENTRIES),
-    maxKeys: count(MAX_KEYS),
-    keys: symbolCatalogue().map((line) => {
-      const [group, names] = line.split(": ");
-      return `- **${group}**: ${names}`;
-    })
-  }).replace(/\n{3,}/g, "\n\n").trim();
-}
-
-// packages/player/src/lib/lesson-guide.ts
-function lessonGuide(host) {
-  return prompt("lesson-guide", {
-    editor: prompt("editor", {}),
-    // The format, whole: the guide never restates it (SPEC.md).
-    spec: specText(),
-    claudeCode: host === "claude-code",
-    claudeAi: host === "claude-ai",
-    creator: host === "creator" || host === "creator-local",
-    onLabs: host === "creator",
-    connector: host === "connector",
-    // Labs' MCP server's tools are there: Claude Code's, through the plugin, and a connector's.
-    labsTools: host === "claude-code" || host === "connector",
-    // The page the claude.ai builder publishes each lesson as, and where its files come from.
-    player: PLAYER_ARTIFACT,
-    playerShell: playerShell("The lesson's title").trimEnd()
-  });
-}
 
 // packages/format/src/checks.ts
 init_define_WORDPLAY_ENGINE();
@@ -43758,7 +43286,7 @@ var singleTag = /* @__PURE__ */ new Set([
   "track",
   "wbr"
 ]);
-function render2(node2, options = {}) {
+function render(node2, options = {}) {
   const nodes = "length" in node2 ? node2 : [node2];
   let output2 = "";
   for (let i2 = 0; i2 < nodes.length; i2++) {
@@ -43766,11 +43294,11 @@ function render2(node2, options = {}) {
   }
   return output2;
 }
-var esm_default = render2;
+var esm_default = render;
 function renderNode(node2, options) {
   switch (node2.type) {
     case Root:
-      return render2(node2.children, options);
+      return render(node2.children, options);
     // @ts-expect-error We don't use `Doctype` yet
     case Doctype:
     case Directive:
@@ -43828,7 +43356,7 @@ function renderTag(elem, opts) {
   } else {
     tag += ">";
     if (elem.children.length > 0) {
-      tag += render2(elem.children, opts);
+      tag += render(elem.children, opts);
     }
     if (opts.xmlMode || !singleTag.has(elem.name)) {
       tag += `</${elem.name}>`;
@@ -44564,8 +44092,8 @@ var CustomElementRegistry = class {
     } : (element) => element.localName === localName;
     registry2.set(localName, { Class: Class2, check: check2 });
     if (waiting.has(localName)) {
-      for (const resolve2 of waiting.get(localName))
-        resolve2(Class2);
+      for (const resolve4 of waiting.get(localName))
+        resolve4(Class2);
       waiting.delete(localName);
     }
     ownerDocument.querySelectorAll(
@@ -44605,13 +44133,13 @@ var CustomElementRegistry = class {
    */
   whenDefined(localName) {
     const { registry: registry2, waiting } = this;
-    return new Promise((resolve2) => {
+    return new Promise((resolve4) => {
       if (registry2.has(localName))
-        resolve2(registry2.get(localName).Class);
+        resolve4(registry2.get(localName).Class);
       else {
         if (!waiting.has(localName))
           waiting.set(localName, []);
-        waiting.get(localName).push(resolve2);
+        waiting.get(localName).push(resolve4);
       }
     });
   }
@@ -45802,7 +45330,7 @@ function isQuote(c) {
 function isWhitespace2(c) {
   return c === CharCode.Space || c === CharCode.Tab || c === CharCode.NewLine || c === CharCode.FormFeed || c === CharCode.CarriageReturn;
 }
-function parse4(selector) {
+function parse3(selector) {
   const subselects2 = [];
   const endIndex = parseSelector(subselects2, `${selector}`, 0);
   if (endIndex < selector.length) {
@@ -46452,7 +45980,7 @@ var unencodedElements2 = new Set("style script xmp iframe noembed noframes plain
 var voidElements2 = new Set("area base basefont br col command embed frame hr img input isindex keygen link meta param source track wbr".split(" "));
 var foreignElements2 = /* @__PURE__ */ new Set(["svg", "math"]);
 var foreignModeIntegrationPoints2 = new Set("mi mo mn ms mtext annotation-xml foreignObject desc title".split(" "));
-function render3(node2, options = {}) {
+function render2(node2, options = {}) {
   const nodes = "length" in node2 ? node2 : [node2];
   const xmlMode = options.xmlMode ?? false;
   let output2 = "";
@@ -46461,7 +45989,7 @@ function render3(node2, options = {}) {
   }
   return output2;
 }
-var dist_default = render3;
+var dist_default = render2;
 function renderChildren(children, options, xmlMode) {
   let output2 = "";
   for (let index = 0; index < children.length; index++) {
@@ -47254,7 +46782,7 @@ init_define_WORDPLAY_ENGINE();
 var whitespace = /* @__PURE__ */ new Set([9, 10, 12, 13, 32]);
 var ZERO = "0".charCodeAt(0);
 var NINE = "9".charCodeAt(0);
-function parse5(formula) {
+function parse4(formula) {
   formula = formula.trim().toLowerCase();
   switch (formula) {
     case "even": {
@@ -47315,7 +46843,7 @@ function parse5(formula) {
 
 // node_modules/linkedom/node_modules/nth-check/dist/index.js
 function nthCheck(formula) {
-  return compile2(parse5(formula));
+  return compile2(parse4(formula));
 }
 
 // node_modules/linkedom/node_modules/css-select/dist/helpers/cache.js
@@ -47382,7 +46910,7 @@ function compileNth(reverse, ofType) {
     const nthCheck2 = nthCheck(ofMatch ? ofMatch[1].trim() : rule);
     if (nthCheck2 === falseFunc)
       return falseFunc;
-    const ofSelector = ofMatch && compileToken2 ? compileToken2(parse4(ofMatch[2].trim()), copyOptions(options), context) : void 0;
+    const ofSelector = ofMatch && compileToken2 ? compileToken2(parse3(ofMatch[2].trim()), copyOptions(options), context) : void 0;
     if (ofSelector === falseFunc)
       return falseFunc;
     if (nthCheck2 === trueFunc && !ofSelector) {
@@ -47718,7 +47246,7 @@ function compilePseudoSelector(next, selector, options, context, compileToken2) 
     if (data != null) {
       throw new Error(`Pseudo ${name} doesn't have any arguments`);
     }
-    const alias = parse4(stringPseudo);
+    const alias = parse3(stringPseudo);
     return subselects["is"](next, alias, options, context, compileToken2);
   }
   if (typeof userPseudo === "function") {
@@ -47962,7 +47490,7 @@ function compile3(selector, options, context) {
   return next === falseFunc ? falseFunc : (element) => convertedOptions.adapter.isTag(element) && next(element);
 }
 function _compileUnsafe(selector, options, context) {
-  return compileToken(typeof selector === "string" ? parse4(selector) : selector, convertOptionFormats(options), context);
+  return compileToken(typeof selector === "string" ? parse3(selector) : selector, convertOptionFormats(options), context);
 }
 function getSelectorFunction(searchFunction) {
   return function select(query2, elements, options) {
@@ -51709,7 +51237,7 @@ var DOMParser = class _DOMParser {
 
 // node_modules/linkedom/esm/shared/parse-json.js
 init_define_WORDPLAY_ENGINE();
-var { parse: parse7 } = JSON;
+var { parse: parse6 } = JSON;
 
 // node_modules/linkedom/esm/interface/node-filter.js
 init_define_WORDPLAY_ENGINE();
@@ -52330,8 +51858,8 @@ var RETIRED_ATTRIBUTES = {
 };
 function nearlyKnown(attribute2) {
   if (KNOWN_ATTRIBUTES.includes(attribute2) || attribute2 in RETIRED_ATTRIBUTES) return null;
-  const close2 = KNOWN_ATTRIBUTES.find((known) => distance(attribute2, known) <= 2);
-  if (close2) return close2;
+  const close3 = KNOWN_ATTRIBUTES.find((known) => distance(attribute2, known) <= 2);
+  if (close3) return close3;
   if (attribute2.startsWith("data-wordplay")) return "data-wordplay";
   return null;
 }
@@ -52496,12 +52024,12 @@ function readableProblems(wordplay) {
   return problems;
 }
 function regions(wordplay) {
-  const pages = wordplay.pages.map((page) => page.element);
+  const pages = wordplay.pages.map((page2) => page2.element);
   return [
     { name: "the page", element: wordplay.body, skip: pages },
-    ...wordplay.pages.map((page) => ({
-      name: `the page "${page.name}"`,
-      element: page.element,
+    ...wordplay.pages.map((page2) => ({
+      name: `the page "${page2.name}"`,
+      element: page2.element,
       skip: []
     }))
   ];
@@ -52546,126 +52074,6 @@ function publishableProblems(wordplay, source) {
   for (const region of regions(wordplay)) problems.push(...unseenControls(region));
   return problems;
 }
-
-// packages/player/src/lib/builder-turn.ts
-var MAX_BUILD_MESSAGE = 3e4;
-var TRIAL_TURNS = 30;
-var TRIAL_CHARS = 2e3;
-var BUILD_MAX_TOKENS = 8e3;
-function readTurns(value, maxLength) {
-  return (Array.isArray(value) ? value : []).filter(
-    (turn) => typeof turn === "object" && turn !== null && typeof turn.content === "string"
-  ).map((turn) => ({
-    role: turn.role === "assistant" ? "assistant" : "user",
-    content: turn.content.slice(0, maxLength)
-  })).slice(-MAX_TURNS);
-}
-function readChanges(value) {
-  return (Array.isArray(value) ? value : []).filter(
-    (one) => typeof one === "object" && one !== null && ["made", "missing", "ambiguous"].includes(one.result) && typeof one.find === "string"
-  ).slice(0, 20);
-}
-function changeLines(changes) {
-  return changes.map((change, i2) => {
-    const first = change.find.split("\n").find((line) => line.trim()) ?? "";
-    const quoted = first ? ` (it began "${first.slice(0, 120)}")` : "";
-    const n = `Change ${i2 + 1}`;
-    if (change.result === "made") return `${n} was made.`;
-    if (change.result === "ambiguous") {
-      return `${n} was not made: its <find> text appears more than once in the lesson${quoted}. Give more of the lines around it.`;
-    }
-    return `${n} was not made: its <find> text is not in the lesson${quoted}. Copy it from the lesson as it stands.`;
-  });
-}
-function trialText(turns) {
-  return turns.slice(-TRIAL_TURNS).map(
-    (turn) => `${turn.role === "user" ? "Student" : "Tutor"}: ${turn.content.slice(0, TRIAL_CHARS)}`
-  ).join("\n\n");
-}
-var MAX_CONTEXT = 24e4;
-function lessonsPiece(lessons) {
-  let room = MAX_CONTEXT;
-  return prompt("lessons", {
-    series: lessons.find((one) => one.series)?.series ?? "",
-    own: lessons.some((one) => !one.wordplay),
-    others: lessons.some((one) => one.wordplay),
-    // The template walks strings, so each lesson is its heading and its text here.
-    lessons: lessons.map((one) => {
-      const from = one.wordplay ? `, on Wordplay${one.wordplay.by ? ` by ${one.wordplay.by}` : ""}` : one.series ? ", in the series" : "";
-      const heading = `## \u201C${one.name}\u201D${from}`;
-      if (!one.text.trim()) return `${heading}
-
-Nothing is written in it yet.`;
-      if (one.text.length > room)
-        return `${heading}
-
-Left out: too long to send with the others.`;
-      room -= one.text.length;
-      return `${heading}
-
-\`\`\`\`\`html
-${one.text.trim()}
-\`\`\`\`\``;
-    })
-  });
-}
-function pageWhere(file2, sent) {
-  if (typeof sent !== "number" || !Number.isInteger(sent)) return null;
-  const { pages } = parseWordplay(file2);
-  const page = pages[sent - 1];
-  if (!page || pages.length < 2) return null;
-  return `page ${sent} of ${pages.length}, \u201C${page.name}\u201D`;
-}
-function builderPrompt(file2, changes, trial, material = [], host = "creator", lessons = [], page = null, fresh = true) {
-  const text3 = file2.trim();
-  const tried = trialText(trial);
-  return [
-    `${lessonGuide(host)}
-
-`,
-    ...material.length ? [
-      `${prompt("material", {
-        // The template walks strings, so each file is its heading and its fence here.
-        files: material.map((one) => `## ${one.name}
-
-\`\`\`\`\`
-${one.text}
-\`\`\`\`\``)
-      })}
-
-`
-    ] : [],
-    ...lessons.length ? [`${lessonsPiece(lessons)}
-
-`] : [],
-    ...tried ? [`${prompt("trial", { trial: tried })}
-
-`] : [],
-    prompt("creator", {
-      file: text3,
-      problems: text3 ? fileProblems(file2) : [],
-      changes: changeLines(changes),
-      fresh: Boolean(tried && fresh),
-      page: page ?? ""
-    })
-  ];
-}
-function fileProblems(file2) {
-  const wordplay = parseWordplay(file2);
-  return [.../* @__PURE__ */ new Set([...wordplay.problems, ...publishableProblems(wordplay, file2)])];
-}
-
-// packages/player/src/lib/ask-stream.ts
-init_define_WORDPLAY_ENGINE();
-var ANSWER_STOPPED = "";
-function stoppedIn(text3) {
-  const at = text3.indexOf(ANSWER_STOPPED);
-  if (at === -1) return { text: text3, stopped: null };
-  return { text: text3.slice(0, at), stopped: text3.slice(at + ANSWER_STOPPED.length).trim() };
-}
-
-// packages/player/src/lib/local-preview.ts
-init_define_WORDPLAY_ENGINE();
 
 // packages/player/src/lib/active-time.ts
 init_define_WORDPLAY_ENGINE();
@@ -56112,7 +55520,7 @@ function defineSymbol(mode, font, group, replace2, name, acceptUnicodeChar) {
   }
 }
 var math = "math";
-var text2 = "text";
+var text = "text";
 var main = "main";
 var ams = "ams";
 var accent = "accent-token";
@@ -56153,11 +55561,11 @@ defineSymbol(math, main, rel, "\u220B", "\\owns");
 defineSymbol(math, main, punct, ".", "\\ldotp");
 defineSymbol(math, main, punct, "\u22C5", "\\cdotp");
 defineSymbol(math, main, punct, "\u22C5", "\xB7");
-defineSymbol(text2, main, textord, "\u22C5", "\xB7");
+defineSymbol(text, main, textord, "\u22C5", "\xB7");
 defineSymbol(math, main, textord, "#", "\\#");
-defineSymbol(text2, main, textord, "#", "\\#");
+defineSymbol(text, main, textord, "#", "\\#");
 defineSymbol(math, main, textord, "&", "\\&");
-defineSymbol(text2, main, textord, "&", "\\&");
+defineSymbol(text, main, textord, "&", "\\&");
 defineSymbol(math, main, textord, "\u2135", "\\aleph", true);
 defineSymbol(math, main, textord, "\u2200", "\\forall", true);
 defineSymbol(math, main, textord, "\u210F", "\\hbar", true);
@@ -56175,15 +55583,15 @@ defineSymbol(math, main, textord, "\u2661", "\\heartsuit", true);
 defineSymbol(math, main, textord, "\u2111", "\\Im", true);
 defineSymbol(math, main, textord, "\u2660", "\\spadesuit", true);
 defineSymbol(math, main, textord, "\xA7", "\\S", true);
-defineSymbol(text2, main, textord, "\xA7", "\\S");
+defineSymbol(text, main, textord, "\xA7", "\\S");
 defineSymbol(math, main, textord, "\xB6", "\\P", true);
-defineSymbol(text2, main, textord, "\xB6", "\\P");
+defineSymbol(text, main, textord, "\xB6", "\\P");
 defineSymbol(math, main, textord, "\u2020", "\\dag");
-defineSymbol(text2, main, textord, "\u2020", "\\dag");
-defineSymbol(text2, main, textord, "\u2020", "\\textdagger");
+defineSymbol(text, main, textord, "\u2020", "\\dag");
+defineSymbol(text, main, textord, "\u2020", "\\textdagger");
 defineSymbol(math, main, textord, "\u2021", "\\ddag");
-defineSymbol(text2, main, textord, "\u2021", "\\ddag");
-defineSymbol(text2, main, textord, "\u2021", "\\textdaggerdbl");
+defineSymbol(text, main, textord, "\u2021", "\\ddag");
+defineSymbol(text, main, textord, "\u2021", "\\textdaggerdbl");
 defineSymbol(math, main, close, "\u23B1", "\\rmoustache", true);
 defineSymbol(math, main, open2, "\u23B0", "\\lmoustache", true);
 defineSymbol(math, main, close, "\u27EF", "\\rgroup", true);
@@ -56287,7 +55695,7 @@ defineSymbol(math, ams, textord, "\u25BD", "\\triangledown");
 defineSymbol(math, ams, textord, "\u25CA", "\\lozenge");
 defineSymbol(math, ams, textord, "\u24C8", "\\circledS");
 defineSymbol(math, ams, textord, "\xAE", "\\circledR");
-defineSymbol(text2, ams, textord, "\xAE", "\\circledR");
+defineSymbol(text, ams, textord, "\xAE", "\\circledR");
 defineSymbol(math, ams, textord, "\u2221", "\\measuredangle", true);
 defineSymbol(math, ams, textord, "\u2204", "\\nexists");
 defineSymbol(math, ams, textord, "\u2127", "\\mho");
@@ -56302,16 +55710,16 @@ defineSymbol(math, ams, textord, "\u2605", "\\bigstar");
 defineSymbol(math, ams, textord, "\u2222", "\\sphericalangle", true);
 defineSymbol(math, ams, textord, "\u2201", "\\complement", true);
 defineSymbol(math, ams, textord, "\xF0", "\\eth", true);
-defineSymbol(text2, main, textord, "\xF0", "\xF0");
+defineSymbol(text, main, textord, "\xF0", "\xF0");
 defineSymbol(math, ams, textord, "\u2571", "\\diagup");
 defineSymbol(math, ams, textord, "\u2572", "\\diagdown");
 defineSymbol(math, ams, textord, "\u25A1", "\\square");
 defineSymbol(math, ams, textord, "\u25A1", "\\Box");
 defineSymbol(math, ams, textord, "\u25CA", "\\Diamond");
 defineSymbol(math, ams, textord, "\xA5", "\\yen", true);
-defineSymbol(text2, ams, textord, "\xA5", "\\yen", true);
+defineSymbol(text, ams, textord, "\xA5", "\\yen", true);
 defineSymbol(math, ams, textord, "\u2713", "\\checkmark", true);
-defineSymbol(text2, ams, textord, "\u2713", "\\checkmark");
+defineSymbol(text, ams, textord, "\u2713", "\\checkmark");
 defineSymbol(math, ams, textord, "\u2136", "\\beth", true);
 defineSymbol(math, ams, textord, "\u2138", "\\daleth", true);
 defineSymbol(math, ams, textord, "\u2137", "\\gimel", true);
@@ -56451,13 +55859,13 @@ defineSymbol(math, ams, rel, "\u21DB", "\\Rrightarrow", true);
 defineSymbol(math, ams, rel, "\u21BE", "\\restriction");
 defineSymbol(math, main, textord, "\u2018", "`");
 defineSymbol(math, main, textord, "$", "\\$");
-defineSymbol(text2, main, textord, "$", "\\$");
-defineSymbol(text2, main, textord, "$", "\\textdollar");
+defineSymbol(text, main, textord, "$", "\\$");
+defineSymbol(text, main, textord, "$", "\\textdollar");
 defineSymbol(math, main, textord, "%", "\\%");
-defineSymbol(text2, main, textord, "%", "\\%");
+defineSymbol(text, main, textord, "%", "\\%");
 defineSymbol(math, main, textord, "_", "\\_");
-defineSymbol(text2, main, textord, "_", "\\_");
-defineSymbol(text2, main, textord, "_", "\\textunderscore");
+defineSymbol(text, main, textord, "_", "\\_");
+defineSymbol(text, main, textord, "_", "\\textunderscore");
 defineSymbol(math, main, textord, "\u2220", "\\angle", true);
 defineSymbol(math, main, textord, "\u221E", "\\infty", true);
 defineSymbol(math, main, textord, "\u2032", "\\prime");
@@ -56574,10 +55982,10 @@ defineSymbol(math, ams, rel, "\u2270", "\\nleq", true);
 defineSymbol(math, main, spacing, "\xA0", "\\ ");
 defineSymbol(math, main, spacing, "\xA0", "\\space");
 defineSymbol(math, main, spacing, "\xA0", "\\nobreakspace");
-defineSymbol(text2, main, spacing, "\xA0", "\\ ");
-defineSymbol(text2, main, spacing, "\xA0", " ");
-defineSymbol(text2, main, spacing, "\xA0", "\\space");
-defineSymbol(text2, main, spacing, "\xA0", "\\nobreakspace");
+defineSymbol(text, main, spacing, "\xA0", "\\ ");
+defineSymbol(text, main, spacing, "\xA0", " ");
+defineSymbol(text, main, spacing, "\xA0", "\\space");
+defineSymbol(text, main, spacing, "\xA0", "\\nobreakspace");
 defineSymbol(math, main, spacing, "", "\\nobreak");
 defineSymbol(math, main, spacing, "", "\\allowbreak");
 defineSymbol(math, main, punct, ",", ",");
@@ -56599,21 +56007,21 @@ defineSymbol(math, main, bin, "\u22C6", "\\star");
 defineSymbol(math, main, bin, "\u25C3", "\\triangleleft");
 defineSymbol(math, main, bin, "\u25B9", "\\triangleright");
 defineSymbol(math, main, open2, "{", "\\{");
-defineSymbol(text2, main, textord, "{", "\\{");
-defineSymbol(text2, main, textord, "{", "\\textbraceleft");
+defineSymbol(text, main, textord, "{", "\\{");
+defineSymbol(text, main, textord, "{", "\\textbraceleft");
 defineSymbol(math, main, close, "}", "\\}");
-defineSymbol(text2, main, textord, "}", "\\}");
-defineSymbol(text2, main, textord, "}", "\\textbraceright");
+defineSymbol(text, main, textord, "}", "\\}");
+defineSymbol(text, main, textord, "}", "\\textbraceright");
 defineSymbol(math, main, open2, "{", "\\lbrace");
 defineSymbol(math, main, close, "}", "\\rbrace");
 defineSymbol(math, main, open2, "[", "\\lbrack", true);
-defineSymbol(text2, main, textord, "[", "\\lbrack", true);
+defineSymbol(text, main, textord, "[", "\\lbrack", true);
 defineSymbol(math, main, close, "]", "\\rbrack", true);
-defineSymbol(text2, main, textord, "]", "\\rbrack", true);
+defineSymbol(text, main, textord, "]", "\\rbrack", true);
 defineSymbol(math, main, open2, "(", "\\lparen", true);
 defineSymbol(math, main, close, ")", "\\rparen", true);
-defineSymbol(text2, main, textord, "<", "\\textless", true);
-defineSymbol(text2, main, textord, ">", "\\textgreater", true);
+defineSymbol(text, main, textord, "<", "\\textless", true);
+defineSymbol(text, main, textord, ">", "\\textgreater", true);
 defineSymbol(math, main, open2, "\u230A", "\\lfloor", true);
 defineSymbol(math, main, close, "\u230B", "\\rfloor", true);
 defineSymbol(math, main, open2, "\u2308", "\\lceil", true);
@@ -56621,13 +56029,13 @@ defineSymbol(math, main, close, "\u2309", "\\rceil", true);
 defineSymbol(math, main, textord, "\\", "\\backslash");
 defineSymbol(math, main, textord, "\u2223", "|");
 defineSymbol(math, main, textord, "\u2223", "\\vert");
-defineSymbol(text2, main, textord, "|", "\\textbar", true);
+defineSymbol(text, main, textord, "|", "\\textbar", true);
 defineSymbol(math, main, textord, "\u2225", "\\|");
 defineSymbol(math, main, textord, "\u2225", "\\Vert");
-defineSymbol(text2, main, textord, "\u2225", "\\textbardbl");
-defineSymbol(text2, main, textord, "~", "\\textasciitilde");
-defineSymbol(text2, main, textord, "\\", "\\textbackslash");
-defineSymbol(text2, main, textord, "^", "\\textasciicircum");
+defineSymbol(text, main, textord, "\u2225", "\\textbardbl");
+defineSymbol(text, main, textord, "~", "\\textasciitilde");
+defineSymbol(text, main, textord, "\\", "\\textbackslash");
+defineSymbol(text, main, textord, "^", "\\textasciicircum");
 defineSymbol(math, main, rel, "\u2191", "\\uparrow", true);
 defineSymbol(math, main, rel, "\u21D1", "\\Uparrow", true);
 defineSymbol(math, main, rel, "\u2193", "\\downarrow", true);
@@ -56654,14 +56062,14 @@ defineSymbol(math, main, op, "\u222F", "\\oiint");
 defineSymbol(math, main, op, "\u2230", "\\oiiint");
 defineSymbol(math, main, op, "\u2A06", "\\bigsqcup");
 defineSymbol(math, main, op, "\u222B", "\\smallint");
-defineSymbol(text2, main, inner, "\u2026", "\\textellipsis");
+defineSymbol(text, main, inner, "\u2026", "\\textellipsis");
 defineSymbol(math, main, inner, "\u2026", "\\mathellipsis");
-defineSymbol(text2, main, inner, "\u2026", "\\ldots", true);
+defineSymbol(text, main, inner, "\u2026", "\\ldots", true);
 defineSymbol(math, main, inner, "\u2026", "\\ldots", true);
 defineSymbol(math, main, inner, "\u22EF", "\\@cdots", true);
 defineSymbol(math, main, inner, "\u22F1", "\\ddots", true);
 defineSymbol(math, main, textord, "\u22EE", "\\varvdots");
-defineSymbol(text2, main, textord, "\u22EE", "\\varvdots");
+defineSymbol(text, main, textord, "\u22EE", "\\varvdots");
 defineSymbol(math, main, accent, "\u02CA", "\\acute");
 defineSymbol(math, main, accent, "\u02CB", "\\grave");
 defineSymbol(math, main, accent, "\xA8", "\\ddot");
@@ -56677,55 +56085,55 @@ defineSymbol(math, main, mathord, "\uE131", "\\@imath");
 defineSymbol(math, main, mathord, "\uE237", "\\@jmath");
 defineSymbol(math, main, textord, "\u0131", "\u0131");
 defineSymbol(math, main, textord, "\u0237", "\u0237");
-defineSymbol(text2, main, textord, "\u0131", "\\i", true);
-defineSymbol(text2, main, textord, "\u0237", "\\j", true);
-defineSymbol(text2, main, textord, "\xDF", "\\ss", true);
-defineSymbol(text2, main, textord, "\xE6", "\\ae", true);
-defineSymbol(text2, main, textord, "\u0153", "\\oe", true);
-defineSymbol(text2, main, textord, "\xF8", "\\o", true);
-defineSymbol(text2, main, textord, "\xC6", "\\AE", true);
-defineSymbol(text2, main, textord, "\u0152", "\\OE", true);
-defineSymbol(text2, main, textord, "\xD8", "\\O", true);
-defineSymbol(text2, main, accent, "\u02CA", "\\'");
-defineSymbol(text2, main, accent, "\u02CB", "\\`");
-defineSymbol(text2, main, accent, "\u02C6", "\\^");
-defineSymbol(text2, main, accent, "\u02DC", "\\~");
-defineSymbol(text2, main, accent, "\u02C9", "\\=");
-defineSymbol(text2, main, accent, "\u02D8", "\\u");
-defineSymbol(text2, main, accent, "\u02D9", "\\.");
-defineSymbol(text2, main, accent, "\xB8", "\\c");
-defineSymbol(text2, main, accent, "\u02DA", "\\r");
-defineSymbol(text2, main, accent, "\u02C7", "\\v");
-defineSymbol(text2, main, accent, "\xA8", '\\"');
-defineSymbol(text2, main, accent, "\u02DD", "\\H");
-defineSymbol(text2, main, accent, "\u25EF", "\\textcircled");
+defineSymbol(text, main, textord, "\u0131", "\\i", true);
+defineSymbol(text, main, textord, "\u0237", "\\j", true);
+defineSymbol(text, main, textord, "\xDF", "\\ss", true);
+defineSymbol(text, main, textord, "\xE6", "\\ae", true);
+defineSymbol(text, main, textord, "\u0153", "\\oe", true);
+defineSymbol(text, main, textord, "\xF8", "\\o", true);
+defineSymbol(text, main, textord, "\xC6", "\\AE", true);
+defineSymbol(text, main, textord, "\u0152", "\\OE", true);
+defineSymbol(text, main, textord, "\xD8", "\\O", true);
+defineSymbol(text, main, accent, "\u02CA", "\\'");
+defineSymbol(text, main, accent, "\u02CB", "\\`");
+defineSymbol(text, main, accent, "\u02C6", "\\^");
+defineSymbol(text, main, accent, "\u02DC", "\\~");
+defineSymbol(text, main, accent, "\u02C9", "\\=");
+defineSymbol(text, main, accent, "\u02D8", "\\u");
+defineSymbol(text, main, accent, "\u02D9", "\\.");
+defineSymbol(text, main, accent, "\xB8", "\\c");
+defineSymbol(text, main, accent, "\u02DA", "\\r");
+defineSymbol(text, main, accent, "\u02C7", "\\v");
+defineSymbol(text, main, accent, "\xA8", '\\"');
+defineSymbol(text, main, accent, "\u02DD", "\\H");
+defineSymbol(text, main, accent, "\u25EF", "\\textcircled");
 var ligatures = {
   "--": true,
   "---": true,
   "``": true,
   "''": true
 };
-defineSymbol(text2, main, textord, "\u2013", "--", true);
-defineSymbol(text2, main, textord, "\u2013", "\\textendash");
-defineSymbol(text2, main, textord, "\u2014", "---", true);
-defineSymbol(text2, main, textord, "\u2014", "\\textemdash");
-defineSymbol(text2, main, textord, "\u2018", "`", true);
-defineSymbol(text2, main, textord, "\u2018", "\\textquoteleft");
-defineSymbol(text2, main, textord, "\u2019", "'", true);
-defineSymbol(text2, main, textord, "\u2019", "\\textquoteright");
-defineSymbol(text2, main, textord, "\u201C", "``", true);
-defineSymbol(text2, main, textord, "\u201C", "\\textquotedblleft");
-defineSymbol(text2, main, textord, "\u201D", "''", true);
-defineSymbol(text2, main, textord, "\u201D", "\\textquotedblright");
+defineSymbol(text, main, textord, "\u2013", "--", true);
+defineSymbol(text, main, textord, "\u2013", "\\textendash");
+defineSymbol(text, main, textord, "\u2014", "---", true);
+defineSymbol(text, main, textord, "\u2014", "\\textemdash");
+defineSymbol(text, main, textord, "\u2018", "`", true);
+defineSymbol(text, main, textord, "\u2018", "\\textquoteleft");
+defineSymbol(text, main, textord, "\u2019", "'", true);
+defineSymbol(text, main, textord, "\u2019", "\\textquoteright");
+defineSymbol(text, main, textord, "\u201C", "``", true);
+defineSymbol(text, main, textord, "\u201C", "\\textquotedblleft");
+defineSymbol(text, main, textord, "\u201D", "''", true);
+defineSymbol(text, main, textord, "\u201D", "\\textquotedblright");
 defineSymbol(math, main, textord, "\xB0", "\\degree", true);
-defineSymbol(text2, main, textord, "\xB0", "\\degree");
-defineSymbol(text2, main, textord, "\xB0", "\\textdegree", true);
+defineSymbol(text, main, textord, "\xB0", "\\degree");
+defineSymbol(text, main, textord, "\xB0", "\\textdegree", true);
 defineSymbol(math, main, textord, "\xA3", "\\pounds");
 defineSymbol(math, main, textord, "\xA3", "\\mathsterling", true);
-defineSymbol(text2, main, textord, "\xA3", "\\pounds");
-defineSymbol(text2, main, textord, "\xA3", "\\textsterling", true);
+defineSymbol(text, main, textord, "\xA3", "\\pounds");
+defineSymbol(text, main, textord, "\xA3", "\\textsterling", true);
 defineSymbol(math, ams, textord, "\u2720", "\\maltese");
-defineSymbol(text2, ams, textord, "\u2720", "\\maltese");
+defineSymbol(text, ams, textord, "\u2720", "\\maltese");
 var mathTextSymbols = '0123456789/@."';
 for (i = 0; i < mathTextSymbols.length; i++) {
   ch = mathTextSymbols.charAt(i);
@@ -56736,7 +56144,7 @@ var i;
 var textSymbols = '0123456789!@*()-=+";:?/.,';
 for (_i = 0; _i < textSymbols.length; _i++) {
   _ch = textSymbols.charAt(_i);
-  defineSymbol(text2, main, textord, _ch, _ch);
+  defineSymbol(text, main, textord, _ch, _ch);
 }
 var _ch;
 var _i;
@@ -56744,84 +56152,84 @@ var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 for (_i2 = 0; _i2 < letters.length; _i2++) {
   _ch2 = letters.charAt(_i2);
   defineSymbol(math, main, mathord, _ch2, _ch2);
-  defineSymbol(text2, main, textord, _ch2, _ch2);
+  defineSymbol(text, main, textord, _ch2, _ch2);
 }
 var _ch2;
 var _i2;
 defineSymbol(math, ams, textord, "C", "\u2102");
-defineSymbol(text2, ams, textord, "C", "\u2102");
+defineSymbol(text, ams, textord, "C", "\u2102");
 defineSymbol(math, ams, textord, "H", "\u210D");
-defineSymbol(text2, ams, textord, "H", "\u210D");
+defineSymbol(text, ams, textord, "H", "\u210D");
 defineSymbol(math, ams, textord, "N", "\u2115");
-defineSymbol(text2, ams, textord, "N", "\u2115");
+defineSymbol(text, ams, textord, "N", "\u2115");
 defineSymbol(math, ams, textord, "P", "\u2119");
-defineSymbol(text2, ams, textord, "P", "\u2119");
+defineSymbol(text, ams, textord, "P", "\u2119");
 defineSymbol(math, ams, textord, "Q", "\u211A");
-defineSymbol(text2, ams, textord, "Q", "\u211A");
+defineSymbol(text, ams, textord, "Q", "\u211A");
 defineSymbol(math, ams, textord, "R", "\u211D");
-defineSymbol(text2, ams, textord, "R", "\u211D");
+defineSymbol(text, ams, textord, "R", "\u211D");
 defineSymbol(math, ams, textord, "Z", "\u2124");
-defineSymbol(text2, ams, textord, "Z", "\u2124");
+defineSymbol(text, ams, textord, "Z", "\u2124");
 defineSymbol(math, main, mathord, "h", "\u210E");
-defineSymbol(text2, main, mathord, "h", "\u210E");
+defineSymbol(text, main, mathord, "h", "\u210E");
 var wideChar;
 for (_i3 = 0; _i3 < letters.length; _i3++) {
   _ch3 = letters.charAt(_i3);
   wideChar = String.fromCharCode(55349, 56320 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56372 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56424 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56580 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56684 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56736 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56788 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56840 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   wideChar = String.fromCharCode(55349, 56944 + _i3);
   defineSymbol(math, main, mathord, _ch3, wideChar);
-  defineSymbol(text2, main, textord, _ch3, wideChar);
+  defineSymbol(text, main, textord, _ch3, wideChar);
   if (_i3 < 26) {
     wideChar = String.fromCharCode(55349, 56632 + _i3);
     defineSymbol(math, main, mathord, _ch3, wideChar);
-    defineSymbol(text2, main, textord, _ch3, wideChar);
+    defineSymbol(text, main, textord, _ch3, wideChar);
     wideChar = String.fromCharCode(55349, 56476 + _i3);
     defineSymbol(math, main, mathord, _ch3, wideChar);
-    defineSymbol(text2, main, textord, _ch3, wideChar);
+    defineSymbol(text, main, textord, _ch3, wideChar);
   }
 }
 var _ch3;
 var _i3;
 wideChar = String.fromCharCode(55349, 56668);
 defineSymbol(math, main, mathord, "k", wideChar);
-defineSymbol(text2, main, textord, "k", wideChar);
+defineSymbol(text, main, textord, "k", wideChar);
 for (_i4 = 0; _i4 < 10; _i4++) {
   _ch4 = _i4.toString();
   wideChar = String.fromCharCode(55349, 57294 + _i4);
   defineSymbol(math, main, mathord, _ch4, wideChar);
-  defineSymbol(text2, main, textord, _ch4, wideChar);
+  defineSymbol(text, main, textord, _ch4, wideChar);
   wideChar = String.fromCharCode(55349, 57314 + _i4);
   defineSymbol(math, main, mathord, _ch4, wideChar);
-  defineSymbol(text2, main, textord, _ch4, wideChar);
+  defineSymbol(text, main, textord, _ch4, wideChar);
   wideChar = String.fromCharCode(55349, 57324 + _i4);
   defineSymbol(math, main, mathord, _ch4, wideChar);
-  defineSymbol(text2, main, textord, _ch4, wideChar);
+  defineSymbol(text, main, textord, _ch4, wideChar);
   wideChar = String.fromCharCode(55349, 57334 + _i4);
   defineSymbol(math, main, mathord, _ch4, wideChar);
-  defineSymbol(text2, main, textord, _ch4, wideChar);
+  defineSymbol(text, main, textord, _ch4, wideChar);
 }
 var _ch4;
 var _i4;
@@ -56829,7 +56237,7 @@ var extraLatin = "\xD0\xDE\xFE";
 for (_i5 = 0; _i5 < extraLatin.length; _i5++) {
   _ch5 = extraLatin.charAt(_i5);
   defineSymbol(math, main, mathord, _ch5, _ch5);
-  defineSymbol(text2, main, textord, _ch5, _ch5);
+  defineSymbol(text, main, textord, _ch5, _ch5);
 }
 var _ch5;
 var _i5;
@@ -62957,9 +62365,9 @@ defineFunction({
     } = _ref;
     var outerMode = parser.mode;
     parser.switchMode("math");
-    var close2 = funcName === "\\(" ? "\\)" : "$";
-    var body2 = parser.parseExpression(false, close2);
-    parser.expect(close2);
+    var close3 = funcName === "\\(" ? "\\)" : "$";
+    var body2 = parser.parseExpression(false, close3);
+    parser.expect(close3);
     parser.switchMode(outerMode);
     return {
       type: "styling",
@@ -67066,7 +66474,7 @@ var parseTree = function parseTree2(toParse, settings) {
   }
   return tree;
 };
-var render4 = function render5(expression, baseNode, options) {
+var render3 = function render4(expression, baseNode, options) {
   baseNode.textContent = "";
   var node2 = renderToDomTree(expression, options).toNode();
   baseNode.appendChild(node2);
@@ -67074,7 +66482,7 @@ var render4 = function render5(expression, baseNode, options) {
 if (typeof document !== "undefined") {
   if (document.compatMode !== "CSS1Compat") {
     typeof console !== "undefined" && console.warn("Warning: KaTeX doesn't work in quirks mode. Make sure your website has a suitable doctype.");
-    render4 = function render6() {
+    render3 = function render6() {
       throw new ParseError("KaTeX doesn't work in quirks mode.");
     };
   }
@@ -67132,7 +66540,7 @@ var katex = {
    * Renders the given LaTeX into an HTML+MathML combination, and adds
    * it as a child to the specified DOM node.
    */
-  render: render4,
+  render: render3,
   /**
    * Renders the given LaTeX into an HTML+MathML combination string,
    * for sending to the client.
@@ -67502,12 +66910,12 @@ function keptAfter(wordplay, kept, change, cause) {
     )
   ];
   if (isDone(wordplay, held) && !isDone(wordplay, kept.held)) events.push(event("done", ""));
-  const page = change.page ?? kept.page;
+  const page2 = change.page ?? kept.page;
   return {
     held,
     skipped,
     events: [...kept.events, ...events].slice(-MAX_EVENTS),
-    ...page ? { page } : {}
+    ...page2 ? { page: page2 } : {}
   };
 }
 function shownEvents(wordplay, events, run2 = {}) {
@@ -67539,16 +66947,16 @@ function shownEvents(wordplay, events, run2 = {}) {
 }
 
 // packages/player/src/lib/local-preview.ts
-function localLesson(source, held, meta3, events = [], turns = []) {
+function localLesson(source, held, meta4, events = [], turns = []) {
   const wordplay = parseWordplay(source);
   const given = givenParts(wordplay, held);
   return {
-    stem: meta3.stem,
-    ...meta3.file ? { file: meta3.file } : {},
-    ...meta3.editable ? { editable: true } : {},
-    changed: meta3.changed,
-    title: titleOf(wordplay) || meta3.stem,
-    page: studentPage(source, held, meta3.folder),
+    stem: meta4.stem,
+    ...meta4.file ? { file: meta4.file } : {},
+    ...meta4.editable ? { editable: true } : {},
+    changed: meta4.changed,
+    title: titleOf(wordplay) || meta4.stem,
+    page: studentPage(source, held, meta4.folder),
     given: wordplay.slotted.filter((step) => given.has(step.id)).map((step) => step.id),
     done: isDone(wordplay, held),
     progress: progressOf(wordplay, held),
@@ -67556,13 +66964,13 @@ function localLesson(source, held, meta3, events = [], turns = []) {
     openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
     problems: [
       .../* @__PURE__ */ new Set([
-        ...meta3.problems,
+        ...meta4.problems,
         ...wordplay.problems,
         ...publishableProblems(wordplay, source)
       ])
     ],
-    tutor: meta3.tutor,
-    ...meta3.choices ? { choices: meta3.choices } : {}
+    tutor: meta4.tutor,
+    ...meta4.choices ? { choices: meta4.choices } : {}
   };
 }
 
@@ -67764,17 +67172,17 @@ function readPage(value) {
     else if (Array.isArray(one))
       controls[key2] = one.filter((choice) => typeof choice === "string").slice(0, 100).map((choice) => choice.slice(0, 200));
   }
-  const page = { controls };
+  const page2 = { controls };
   if (sent.kept !== void 0) {
     const text3 = JSON.stringify(sent.kept);
     if (text3 !== void 0 && new TextEncoder().encode(text3).length <= MAX_KEPT)
-      page.kept = sent.kept;
+      page2.kept = sent.kept;
   }
   if (typeof sent.at === "number" && Number.isInteger(sent.at) && sent.at >= 0 && sent.at < 1e3)
-    page.at = sent.at;
+    page2.at = sent.at;
   const calculators = readCalculatorState(sent.calculators);
-  if (calculators) page.calculators = calculators;
-  return page;
+  if (calculators) page2.calculators = calculators;
+  return page2;
 }
 
 // packages/player/src/lib/play-view.ts
@@ -67851,6 +67259,24 @@ function readView(sent) {
   };
 }
 
+// packages/player/src/lib/page-says.ts
+init_define_WORDPLAY_ENGINE();
+var MAX_PAGE_SAYS = 20;
+var WINDOW_MS = 6e4;
+var PAGE_SAYS_REFUSED = "The page sent the tutor too many messages in a minute. Wait a moment, then try again.";
+var windows = /* @__PURE__ */ new Map();
+function pageMaySay(conversation, now = Date.now()) {
+  for (const [key2, window3] of windows) if (now - window3.start >= WINDOW_MS) windows.delete(key2);
+  const window2 = windows.get(conversation);
+  if (!window2) {
+    windows.set(conversation, { start: now, count: 1 });
+    return true;
+  }
+  if (window2.count >= MAX_PAGE_SAYS) return false;
+  window2.count++;
+  return true;
+}
+
 // packages/player/src/lib/local-host.ts
 var sharing = (wordplay) => sharesIn(wordplay.document);
 var json2 = (status, value, headers = {}) => new Response(JSON.stringify(value), {
@@ -67866,12 +67292,12 @@ function readBody(init) {
   }
 }
 var newId = () => typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
-function localRoutes({ source, meta: meta3, trials, ask, folder }) {
-  const find3 = (id) => typeof id === "string" && id ? trials.list().find((one) => one.id === id) : void 0;
+function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
+  const find3 = (id) => typeof id === "string" && id ? trials2.list().find((one) => one.id === id) : void 0;
   function lesson(path2) {
     const conversation = new URLSearchParams(path2.split("?")[1] ?? "").get("conversation");
     const trial = find3(conversation);
-    const { note, downloadable, saveAfter, words: words2, problems, ...rest } = meta3();
+    const { note, downloadable, saveAfter, words: words2, problems, ...rest } = meta4();
     const wordplay = parseWordplay(source());
     return {
       ...localLesson(
@@ -67903,9 +67329,9 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
       ({ held, skipped } = heldAfterSkip(wordplay, held, skipped, sent.skip));
     const did = before2 ? readDid(sent.did) : [];
     const wrote = before2 ? readWrote(sent.wrote) : [];
-    const page = readPage(sent.page);
+    const page2 = readPage(sent.page);
     let id = before2?.id ?? null;
-    if (held.length > (before2?.held.length ?? 0) || did.length || wrote.length || page) {
+    if (held.length > (before2?.held.length ?? 0) || did.length || wrote.length || page2) {
       id ??= typeof sent.conversationId === "string" && sent.conversationId ? sent.conversationId : newId();
       ({ held, skipped, events } = keptAfter(
         wordplay,
@@ -67916,14 +67342,14 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
           reply: repliesIn(before2?.turns ?? [])
         }
       ));
-      trials.save({
+      trials2.save({
         ...before2 ?? { turns: [] },
         id,
         lastAskedAt: before2?.lastAskedAt ?? (/* @__PURE__ */ new Date()).toISOString(),
         held,
         ...skipped.length ? { skipped } : {},
         events,
-        ...page ? { page } : {}
+        ...page2 ? { page: page2 } : {}
       });
     }
     const have = new Set(
@@ -67988,7 +67414,7 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         events: now?.events ?? [],
         ...now?.page ? { page: now.page } : {}
       };
-      trials.save({
+      trials2.save({
         ...now ?? {},
         id,
         lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -68052,7 +67478,7 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         ...block?.facts.length ? { facts } : {}
       };
     };
-    const sharing2 = trials.list().filter((trial) => trial.shared).sort((a, b) => b.shared.at.localeCompare(a.shared.at));
+    const sharing2 = trials2.list().filter((trial) => trial.shared).sort((a, b) => b.shared.at.localeCompare(a.shared.at));
     const entries2 = sharing2.map(entryOf).filter((one) => one !== null);
     const own2 = sharing2.find((trial) => !trial.simulated);
     const mine = own2 ? entryOf(own2) : null;
@@ -68076,12 +67502,12 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
     };
     if (value === null) delete kept.shared;
     else kept.shared = { value, at: (/* @__PURE__ */ new Date()).toISOString() };
-    trials.save(kept);
+    trials2.save(kept);
     return json2(200, { conversationId: id, shared: wall(wordplay) });
   }
   function history() {
     const wordplay = parseWordplay(source());
-    const sorted = [...trials.list().filter((trial) => trial.turns.length || trial.page)].sort(
+    const sorted = [...trials2.list().filter((trial) => trial.turns.length || trial.page)].sort(
       (a, b) => b.lastAskedAt.localeCompare(a.lastAskedAt)
     );
     return json2(200, {
@@ -68118,9 +67544,9 @@ function localRoutes({ source, meta: meta3, trials, ask, folder }) {
         return json2(200, { shared: wall(parseWordplay(source())) });
       case "DELETE tutor/history": {
         const id = new URLSearchParams(path2.split("?")[1] ?? "").get("id");
-        if (!trials.remove || !find3(id))
+        if (!trials2.remove || !find3(id))
           return json2(404, { error: "There is no such conversation." });
-        trials.remove(id);
+        trials2.remove(id);
         return json2(200, { ok: true });
       }
       default:
@@ -68142,95 +67568,978 @@ function keptReply(wordplay, was, answer, turns, did) {
   };
 }
 
-// packages/player/src/lib/simulated-page.ts
+// packages/player/src/bridge/trials.ts
 init_define_WORDPLAY_ENGINE();
-function hidden(element) {
-  for (let at = element; at; at = at.parentElement)
-    if (hiddenFromReader(at)) return true;
-  return false;
+import { mkdirSync as mkdirSync2, readFileSync as readFileSync2, readdirSync, rmSync as rmSync2, writeFileSync as writeFileSync2 } from "node:fs";
+import { join as join2 } from "node:path";
+var SAFE = /^[A-Za-z0-9_-]{1,64}$/;
+function trialsDir(dir, stem) {
+  return join2(dir, ".trials", stem);
 }
-function controlNamed(document2, name) {
-  const key2 = matchKey(name);
-  for (const element of Array.from(document2.body.querySelectorAll("*"))) {
-    const role = roleOf(element);
-    if (!role || !CONTROL_ROLES.has(role) || hidden(element)) continue;
-    if (matchKey(nameOf(element)) === key2) return element;
-  }
-  return null;
-}
-function operate(document2, { name, value }) {
-  const control = controlNamed(document2, name);
-  if (!control) return `Nothing on the page is a control named "${name}".`;
-  if (control.hasAttribute("disabled") || control.getAttribute("aria-disabled") === "true")
-    return `"${name}" is disabled.`;
-  const tag = control.tagName.toLowerCase();
-  const type = (control.getAttribute("type") ?? "").toLowerCase();
-  const checkable = tag === "input" && (type === "checkbox" || type === "radio");
-  if (value === void 0) {
-    if (checkable) {
-      toggleChecked(document2, control, !control.hasAttribute("checked"));
-      return null;
-    }
-    const pressed = control.getAttribute("aria-pressed");
-    if (pressed === "true" || pressed === "false")
-      control.setAttribute("aria-pressed", pressed === "true" ? "false" : "true");
-    const expanded = control.getAttribute("aria-expanded");
-    if (expanded === "true" || expanded === "false")
-      control.setAttribute("aria-expanded", expanded === "true" ? "false" : "true");
+function readTrial(dir, stem, id) {
+  if (!SAFE.test(id)) return null;
+  try {
+    return JSON.parse(readFileSync2(join2(trialsDir(dir, stem), `${id}.json`), "utf8"));
+  } catch {
     return null;
   }
-  if (tag === "select") {
-    const options = Array.from(control.querySelectorAll("option"));
-    const option = options.find(
-      (one) => matchKey(one.textContent ?? "") === matchKey(value) || matchKey(one.getAttribute("value") ?? "") === matchKey(value)
+}
+function writeTrial(dir, stem, trial) {
+  if (!SAFE.test(trial.id)) return;
+  const folder = trialsDir(dir, stem);
+  mkdirSync2(folder, { recursive: true });
+  writeFileSync2(join2(folder, `${trial.id}.json`), `${JSON.stringify(trial, null, 2)}
+`);
+}
+function removeTrial(dir, stem, id) {
+  if (!SAFE.test(id)) return;
+  rmSync2(join2(trialsDir(dir, stem), `${id}.json`), { force: true });
+}
+function allTrials(dir, stem) {
+  let names;
+  try {
+    names = readdirSync(trialsDir(dir, stem)).filter((name) => name.endsWith(".json"));
+  } catch {
+    return [];
+  }
+  return names.map((name) => readTrial(dir, stem, name.slice(0, -".json".length))).filter((trial) => trial !== null).map((trial) => ({ ...trial, held: Array.isArray(trial.held) ? trial.held : [] }));
+}
+function listTrials(dir, stem, take = 12) {
+  return allTrials(dir, stem).filter((trial) => trial.turns.length > 0).sort((a, b) => b.lastAskedAt.localeCompare(a.lastAskedAt)).slice(0, take);
+}
+
+// packages/player/src/bridge/preview-server.ts
+init_define_WORDPLAY_ENGINE();
+import { randomUUID as randomUUID3 } from "node:crypto";
+import {
+  existsSync as existsSync7,
+  readFileSync as readFileSync7,
+  realpathSync,
+  renameSync as renameSync2,
+  statSync as statSync3,
+  writeFileSync as writeFileSync6
+} from "node:fs";
+import http from "node:http";
+import https from "node:https";
+import { basename as basename3, dirname as dirname3, join as join8, resolve as resolve2, sep } from "node:path";
+
+// packages/player/src/bridge/publishing.ts
+init_define_WORDPLAY_ENGINE();
+import { existsSync as existsSync2, mkdirSync as mkdirSync3, readFileSync as readFileSync3, renameSync, statSync, writeFileSync as writeFileSync3 } from "node:fs";
+import { basename, dirname, join as join3 } from "node:path";
+var placesOf = (lesson) => join3(dirname(lesson), ".wordplay", "labs.json");
+function readPlaces(lesson) {
+  try {
+    return JSON.parse(readFileSync3(placesOf(lesson), "utf8"));
+  } catch {
+    return {};
+  }
+}
+function placeOf(lesson, site2) {
+  const found = readPlaces(lesson)[new URL(site2).origin]?.[basename(lesson)];
+  return found && typeof found.id === "string" ? found : null;
+}
+function keepPlace(lesson, site2, place) {
+  const all = readPlaces(lesson);
+  const origin = new URL(site2).origin;
+  all[origin] = { ...all[origin], [basename(lesson)]: place };
+  mkdirSync3(dirname(placesOf(lesson)), { recursive: true });
+  const temp = `${placesOf(lesson)}.${process.pid}.tmp`;
+  writeFileSync3(temp, `${JSON.stringify(all, null, 2)}
+`);
+  renameSync(temp, placesOf(lesson));
+}
+async function publishedCopy(labs2, lesson, site2) {
+  const place = placeOf(lesson, site2);
+  if (!place || !labs2.status().signedIn) return null;
+  const response = await labs2.call(`/api/publish?id=${encodeURIComponent(place.id)}`);
+  if (!response.ok) return null;
+  const copy = await response.json().catch(() => null);
+  return copy?.ok ? copy : null;
+}
+function folderFiles(lesson, file2) {
+  const folder = dirname(lesson);
+  const paths = /* @__PURE__ */ new Set();
+  for (const reference of referencesIn(parseWordplay(file2).document)) {
+    const path2 = reference.relative ? folderPath(reference.url) : null;
+    if (path2) paths.add(path2);
+  }
+  return [...paths].flatMap((path2) => {
+    const where = join3(folder, path2);
+    if (!existsSync2(where) || !statSync(where).isFile()) return [];
+    return [{ path: path2, base64: readFileSync3(where).toString("base64") }];
+  });
+}
+async function publishFromDisk(labs2, lesson, site2, listing) {
+  const file2 = readFileSync3(lesson, "utf8");
+  const place = placeOf(lesson, site2);
+  const response = await labs2.call("/api/publish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      file: file2,
+      files: folderFiles(lesson, file2),
+      ...place ? { id: place.id, version: place.version } : {},
+      title: listing.title,
+      description: listing.description,
+      tags: listing.tags,
+      coverHash: listing.coverHash,
+      unlisted: listing.unlisted
+    })
+  });
+  const answer = await response.json().catch(() => null) ?? {};
+  if (response.ok && typeof answer.id === "string" && typeof answer.version === "string") {
+    keepPlace(lesson, site2, { id: answer.id, version: answer.version });
+  }
+  return { status: response.status, answer };
+}
+
+// packages/player/src/bridge/engine.ts
+init_define_WORDPLAY_ENGINE();
+import { spawn as spawn3 } from "node:child_process";
+import { existsSync as existsSync3, mkdirSync as mkdirSync4, readFileSync as readFileSync4, writeFileSync as writeFileSync4 } from "node:fs";
+import { createRequire } from "node:module";
+import { homedir } from "node:os";
+import { join as join4 } from "node:path";
+
+// packages/ui/src/lib/svg-purify.ts
+init_define_WORDPLAY_ENGINE();
+function svgSanitizer(make, window2, options = {}) {
+  let purifier = null;
+  const sanitizer = () => {
+    if (purifier) return purifier;
+    purifier = make(window2());
+    purifier.addHook("afterSanitizeAttributes", (node2) => {
+      for (const attribute2 of ["href", "xlink:href", "src"]) {
+        const value = node2.getAttribute?.(attribute2);
+        if (value && /^(https?:)?\/\//i.test(value.trim())) node2.removeAttribute(attribute2);
+      }
+      for (const { name, value } of Array.from(node2.attributes ?? [])) {
+        if (/url\(\s*(?!['"]?#)/i.test(value)) node2.removeAttribute(name);
+      }
+    });
+    return purifier;
+  };
+  return (source) => {
+    const clean = sanitizer().sanitize(source, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      // foreignObject is an HTML escape hatch inside SVG, and the one element
+      // that reopens everything the SVG profile just closed.
+      FORBID_TAGS: [
+        "script",
+        "foreignObject",
+        "iframe",
+        "use",
+        ...options.inline ? ["style"] : []
+      ],
+      FORBID_ATTR: ["onload", "onerror", "onclick", "onmouseover"]
+    });
+    return /<svg[\s>]/i.test(clean) ? clean : null;
+  };
+}
+
+// packages/ui/src/lib/tikz-draw.ts
+init_define_WORDPLAY_ENGINE();
+import { createHash } from "node:crypto";
+import { Worker } from "node:worker_threads";
+var RENDER_TIMEOUT_MS = 1e4;
+var WORKER_SOURCE = `
+const { parentPort, workerData } = require("node:worker_threads");
+const { createRequire } = require("node:module");
+const engine = createRequire(workerData.from)("node-tikzjax");
+const loaded = engine.load();
+loaded.catch(() => {});
+parentPort.on("message", async (input) => {
+  const log = [];
+  const print = console.log;
+  console.log = (...parts) => void log.push(parts.map(String).join(" "));
+  try {
+    await loaded;
+    const dvi = await engine.tex(input, { showConsole: true });
+    parentPort.postMessage({ svg: await engine.dvi2svg(dvi) });
+  } catch {
+    parentPort.postMessage({ log });
+  } finally {
+    console.log = print;
+  }
+});
+`;
+function engineInWorker(from, timeoutMs) {
+  let worker = null;
+  let queue = Promise.resolve();
+  async function draw3(input2) {
+    const path2 = await from();
+    if (!worker) {
+      worker = new Worker(WORKER_SOURCE, { eval: true, workerData: { from: path2 } });
+      worker.unref();
+    }
+    const current = worker;
+    return new Promise((resolve4, reject) => {
+      const settle2 = () => {
+        clearTimeout(timer);
+        current.off("message", onMessage);
+        current.off("error", onError);
+        current.off("exit", onExit);
+      };
+      const kill = (error62) => {
+        settle2();
+        if (worker === current) worker = null;
+        void current.terminate();
+        reject(error62);
+      };
+      const timer = setTimeout(
+        () => kill(new Error("That diagram took too long to draw.")),
+        timeoutMs
+      );
+      const onMessage = (reply) => {
+        settle2();
+        if (typeof reply.svg === "string") resolve4(reply.svg);
+        else reject(new Error(texError(reply.log ?? [])));
+      };
+      const onError = (error62) => kill(new Error(`The diagram engine stopped (${error62.message}).`));
+      const onExit = () => kill(new Error("The diagram engine stopped."));
+      current.once("message", onMessage);
+      current.once("error", onError);
+      current.once("exit", onExit);
+      current.postMessage(input2);
+    });
+  }
+  return (input2) => {
+    const run2 = queue.then(() => draw3(input2));
+    queue = run2.catch(() => void 0);
+    return run2;
+  };
+}
+var LINES_BEFORE_SOURCE = 2;
+function texError(log) {
+  const at = log.findIndex((line2) => line2.startsWith("! "));
+  if (at === -1) return "TeX could not draw it.";
+  const what2 = log[at].slice(2).replace(/\.$/, "").trim();
+  const where = log.slice(at + 1, at + 8).find((line2) => /^l\.\d+/.test(line2));
+  const line = where ? Number(/^l\.(\d+)/.exec(where)[1]) - LINES_BEFORE_SOURCE : null;
+  const culprit = /undefined control sequence/i.test(what2) ? [...(where ?? "").matchAll(/\\[A-Za-z@]+/g)].pop()?.[0] : void 0;
+  const said2 = culprit ? `${what2} ${culprit}` : what2;
+  return line && line > 0 ? `${said2}, on line ${line}` : said2;
+}
+var MAX_REMEMBERED_FAILURES = 500;
+var BLACK = /(stroke|fill)="(#000|#000000|black)"/gi;
+var FONT_FAMILY = /font-family="([A-Za-z][A-Za-z0-9]*)"/g;
+function dressTikzSvg(svg) {
+  const themed = svg.replace(BLACK, '$1="currentColor"').replace(/^<svg /, '<svg class="tikz" fill="currentColor" ');
+  const families = [...new Set([...themed.matchAll(FONT_FAMILY)].map((match) => match[1]))];
+  if (families.length === 0) return themed;
+  const faces = families.map(
+    (family) => `@font-face{font-family:${family};src:url(/f/cm/${family}.ttf) format("truetype");font-display:block}`
+  ).join("");
+  return themed.replace(/^(<svg[^>]*>)/, `$1<style>${faces}</style>`);
+}
+function tikzDrawer(deps) {
+  const render6 = engineInWorker(deps.engineFrom, deps.timeoutMs ?? RENDER_TIMEOUT_MS);
+  const failed2 = /* @__PURE__ */ new Map();
+  const recleaned = /* @__PURE__ */ new Map();
+  return async (source) => {
+    const hash2 = createHash("sha256").update(source.trim()).digest("hex");
+    const known = failed2.get(hash2);
+    if (known !== void 0) return { error: known };
+    let clean = recleaned.get(hash2);
+    if (clean === void 0) {
+      const cached2 = await deps.store.get(hash2);
+      if (cached2) {
+        clean = await deps.sanitize(cached2);
+        if (recleaned.size >= MAX_REMEMBERED_FAILURES) recleaned.clear();
+        recleaned.set(hash2, clean);
+      }
+    }
+    if (clean) return { svg: dressTikzSvg(clean) };
+    if (clean === null) return { error: "The drawing could not be made safe to show." };
+    try {
+      const svg = await render6(`\\begin{document}
+${source}
+\\end{document}`);
+      const drawn = await deps.sanitize(svg);
+      if (!drawn) return { error: "The drawing could not be made safe to show." };
+      await deps.store.put(hash2, drawn);
+      return { svg: dressTikzSvg(drawn) };
+    } catch (error62) {
+      const reason = error62.message;
+      if (failed2.size >= MAX_REMEMBERED_FAILURES) failed2.clear();
+      failed2.set(hash2, reason);
+      console.warn("[tikz] render failed:", reason);
+      return { error: reason };
+    }
+  };
+}
+
+// packages/player/src/bridge/engine.ts
+var ENGINE = typeof define_WORDPLAY_ENGINE_default === "undefined" ? { "node-tikzjax": "1.0.5", jsdom: "30.1.1", dompurify: "3.4.15" } : define_WORDPLAY_ENGINE_default;
+var cacheDir = () => process.env.WORDPLAY_CACHE_DIR || join4(homedir(), ".cache", "wordplay");
+var engineDir = () => join4(cacheDir(), "engine");
+var installing2 = /* @__PURE__ */ new Map();
+function ensureEngine() {
+  const dir = engineDir();
+  const known = installing2.get(dir);
+  if (known) return known;
+  const install = (async () => {
+    const stamp = join4(dir, "installed.json");
+    const wanted = JSON.stringify(ENGINE);
+    if (existsSync3(stamp) && readFileSync4(stamp, "utf8") === wanted) return;
+    mkdirSync4(dir, { recursive: true });
+    if (!existsSync3(join4(dir, "package.json"))) {
+      writeFileSync4(join4(dir, "package.json"), '{ "private": true }\n');
+    }
+    console.error(
+      "[wordplay] installing the diagram engine, once:",
+      Object.keys(ENGINE).join(", ")
     );
-    if (!option) return `"${name}" has no choice "${value}".`;
-    for (const one of options) one.removeAttribute("selected");
-    option.setAttribute("selected", "");
-    return null;
-  }
-  if (checkable) {
-    toggleChecked(document2, control, !/^(false|no|off|unchecked)$/i.test(value.trim()));
-    return null;
-  }
-  if (tag === "textarea") {
-    control.textContent = value;
-    return null;
-  }
-  if (tag === "input") {
-    control.setAttribute("value", value);
-    return null;
-  }
-  return `"${name}" is a ${roleOf(control)}, which takes no value.`;
+    await run(
+      process.platform === "win32" ? "npm.cmd" : "npm",
+      [
+        "install",
+        "--no-audit",
+        "--no-fund",
+        "--loglevel=error",
+        ...Object.entries(ENGINE).map(([name, version3]) => `${name}@${version3}`)
+      ],
+      dir
+    );
+    writeFileSync4(stamp, wanted);
+  })().catch((error62) => {
+    installing2.delete(dir);
+    throw error62;
+  });
+  installing2.set(dir, install);
+  return install;
 }
-function toggleChecked(document2, control, want) {
-  if (want && control.getAttribute("type")?.toLowerCase() === "radio") {
-    const group = control.getAttribute("name");
-    if (group) {
-      for (const other of Array.from(document2.querySelectorAll(`input[type="radio"]`)))
-        if (other.getAttribute("name") === group) other.removeAttribute("checked");
+function run(command, args, cwd) {
+  return new Promise((resolve4, reject) => {
+    const child = spawn3(command, args, {
+      cwd,
+      stdio: ["ignore", "ignore", "pipe"],
+      shell: process.platform === "win32"
+    });
+    let said2 = "";
+    child.stderr.on("data", (chunk) => said2 = (said2 + chunk.toString()).slice(-1500));
+    child.on("error", (error62) => reject(error62));
+    child.on(
+      "close",
+      (code) => code === 0 ? resolve4() : reject(new Error(`npm install failed (${code}): ${said2.trim()}`))
+    );
+  });
+}
+var load = () => createRequire(join4(engineDir(), "package.json"));
+var sanitize = null;
+var drawLocally = tikzDrawer({
+  engineFrom: async () => {
+    await ensureEngine();
+    return join4(engineDir(), "package.json");
+  },
+  sanitize: async (svg) => {
+    if (!sanitize) {
+      const required2 = load();
+      const purify = required2("dompurify");
+      const { JSDOM } = required2("jsdom");
+      sanitize = svgSanitizer(purify.default ?? purify, () => new JSDOM("").window, {
+        inline: true
+      });
+    }
+    return sanitize(svg);
+  },
+  store: {
+    get: async (hash2) => {
+      const file2 = join4(cacheDir(), "tikz", `${hash2}.svg`);
+      return existsSync3(file2) ? readFileSync4(file2, "utf8") : null;
+    },
+    put: async (hash2, svg) => {
+      mkdirSync4(join4(cacheDir(), "tikz"), { recursive: true });
+      writeFileSync4(join4(cacheDir(), "tikz", `${hash2}.svg`), svg);
     }
   }
-  if (want) control.setAttribute("checked", "");
-  else control.removeAttribute("checked");
-}
-function simulatedTree(source, held, operations) {
-  const document2 = studentDocument(source, held);
-  let refused = null;
-  for (const operation of operations) refused = operate(document2, operation);
-  return { tree: documentTree(document2.body), refused };
-}
-function simulatedView(source, held, operations) {
-  const wordplay = parseWordplay(source);
-  const title = titleOf(wordplay);
-  const tree = treeText(simulatedTree(source, held, operations).tree).join("\n");
-  return `${title ? `# ${title}
+});
 
-` : ""}${tree}
-
----
-${isDone(wordplay, held) ? "The wordplay is complete." : "The wordplay is not complete yet."}`;
+// packages/player/src/player/shell.ts
+init_define_WORDPLAY_ENGINE();
+function playerShell(title = "A lesson", host = "artifact", at = "") {
+  const escaped = title.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  return `<title>${escaped}</title>
+<link rel="stylesheet" href="${at}player.css" />
+<div data-shell class="mx-auto flex w-full max-w-[1400px] gap-0 2xl:max-w-[1680px]">
+  <main class="min-w-0 flex-1 overflow-x-clip border-line pb-20 md:border-x lg:max-w-[52rem] 2xl:max-w-[68rem]">
+    <span data-preview-page hidden></span>
+    <div id="player"${host === "bridge" ? ' data-host="bridge"' : ""}><p class="px-4 py-6 text-[14px] text-ink-muted">Opening the wordplay\u2026</p></div>
+  </main>
+</div>
+<script type="module" src="${at}player.js"></script>
+`;
 }
+var PLAYER_ARTIFACT = "https://claude.ai/artifact/ANSJdy2JRLb7Bo3S8bBfBf";
+
+// packages/player/src/bridge/preview-creator.ts
+init_define_WORDPLAY_ENGINE();
+import { randomUUID as randomUUID2 } from "node:crypto";
+
+// packages/player/src/lib/builder-turn.ts
+init_define_WORDPLAY_ENGINE();
+
+// packages/player/src/lib/lesson-guide.ts
+init_define_WORDPLAY_ENGINE();
+
+// packages/player/src/lib/prompts.ts
+init_define_WORDPLAY_ENGINE();
+import { existsSync as existsSync4, readFileSync as readFileSync5 } from "node:fs";
+import { join as join5 } from "node:path";
+
+// packages/player/src/lib/calc-symbols.ts
+init_define_WORDPLAY_ENGINE();
+var SYMBOLS = {
+  sqrt: { label: "\u221A", insert: "\\sqrt{#?}", name: "Square root", group: "Math" },
+  cbrt: { label: "\u221B", insert: "\\sqrt[3]{#?}", name: "Cube root", small: true, group: "Math" },
+  nthroot: { label: "\u207F\u221A", insert: "\\sqrt[#?]{#?}", name: "Nth root", small: true, group: "Math" },
+  square: { label: "x\xB2", insert: "#@^{2}", name: "Squared", postfix: true, group: "Math" },
+  cube: { label: "x\xB3", insert: "#@^{3}", name: "Cubed", postfix: true, group: "Math" },
+  power: { label: "x\u02B8", insert: "#@^{#?}", name: "To the power", postfix: true, group: "Math" },
+  inverse: {
+    label: "x\u207B\xB9",
+    insert: "#@^{-1}",
+    name: "Reciprocal",
+    small: true,
+    postfix: true,
+    group: "Math"
+  },
+  frac: { label: "a/b", insert: "\\frac{#?}{#?}", name: "Fraction", small: true, group: "Math" },
+  abs: {
+    label: "|x|",
+    insert: "\\left|#?\\right|",
+    name: "Absolute value",
+    small: true,
+    group: "Math"
+  },
+  factorial: { label: "n!", insert: "#@!", name: "Factorial", small: true, group: "Math" },
+  percent: { label: "%", insert: "\\%", name: "Per cent", group: "Math" },
+  choose: {
+    label: "nCr",
+    insert: "\\binom{#?}{#?}",
+    name: "Binomial coefficient",
+    small: true,
+    group: "Math"
+  },
+  pi: { label: "\u03C0", insert: "\\pi", name: "Pi", group: "Math" },
+  e: { label: "e", insert: "e", name: "Euler's number", group: "Math" },
+  ans: {
+    label: "Ans",
+    insert: "\\mathrm{Ans}",
+    name: "The last answer",
+    small: true,
+    group: "Math"
+  },
+  sin: { label: "sin", insert: "\\sin(#?)", name: "Sine", small: true, group: "Trig" },
+  cos: { label: "cos", insert: "\\cos(#?)", name: "Cosine", small: true, group: "Trig" },
+  tan: { label: "tan", insert: "\\tan(#?)", name: "Tangent", small: true, group: "Trig" },
+  asin: {
+    label: "sin\u207B\xB9",
+    insert: "\\arcsin(#?)",
+    name: "Inverse sine",
+    small: true,
+    group: "Trig"
+  },
+  acos: {
+    label: "cos\u207B\xB9",
+    insert: "\\arccos(#?)",
+    name: "Inverse cosine",
+    small: true,
+    group: "Trig"
+  },
+  atan: {
+    label: "tan\u207B\xB9",
+    insert: "\\arctan(#?)",
+    name: "Inverse tangent",
+    small: true,
+    group: "Trig"
+  },
+  sinh: {
+    label: "sinh",
+    insert: "\\sinh(#?)",
+    name: "Hyperbolic sine",
+    small: true,
+    group: "Trig"
+  },
+  cosh: {
+    label: "cosh",
+    insert: "\\cosh(#?)",
+    name: "Hyperbolic cosine",
+    small: true,
+    group: "Trig"
+  },
+  tanh: {
+    label: "tanh",
+    insert: "\\tanh(#?)",
+    name: "Hyperbolic tangent",
+    small: true,
+    group: "Trig"
+  },
+  // `\ln` and `\log` rather than `log(` and `log10(`: the name a book prints
+  // goes in, and `mathSource` is the one place that knows LaTeX's `\log` is
+  // base ten where mathjs's `log` is natural.
+  ln: { label: "ln", insert: "\\ln(#?)", name: "Natural logarithm", small: true, group: "Logs" },
+  log: {
+    label: "log",
+    insert: "\\log(#?)",
+    name: "Logarithm base ten",
+    small: true,
+    group: "Logs"
+  },
+  exp: { label: "e\u02E3", insert: "\\exp(#?)", name: "e to the power", small: true, group: "Logs" },
+  tenpow: { label: "10\u02E3", insert: "10^{#?}", name: "Ten to the power", small: true, group: "Logs" },
+  deg: { label: "\xB0", insert: "\\degree", name: "Degrees", group: "Trig" },
+  theta: { label: "\u03B8", insert: "\\theta", name: "Theta", group: "Greek" },
+  alpha: { label: "\u03B1", insert: "\\alpha", name: "Alpha", group: "Greek" },
+  beta: { label: "\u03B2", insert: "\\beta", name: "Beta", group: "Greek" },
+  gamma: { label: "\u03B3", insert: "\\gamma", name: "Gamma", group: "Greek" },
+  delta: { label: "\u0394", insert: "\\Delta", name: "Delta", group: "Greek" },
+  lambda: { label: "\u03BB", insert: "\\lambda", name: "Lambda", group: "Greek" },
+  mu: { label: "\u03BC", insert: "\\mu", name: "Mu", group: "Greek" },
+  omega: { label: "\u03C9", insert: "\\omega", name: "Omega", group: "Greek" },
+  epsilon: { label: "\u03B5", insert: "\\varepsilon", name: "Epsilon", group: "Greek" },
+  rho: { label: "\u03C1", insert: "\\rho", name: "Rho", group: "Greek" },
+  sigma: { label: "\u03C3", insert: "\\sigma", name: "Sigma", group: "Greek" },
+  tau: { label: "\u03C4", insert: "\\tau", name: "Tau", group: "Greek" },
+  phi: { label: "\u03C6", insert: "\\phi", name: "Phi", group: "Greek" },
+  psi: { label: "\u03C8", insert: "\\psi", name: "Psi", group: "Greek" },
+  eta: { label: "\u03B7", insert: "\\eta", name: "Eta", group: "Greek" },
+  nu: { label: "\u03BD", insert: "\\nu", name: "Nu", group: "Greek" },
+  Omega: { label: "\u03A9", insert: "\\Omega", name: "Capital omega", group: "Greek" },
+  Sigma: { label: "\u03A3", insert: "\\Sigma", name: "Capital sigma", group: "Greek" },
+  Phi: { label: "\u03A6", insert: "\\Phi", name: "Capital phi", group: "Greek" },
+  integral: { label: "\u222B", insert: "\\int_{#?}^{#?}#?", name: "Integral", group: "Calculus" },
+  sum: { label: "\u03A3", insert: "\\sum_{#?}^{#?}#?", name: "Sum", group: "Calculus" },
+  product: { label: "\u03A0", insert: "\\prod_{#?}^{#?}#?", name: "Product", group: "Calculus" },
+  derivative: {
+    label: "d/dx",
+    insert: "\\frac{d}{d#?}#?",
+    name: "Derivative",
+    small: true,
+    group: "Calculus"
+  },
+  partial: { label: "\u2202", insert: "\\partial", name: "Partial derivative", group: "Calculus" },
+  limit: {
+    label: "lim",
+    insert: "\\lim_{#?\\to#?}#?",
+    name: "Limit",
+    small: true,
+    group: "Calculus"
+  },
+  infinity: { label: "\u221E", insert: "\\infty", name: "Infinity", group: "Calculus" },
+  nabla: { label: "\u2207", insert: "\\nabla", name: "Nabla", group: "Calculus" },
+  contour: { label: "\u222E", insert: "\\oint_{#?}#?", name: "Contour integral", group: "Calculus" },
+  doubleintegral: {
+    label: "\u222C",
+    insert: "\\iint_{#?}#?",
+    name: "Double integral",
+    group: "Calculus"
+  },
+  // **Relations and set notation are for writing, not for working out.**
+  // mathjs cannot evaluate `∈` or `⇌` and never will — these are here because
+  // the box they type into is a message to the tutor, and saying "x ∈ [0, 1]"
+  // is the thing somebody wants to say. `=` simply finds no sum in a line
+  // like that, which is already its answer to a line of prose.
+  leq: { label: "\u2264", insert: "\\le", name: "Less than or equal to", group: "Relations" },
+  geq: { label: "\u2265", insert: "\\ge", name: "Greater than or equal to", group: "Relations" },
+  neq: { label: "\u2260", insert: "\\ne", name: "Not equal to", group: "Relations" },
+  approx: { label: "\u2248", insert: "\\approx", name: "Approximately equal to", group: "Relations" },
+  propto: { label: "\u221D", insert: "\\propto", name: "Proportional to", group: "Relations" },
+  equiv: { label: "\u2261", insert: "\\equiv", name: "Identical to", group: "Relations" },
+  plusminus: { label: "\xB1", insert: "\\pm", name: "Plus or minus", group: "Relations" },
+  implies: { label: "\u21D2", insert: "\\implies", name: "Implies", group: "Relations" },
+  iff: { label: "\u21D4", insert: "\\iff", name: "If and only if", group: "Relations" },
+  to: { label: "\u2192", insert: "\\to", name: "Tends to", group: "Relations" },
+  elem: { label: "\u2208", insert: "\\in", name: "Is a member of", group: "Sets" },
+  notelem: { label: "\u2209", insert: "\\notin", name: "Is not a member of", group: "Sets" },
+  subset: { label: "\u2282", insert: "\\subset", name: "Is a subset of", group: "Sets" },
+  union: { label: "\u222A", insert: "\\cup", name: "Union", group: "Sets" },
+  intersect: { label: "\u2229", insert: "\\cap", name: "Intersection", group: "Sets" },
+  emptyset: { label: "\u2205", insert: "\\emptyset", name: "The empty set", group: "Sets" },
+  forall: { label: "\u2200", insert: "\\forall", name: "For all", group: "Sets" },
+  exists: { label: "\u2203", insert: "\\exists", name: "There exists", group: "Sets" },
+  reals: { label: "\u211D", insert: "\\mathbb{R}", name: "The reals", group: "Sets" },
+  integers: { label: "\u2124", insert: "\\mathbb{Z}", name: "The integers", group: "Sets" },
+  vector: { label: "v\u20D7", insert: "\\vec{#?}", name: "Vector", small: true, group: "Vectors" },
+  hat: { label: "n\u0302", insert: "\\hat{#?}", name: "Unit vector", small: true, group: "Vectors" },
+  cross: { label: "\xD7", insert: "\\times", name: "Cross product", group: "Vectors" },
+  dotproduct: { label: "\xB7", insert: "\\cdot", name: "Dot product", group: "Vectors" },
+  norm: {
+    label: "\u2016v\u2016",
+    insert: "\\left\\|#?\\right\\|",
+    name: "Norm",
+    small: true,
+    group: "Vectors"
+  },
+  matrix: {
+    label: "[ ]",
+    insert: "\\begin{pmatrix}#? & #? \\\\ #? & #?\\end{pmatrix}",
+    name: "Matrix",
+    small: true,
+    group: "Vectors"
+  },
+  transpose: { label: "A\u1D40", insert: "#@^{T}", name: "Transpose", small: true, group: "Vectors" },
+  bar: { label: "x\u0304", insert: "\\bar{#?}", name: "Mean", small: true, group: "Vectors" },
+  // **Chemistry proper.** What was here before was a subscript key and three
+  // symbols that belong to every subject — asked about directly, and the
+  // honest answer was that the group was thin and half of it was not
+  // chemistry. What a reaction actually needs is the two arrows, charges and
+  // states, and concentration brackets.
+  charge: {
+    label: "x\u207A",
+    insert: "#@^{#?}",
+    name: "Charge",
+    small: true,
+    group: "Chemistry"
+  },
+  subscript: {
+    label: "x\u25A1",
+    insert: "#@_{#?}",
+    name: "Subscript",
+    small: true,
+    group: "Chemistry"
+  },
+  yields: { label: "\u2192", insert: "\\longrightarrow", name: "Yields", group: "Chemistry" },
+  equilibrium: {
+    label: "\u21CC",
+    insert: "\\rightleftharpoons",
+    name: "Equilibrium",
+    group: "Chemistry"
+  },
+  heated: {
+    label: "\u2192\u0394",
+    insert: "\\xrightarrow{\\Delta}",
+    name: "Heated",
+    small: true,
+    group: "Chemistry"
+  },
+  concentration: {
+    label: "[x]",
+    insert: "\\left[#?\\right]",
+    name: "Concentration of",
+    small: true,
+    group: "Chemistry"
+  },
+  aqueous: {
+    label: "(aq)",
+    insert: "(\\mathrm{aq})",
+    name: "Aqueous",
+    small: true,
+    group: "Chemistry"
+  },
+  solid: { label: "(s)", insert: "(\\mathrm{s})", name: "Solid", small: true, group: "Chemistry" },
+  liquid: {
+    label: "(l)",
+    insert: "(\\mathrm{l})",
+    name: "Liquid",
+    small: true,
+    group: "Chemistry"
+  },
+  gas: { label: "(g)", insert: "(\\mathrm{g})", name: "Gas", small: true, group: "Chemistry" },
+  change: { label: "\u0394", insert: "\\Delta", name: "Change in", group: "Chemistry" }
+};
+function symbolCatalogue() {
+  const groups = /* @__PURE__ */ new Map();
+  for (const [name, key2] of Object.entries(SYMBOLS)) {
+    groups.set(key2.group, [...groups.get(key2.group) ?? [], name]);
+  }
+  return [...groups].map(([group, names]) => `${group}: ${names.join(", ")}`);
+}
+
+// packages/player/src/lib/prompt-template.ts
+init_define_WORDPLAY_ENGINE();
+var ITEM = ".";
+var TAG = /\{\{\s*([^}]*?)\s*\}\}/g;
+function truthy(value) {
+  if (Array.isArray(value)) return value.some((one) => String(one).trim() !== "");
+  if (typeof value === "string") return value.trim() !== "";
+  return Boolean(value);
+}
+function text2(value) {
+  if (Array.isArray(value)) return value.join("\n");
+  if (value === null || value === void 0 || value === false) return "";
+  return String(value);
+}
+function parse7(source, at, until) {
+  const nodes = [];
+  let cursor = at;
+  TAG.lastIndex = at;
+  for (let found = TAG.exec(source); found; found = TAG.exec(source)) {
+    const tag = found[1];
+    if (found.index > cursor) nodes.push({ kind: "text", text: source.slice(cursor, found.index) });
+    const after2 = found.index + found[0].length;
+    if (until.includes(tag)) return { nodes, end: after2, stopped: tag };
+    const opensIf = /^#if\s+(\S+)$/.exec(tag);
+    if (opensIf) {
+      const yes2 = parse7(source, after2, ["else", "/if"]);
+      if (yes2.stopped === null)
+        throw new Error(`prompt template: {{#if ${opensIf[1]}}} is never closed`);
+      let no = [];
+      let end = yes2.end;
+      if (yes2.stopped === "else") {
+        const other = parse7(source, yes2.end, ["/if"]);
+        if (other.stopped === null) throw new Error(`prompt template: {{else}} is never closed`);
+        no = other.nodes;
+        end = other.end;
+      }
+      nodes.push({ kind: "if", name: opensIf[1], yes: yes2.nodes, no });
+      cursor = end;
+      TAG.lastIndex = end;
+      continue;
+    }
+    const opensEach = /^#each\s+(\S+)$/.exec(tag);
+    if (opensEach) {
+      const body2 = parse7(source, after2, ["/each"]);
+      if (body2.stopped === null)
+        throw new Error(`prompt template: {{#each ${opensEach[1]}}} is never closed`);
+      nodes.push({ kind: "each", name: opensEach[1], body: body2.nodes });
+      cursor = body2.end;
+      TAG.lastIndex = body2.end;
+      continue;
+    }
+    if (tag.startsWith("#") || tag.startsWith("/")) {
+      throw new Error(`prompt template: unknown tag {{${tag}}}`);
+    }
+    nodes.push({ kind: "var", name: tag });
+    cursor = after2;
+  }
+  if (cursor < source.length) nodes.push({ kind: "text", text: source.slice(cursor) });
+  return { nodes, end: source.length, stopped: null };
+}
+function emit(nodes, bindings, item) {
+  return nodes.map((node2) => {
+    if (node2.kind === "text") return node2.text;
+    if (node2.kind === "var") {
+      if (node2.name === ITEM) return item ?? "";
+      return text2(bindings[node2.name]);
+    }
+    if (node2.kind === "if") {
+      return emit(truthy(bindings[node2.name]) ? node2.yes : node2.no, bindings, item);
+    }
+    const value = bindings[node2.name];
+    const list = Array.isArray(value) ? value : value === void 0 || value === null ? [] : [String(value)];
+    return list.map((one) => emit(node2.body, bindings, String(one))).join("");
+  }).join("");
+}
+function render5(template, bindings) {
+  const withoutComments = template.replace(/\{\{!--[\s\S]*?--\}\}[ \t]*\r?\n?/g, "");
+  const tightened = withoutComments.replace(
+    /^[ \t]*(\{\{\s*(?:[#/]|else)[^}]*\}\})[ \t]*\r?\n/gm,
+    "$1"
+  );
+  return emit(parse7(tightened, 0, []).nodes, bindings, null);
+}
+
+// packages/player/src/lib/prompts.ts
+var cache = /* @__PURE__ */ new Map();
+function load2(name) {
+  const had = cache.get(name);
+  if (had !== void 0) return had;
+  const [where, file2] = name === "spec" ? ["format", "SPEC.md"] : ["player/prompts", `${name}.md`];
+  const dirs = process.env.PROMPTS_DIR ? [process.env.PROMPTS_DIR] : [
+    join5(
+      /*turbopackIgnore: true*/
+      process.cwd(),
+      "packages",
+      ...where.split("/")
+    ),
+    join5(
+      /*turbopackIgnore: true*/
+      process.cwd(),
+      "..",
+      "..",
+      "packages",
+      ...where.split("/")
+    )
+  ];
+  const own2 = process.env.PROMPTS_DIR ? `${name}.md` : file2;
+  const path2 = dirs.map((dir) => join5(dir, own2)).find((one) => existsSync4(
+    /*turbopackIgnore: true*/
+    one
+  )) ?? join5(dirs[0], own2);
+  let source;
+  try {
+    source = readFileSync5(
+      /*turbopackIgnore: true*/
+      path2,
+      "utf8"
+    );
+  } catch {
+    throw new Error(
+      `The ${name} prompt is missing at ${path2}. In the plugin that means \`npm run plugin\` stopped copying it beside the bridge; anywhere else, that the file was moved or renamed, or PROMPTS_DIR is not set.`
+    );
+  }
+  cache.set(name, source);
+  return source;
+}
+function prompt(name, bindings) {
+  return render5(load2(name), bindings).trimEnd();
+}
+var count = (n) => n.toLocaleString("en-US");
+function specText() {
+  return render5(load2("spec"), {
+    maxFile: count(MAX_FILE),
+    maxCondition: count(MAX_CONDITION),
+    maxAnnouncement: count(MAX_ANNOUNCEMENT),
+    maxWritten: count(MAX_WRITTEN),
+    maxSaid: count(MAX_SAID),
+    maxKept: count(MAX_KEPT),
+    maxPageSays: count(MAX_PAGE_SAYS),
+    maxOpening: count(MAX_OPENING),
+    maxShared: count(MAX_SHARED),
+    maxShares: count(MAX_SHARES),
+    maxSharedText: count(MAX_SHARED_TEXT),
+    sharedEntries: count(SHARED_ENTRIES),
+    maxSharedEntries: count(MAX_SHARED_ENTRIES),
+    maxKeys: count(MAX_KEYS),
+    keys: symbolCatalogue().map((line) => {
+      const [group, names] = line.split(": ");
+      return `- **${group}**: ${names}`;
+    })
+  }).replace(/\n{3,}/g, "\n\n").trim();
+}
+
+// packages/player/src/lib/lesson-guide.ts
+function lessonGuide(host) {
+  return prompt("lesson-guide", {
+    editor: prompt("editor", {}),
+    // The format, whole: the guide never restates it (SPEC.md).
+    spec: specText(),
+    claudeCode: host === "claude-code",
+    claudeAi: host === "claude-ai",
+    creator: host === "creator" || host === "creator-local",
+    onLabs: host === "creator",
+    connector: host === "connector",
+    // Labs' MCP server's tools are there: Claude Code's, through the plugin, and a connector's.
+    labsTools: host === "claude-code" || host === "connector",
+    // The page the claude.ai builder publishes each lesson as, and where its files come from.
+    player: PLAYER_ARTIFACT,
+    playerShell: playerShell("The lesson's title").trimEnd()
+  });
+}
+
+// packages/player/src/lib/builder-turn.ts
+var MAX_BUILD_MESSAGE = 3e4;
+var TRIAL_TURNS = 30;
+var TRIAL_CHARS = 2e3;
+var BUILD_MAX_TOKENS = 8e3;
+function readTurns(value, maxLength) {
+  return (Array.isArray(value) ? value : []).filter(
+    (turn) => typeof turn === "object" && turn !== null && typeof turn.content === "string"
+  ).map((turn) => ({
+    role: turn.role === "assistant" ? "assistant" : "user",
+    content: turn.content.slice(0, maxLength)
+  })).slice(-MAX_TURNS);
+}
+function readChanges(value) {
+  return (Array.isArray(value) ? value : []).filter(
+    (one) => typeof one === "object" && one !== null && ["made", "missing", "ambiguous"].includes(one.result) && typeof one.find === "string"
+  ).slice(0, 20);
+}
+function changeLines(changes) {
+  return changes.map((change, i2) => {
+    const first = change.find.split("\n").find((line) => line.trim()) ?? "";
+    const quoted = first ? ` (it began "${first.slice(0, 120)}")` : "";
+    const n = `Change ${i2 + 1}`;
+    if (change.result === "made") return `${n} was made.`;
+    if (change.result === "ambiguous") {
+      return `${n} was not made: its <find> text appears more than once in the lesson${quoted}. Give more of the lines around it.`;
+    }
+    return `${n} was not made: its <find> text is not in the lesson${quoted}. Copy it from the lesson as it stands.`;
+  });
+}
+function trialText(turns) {
+  return turns.slice(-TRIAL_TURNS).map(
+    (turn) => `${turn.role === "user" ? "Student" : "Tutor"}: ${turn.content.slice(0, TRIAL_CHARS)}`
+  ).join("\n\n");
+}
+var MAX_CONTEXT = 24e4;
+function lessonsPiece(lessons) {
+  let room = MAX_CONTEXT;
+  return prompt("lessons", {
+    series: lessons.find((one) => one.series)?.series ?? "",
+    own: lessons.some((one) => !one.wordplay),
+    others: lessons.some((one) => one.wordplay),
+    // The template walks strings, so each lesson is its heading and its text here.
+    lessons: lessons.map((one) => {
+      const from = one.wordplay ? `, on Wordplay${one.wordplay.by ? ` by ${one.wordplay.by}` : ""}` : one.series ? ", in the series" : "";
+      const heading = `## \u201C${one.name}\u201D${from}`;
+      if (!one.text.trim()) return `${heading}
+
+Nothing is written in it yet.`;
+      if (one.text.length > room)
+        return `${heading}
+
+Left out: too long to send with the others.`;
+      room -= one.text.length;
+      return `${heading}
+
+\`\`\`\`\`html
+${one.text.trim()}
+\`\`\`\`\``;
+    })
+  });
+}
+function pageWhere(file2, sent) {
+  if (typeof sent !== "number" || !Number.isInteger(sent)) return null;
+  const { pages } = parseWordplay(file2);
+  const page2 = pages[sent - 1];
+  if (!page2 || pages.length < 2) return null;
+  return `page ${sent} of ${pages.length}, \u201C${page2.name}\u201D`;
+}
+function builderPrompt(file2, changes, trial, material = [], host = "creator", lessons = [], page2 = null, fresh = true) {
+  const text3 = file2.trim();
+  const tried = trialText(trial);
+  return [
+    `${lessonGuide(host)}
+
+`,
+    ...material.length ? [
+      `${prompt("material", {
+        // The template walks strings, so each file is its heading and its fence here.
+        files: material.map((one) => `## ${one.name}
+
+\`\`\`\`\`
+${one.text}
+\`\`\`\`\``)
+      })}
+
+`
+    ] : [],
+    ...lessons.length ? [`${lessonsPiece(lessons)}
+
+`] : [],
+    ...tried ? [`${prompt("trial", { trial: tried })}
+
+`] : [],
+    prompt("creator", {
+      file: text3,
+      problems: text3 ? fileProblems(file2) : [],
+      changes: changeLines(changes),
+      fresh: Boolean(tried && fresh),
+      page: page2 ?? ""
+    })
+  ];
+}
+function fileProblems(file2) {
+  const wordplay = parseWordplay(file2);
+  return [.../* @__PURE__ */ new Set([...wordplay.problems, ...publishableProblems(wordplay, file2)])];
+}
+
+// packages/player/src/lib/tutor-turn.ts
+init_define_WORDPLAY_ENGINE();
+var CUT = "\0";
+function tutorParts(envelope) {
+  return prompt("tutor", { ...envelopeBindings(envelope), cut: CUT }).split(CUT).filter((part) => part.trim());
+}
+function tutorTurn(wordplay, source, title, view) {
+  const envelope = tutorEnvelope(wordplay, source, title, view);
+  return { parts: tutorParts(envelope), envelope };
+}
+
+// packages/player/src/lib/simulate.ts
+init_define_WORDPLAY_ENGINE();
 
 // packages/player/src/lib/trial-report.ts
 init_define_WORDPLAY_ENGINE();
@@ -68287,27 +68596,15 @@ function trialReport(source, turns, acts = []) {
     timeline.push(
       `Reply ${reply}: ${fresh.length ? `gave ${fresh.map((id) => wordplay.parts.find((part) => part.id === id)).filter((part) => Boolean(part)).map(partName).join(", ")}` : "gave nothing"}`
     );
-    for (const act of acts.filter((one) => one.after === reply))
-      timeline.push(`  then the student: ${act.text}`);
+    for (const act2 of acts.filter((one) => one.after === reply))
+      timeline.push(`  then the student: ${act2.text}`);
     if (completedAt === null && isDone(wordplay, held) && wordplay.steps.length)
       completedAt = reply;
   }
   return { exchanges: reply, completedAt, timeline, flags };
 }
 
-// packages/player/src/lib/tutor-turn.ts
-init_define_WORDPLAY_ENGINE();
-var CUT = "\0";
-function tutorParts(envelope) {
-  return prompt("tutor", { ...envelopeBindings(envelope), cut: CUT }).split(CUT).filter((part) => part.trim());
-}
-function tutorTurn(wordplay, source, title, view) {
-  const envelope = tutorEnvelope(wordplay, source, title, view);
-  return { parts: tutorParts(envelope), envelope };
-}
-
 // packages/player/src/lib/simulate.ts
-init_define_WORDPLAY_ENGINE();
 var MAX_SAID2 = 8;
 var TUTOR_MAX_TOKENS = 700;
 var LEARNER_MAX_TOKENS = 300;
@@ -68369,14 +68666,14 @@ async function simulate(source, persona, id, host) {
 
 // packages/player/src/bridge/labs.ts
 init_define_WORDPLAY_ENGINE();
-import { createHash, randomBytes } from "node:crypto";
-import { chmodSync, existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "node:fs";
-import { homedir } from "node:os";
-import { join as join3 } from "node:path";
+import { createHash as createHash2, randomBytes } from "node:crypto";
+import { chmodSync, existsSync as existsSync5, mkdirSync as mkdirSync5, readFileSync as readFileSync6, writeFileSync as writeFileSync5 } from "node:fs";
+import { homedir as homedir2 } from "node:os";
+import { join as join6 } from "node:path";
 var SCOPE = "lessons:write";
 var PENDING_MS = 10 * 60 * 1e3;
 function configDir() {
-  return process.env.WORDPLAY_CONFIG_DIR || join3(process.env.XDG_CONFIG_HOME || join3(homedir(), ".config"), "wordplay");
+  return process.env.WORDPLAY_CONFIG_DIR || join6(process.env.XDG_CONFIG_HOME || join6(homedir2(), ".config"), "wordplay");
 }
 var base64url3 = (bytes) => bytes.toString("base64url");
 var LabsSignIn = class {
@@ -68389,11 +68686,11 @@ var LabsSignIn = class {
     return new URL(this.site).origin;
   }
   file() {
-    return join3(configDir(), "labs.json");
+    return join6(configDir(), "labs.json");
   }
   all() {
     try {
-      return JSON.parse(readFileSync3(this.file(), "utf8"));
+      return JSON.parse(readFileSync6(this.file(), "utf8"));
     } catch {
       return {};
     }
@@ -68402,8 +68699,8 @@ var LabsSignIn = class {
     const all = this.all();
     if (value) all[this.origin()] = value;
     else delete all[this.origin()];
-    mkdirSync2(configDir(), { recursive: true, mode: 448 });
-    writeFileSync2(this.file(), JSON.stringify(all, null, 2), { mode: 384 });
+    mkdirSync5(configDir(), { recursive: true, mode: 448 });
+    writeFileSync5(this.file(), JSON.stringify(all, null, 2), { mode: 384 });
     chmodSync(this.file(), 384);
   }
   kept() {
@@ -68442,7 +68739,7 @@ var LabsSignIn = class {
       response_type: "code",
       client_id: clientId,
       redirect_uri: this.redirect,
-      code_challenge: base64url3(createHash("sha256").update(verifier).digest()),
+      code_challenge: base64url3(createHash2("sha256").update(verifier).digest()),
       code_challenge_method: "S256",
       state,
       scope: SCOPE,
@@ -68512,1451 +68809,25 @@ var LabsSignIn = class {
   signOut() {
     const { clientId, redirect } = this.kept();
     if (clientId && redirect) this.keep({ clientId, redirect });
-    else if (existsSync3(this.file())) this.keep(null);
+    else if (existsSync5(this.file())) this.keep(null);
   }
 };
 
-// packages/player/src/bridge/publishing.ts
+// packages/player/src/bridge/preview-state.ts
 init_define_WORDPLAY_ENGINE();
-import { existsSync as existsSync4, mkdirSync as mkdirSync3, readFileSync as readFileSync4, renameSync, statSync, writeFileSync as writeFileSync3 } from "node:fs";
-import { basename, dirname, join as join4 } from "node:path";
-var placesOf = (lesson) => join4(dirname(lesson), ".wordplay", "labs.json");
-function readPlaces(lesson) {
-  try {
-    return JSON.parse(readFileSync4(placesOf(lesson), "utf8"));
-  } catch {
-    return {};
-  }
-}
-function placeOf(lesson, site2) {
-  const found = readPlaces(lesson)[new URL(site2).origin]?.[basename(lesson)];
-  return found && typeof found.id === "string" ? found : null;
-}
-function keepPlace(lesson, site2, place) {
-  const all = readPlaces(lesson);
-  const origin = new URL(site2).origin;
-  all[origin] = { ...all[origin], [basename(lesson)]: place };
-  mkdirSync3(dirname(placesOf(lesson)), { recursive: true });
-  const temp = `${placesOf(lesson)}.${process.pid}.tmp`;
-  writeFileSync3(temp, `${JSON.stringify(all, null, 2)}
-`);
-  renameSync(temp, placesOf(lesson));
-}
-async function publishedCopy(labs, lesson, site2) {
-  const place = placeOf(lesson, site2);
-  if (!place || !labs.status().signedIn) return null;
-  const response = await labs.call(`/api/publish?id=${encodeURIComponent(place.id)}`);
-  if (!response.ok) return null;
-  const copy = await response.json().catch(() => null);
-  return copy?.ok ? copy : null;
-}
-function folderFiles(lesson, file2) {
-  const folder = dirname(lesson);
-  const paths = /* @__PURE__ */ new Set();
-  for (const reference of referencesIn(parseWordplay(file2).document)) {
-    const path2 = reference.relative ? folderPath(reference.url) : null;
-    if (path2) paths.add(path2);
-  }
-  return [...paths].flatMap((path2) => {
-    const where = join4(folder, path2);
-    if (!existsSync4(where) || !statSync(where).isFile()) return [];
-    return [{ path: path2, base64: readFileSync4(where).toString("base64") }];
-  });
-}
-async function publishFromDisk(labs, lesson, site2, listing) {
-  const file2 = readFileSync4(lesson, "utf8");
-  const place = placeOf(lesson, site2);
-  const response = await labs.call("/api/publish", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      file: file2,
-      files: folderFiles(lesson, file2),
-      ...place ? { id: place.id, version: place.version } : {},
-      title: listing.title,
-      description: listing.description,
-      tags: listing.tags,
-      coverHash: listing.coverHash,
-      unlisted: listing.unlisted
-    })
-  });
-  const answer = await response.json().catch(() => null) ?? {};
-  if (response.ok && typeof answer.id === "string" && typeof answer.version === "string") {
-    keepPlace(lesson, site2, { id: answer.id, version: answer.version });
-  }
-  return { status: response.status, answer };
-}
-
-// packages/player/src/bridge/engine.ts
-init_define_WORDPLAY_ENGINE();
-import { spawn as spawn3 } from "node:child_process";
-import { existsSync as existsSync5, mkdirSync as mkdirSync4, readFileSync as readFileSync5, writeFileSync as writeFileSync4 } from "node:fs";
-import { createRequire } from "node:module";
-import { homedir as homedir2 } from "node:os";
-import { join as join5 } from "node:path";
-
-// packages/ui/src/lib/svg-purify.ts
-init_define_WORDPLAY_ENGINE();
-function svgSanitizer(make, window2, options = {}) {
-  let purifier = null;
-  const sanitizer = () => {
-    if (purifier) return purifier;
-    purifier = make(window2());
-    purifier.addHook("afterSanitizeAttributes", (node2) => {
-      for (const attribute2 of ["href", "xlink:href", "src"]) {
-        const value = node2.getAttribute?.(attribute2);
-        if (value && /^(https?:)?\/\//i.test(value.trim())) node2.removeAttribute(attribute2);
-      }
-      for (const { name, value } of Array.from(node2.attributes ?? [])) {
-        if (/url\(\s*(?!['"]?#)/i.test(value)) node2.removeAttribute(name);
-      }
-    });
-    return purifier;
-  };
-  return (source) => {
-    const clean = sanitizer().sanitize(source, {
-      USE_PROFILES: { svg: true, svgFilters: true },
-      // foreignObject is an HTML escape hatch inside SVG, and the one element
-      // that reopens everything the SVG profile just closed.
-      FORBID_TAGS: [
-        "script",
-        "foreignObject",
-        "iframe",
-        "use",
-        ...options.inline ? ["style"] : []
-      ],
-      FORBID_ATTR: ["onload", "onerror", "onclick", "onmouseover"]
-    });
-    return /<svg[\s>]/i.test(clean) ? clean : null;
-  };
-}
-
-// packages/ui/src/lib/tikz-draw.ts
-init_define_WORDPLAY_ENGINE();
-import { createHash as createHash2 } from "node:crypto";
-import { Worker } from "node:worker_threads";
-var RENDER_TIMEOUT_MS = 1e4;
-var WORKER_SOURCE = `
-const { parentPort, workerData } = require("node:worker_threads");
-const { createRequire } = require("node:module");
-const engine = createRequire(workerData.from)("node-tikzjax");
-const loaded = engine.load();
-loaded.catch(() => {});
-parentPort.on("message", async (input) => {
-  const log = [];
-  const print = console.log;
-  console.log = (...parts) => void log.push(parts.map(String).join(" "));
-  try {
-    await loaded;
-    const dvi = await engine.tex(input, { showConsole: true });
-    parentPort.postMessage({ svg: await engine.dvi2svg(dvi) });
-  } catch {
-    parentPort.postMessage({ log });
-  } finally {
-    console.log = print;
-  }
-});
-`;
-function engineInWorker(from, timeoutMs) {
-  let worker = null;
-  let queue = Promise.resolve();
-  async function draw2(input2) {
-    const path2 = await from();
-    if (!worker) {
-      worker = new Worker(WORKER_SOURCE, { eval: true, workerData: { from: path2 } });
-      worker.unref();
-    }
-    const current = worker;
-    return new Promise((resolve2, reject) => {
-      const settle2 = () => {
-        clearTimeout(timer);
-        current.off("message", onMessage);
-        current.off("error", onError);
-        current.off("exit", onExit);
-      };
-      const kill = (error62) => {
-        settle2();
-        if (worker === current) worker = null;
-        void current.terminate();
-        reject(error62);
-      };
-      const timer = setTimeout(
-        () => kill(new Error("That diagram took too long to draw.")),
-        timeoutMs
-      );
-      const onMessage = (reply) => {
-        settle2();
-        if (typeof reply.svg === "string") resolve2(reply.svg);
-        else reject(new Error(texError(reply.log ?? [])));
-      };
-      const onError = (error62) => kill(new Error(`The diagram engine stopped (${error62.message}).`));
-      const onExit = () => kill(new Error("The diagram engine stopped."));
-      current.once("message", onMessage);
-      current.once("error", onError);
-      current.once("exit", onExit);
-      current.postMessage(input2);
-    });
-  }
-  return (input2) => {
-    const run2 = queue.then(() => draw2(input2));
-    queue = run2.catch(() => void 0);
-    return run2;
-  };
-}
-var LINES_BEFORE_SOURCE = 2;
-function texError(log) {
-  const at = log.findIndex((line2) => line2.startsWith("! "));
-  if (at === -1) return "TeX could not draw it.";
-  const what2 = log[at].slice(2).replace(/\.$/, "").trim();
-  const where = log.slice(at + 1, at + 8).find((line2) => /^l\.\d+/.test(line2));
-  const line = where ? Number(/^l\.(\d+)/.exec(where)[1]) - LINES_BEFORE_SOURCE : null;
-  const culprit = /undefined control sequence/i.test(what2) ? [...(where ?? "").matchAll(/\\[A-Za-z@]+/g)].pop()?.[0] : void 0;
-  const said2 = culprit ? `${what2} ${culprit}` : what2;
-  return line && line > 0 ? `${said2}, on line ${line}` : said2;
-}
-var MAX_REMEMBERED_FAILURES = 500;
-var BLACK = /(stroke|fill)="(#000|#000000|black)"/gi;
-var FONT_FAMILY = /font-family="([A-Za-z][A-Za-z0-9]*)"/g;
-function dressTikzSvg(svg) {
-  const themed = svg.replace(BLACK, '$1="currentColor"').replace(/^<svg /, '<svg class="tikz" fill="currentColor" ');
-  const families = [...new Set([...themed.matchAll(FONT_FAMILY)].map((match) => match[1]))];
-  if (families.length === 0) return themed;
-  const faces = families.map(
-    (family) => `@font-face{font-family:${family};src:url(/f/cm/${family}.ttf) format("truetype");font-display:block}`
-  ).join("");
-  return themed.replace(/^(<svg[^>]*>)/, `$1<style>${faces}</style>`);
-}
-function tikzDrawer(deps) {
-  const render6 = engineInWorker(deps.engineFrom, deps.timeoutMs ?? RENDER_TIMEOUT_MS);
-  const failed2 = /* @__PURE__ */ new Map();
-  const recleaned = /* @__PURE__ */ new Map();
-  return async (source) => {
-    const hash2 = createHash2("sha256").update(source.trim()).digest("hex");
-    const known = failed2.get(hash2);
-    if (known !== void 0) return { error: known };
-    let clean = recleaned.get(hash2);
-    if (clean === void 0) {
-      const cached2 = await deps.store.get(hash2);
-      if (cached2) {
-        clean = await deps.sanitize(cached2);
-        if (recleaned.size >= MAX_REMEMBERED_FAILURES) recleaned.clear();
-        recleaned.set(hash2, clean);
-      }
-    }
-    if (clean) return { svg: dressTikzSvg(clean) };
-    if (clean === null) return { error: "The drawing could not be made safe to show." };
-    try {
-      const svg = await render6(`\\begin{document}
-${source}
-\\end{document}`);
-      const drawn = await deps.sanitize(svg);
-      if (!drawn) return { error: "The drawing could not be made safe to show." };
-      await deps.store.put(hash2, drawn);
-      return { svg: dressTikzSvg(drawn) };
-    } catch (error62) {
-      const reason = error62.message;
-      if (failed2.size >= MAX_REMEMBERED_FAILURES) failed2.clear();
-      failed2.set(hash2, reason);
-      console.warn("[tikz] render failed:", reason);
-      return { error: reason };
-    }
-  };
-}
-
-// packages/player/src/bridge/engine.ts
-var ENGINE = typeof define_WORDPLAY_ENGINE_default === "undefined" ? { "node-tikzjax": "1.0.5", jsdom: "30.1.1", dompurify: "3.4.15" } : define_WORDPLAY_ENGINE_default;
-var cacheDir = () => process.env.WORDPLAY_CACHE_DIR || join5(homedir2(), ".cache", "wordplay");
-var engineDir = () => join5(cacheDir(), "engine");
-var installing2 = /* @__PURE__ */ new Map();
-function ensureEngine() {
-  const dir = engineDir();
-  const known = installing2.get(dir);
-  if (known) return known;
-  const install = (async () => {
-    const stamp = join5(dir, "installed.json");
-    const wanted = JSON.stringify(ENGINE);
-    if (existsSync5(stamp) && readFileSync5(stamp, "utf8") === wanted) return;
-    mkdirSync4(dir, { recursive: true });
-    if (!existsSync5(join5(dir, "package.json"))) {
-      writeFileSync4(join5(dir, "package.json"), '{ "private": true }\n');
-    }
-    console.error(
-      "[wordplay] installing the diagram engine, once:",
-      Object.keys(ENGINE).join(", ")
-    );
-    await run(
-      process.platform === "win32" ? "npm.cmd" : "npm",
-      [
-        "install",
-        "--no-audit",
-        "--no-fund",
-        "--loglevel=error",
-        ...Object.entries(ENGINE).map(([name, version3]) => `${name}@${version3}`)
-      ],
-      dir
-    );
-    writeFileSync4(stamp, wanted);
-  })().catch((error62) => {
-    installing2.delete(dir);
-    throw error62;
-  });
-  installing2.set(dir, install);
-  return install;
-}
-function run(command, args, cwd) {
-  return new Promise((resolve2, reject) => {
-    const child = spawn3(command, args, {
-      cwd,
-      stdio: ["ignore", "ignore", "pipe"],
-      shell: process.platform === "win32"
-    });
-    let said2 = "";
-    child.stderr.on("data", (chunk) => said2 = (said2 + chunk.toString()).slice(-1500));
-    child.on("error", (error62) => reject(error62));
-    child.on(
-      "close",
-      (code) => code === 0 ? resolve2() : reject(new Error(`npm install failed (${code}): ${said2.trim()}`))
-    );
-  });
-}
-var load2 = () => createRequire(join5(engineDir(), "package.json"));
-var sanitize = null;
-var drawLocally = tikzDrawer({
-  engineFrom: async () => {
-    await ensureEngine();
-    return join5(engineDir(), "package.json");
-  },
-  sanitize: async (svg) => {
-    if (!sanitize) {
-      const required2 = load2();
-      const purify = required2("dompurify");
-      const { JSDOM } = required2("jsdom");
-      sanitize = svgSanitizer(purify.default ?? purify, () => new JSDOM("").window, {
-        inline: true
-      });
-    }
-    return sanitize(svg);
-  },
-  store: {
-    get: async (hash2) => {
-      const file2 = join5(cacheDir(), "tikz", `${hash2}.svg`);
-      return existsSync5(file2) ? readFileSync5(file2, "utf8") : null;
-    },
-    put: async (hash2, svg) => {
-      mkdirSync4(join5(cacheDir(), "tikz"), { recursive: true });
-      writeFileSync4(join5(cacheDir(), "tikz", `${hash2}.svg`), svg);
-    }
-  }
-});
-
-// packages/player/src/bridge/trials.ts
-init_define_WORDPLAY_ENGINE();
-import { mkdirSync as mkdirSync5, readFileSync as readFileSync6, readdirSync, rmSync as rmSync2, writeFileSync as writeFileSync5 } from "node:fs";
-import { join as join6 } from "node:path";
-var SAFE = /^[A-Za-z0-9_-]{1,64}$/;
-function trialsDir(dir, stem) {
-  return join6(dir, ".trials", stem);
-}
-function readTrial(dir, stem, id) {
-  if (!SAFE.test(id)) return null;
-  try {
-    return JSON.parse(readFileSync6(join6(trialsDir(dir, stem), `${id}.json`), "utf8"));
-  } catch {
-    return null;
-  }
-}
-function writeTrial(dir, stem, trial) {
-  if (!SAFE.test(trial.id)) return;
-  const folder = trialsDir(dir, stem);
-  mkdirSync5(folder, { recursive: true });
-  writeFileSync5(join6(folder, `${trial.id}.json`), `${JSON.stringify(trial, null, 2)}
-`);
-}
-function removeTrial(dir, stem, id) {
-  if (!SAFE.test(id)) return;
-  rmSync2(join6(trialsDir(dir, stem), `${id}.json`), { force: true });
-}
-function allTrials(dir, stem) {
-  let names;
-  try {
-    names = readdirSync(trialsDir(dir, stem)).filter((name) => name.endsWith(".json"));
-  } catch {
-    return [];
-  }
-  return names.map((name) => readTrial(dir, stem, name.slice(0, -".json".length))).filter((trial) => trial !== null).map((trial) => ({ ...trial, held: Array.isArray(trial.held) ? trial.held : [] }));
-}
-function listTrials(dir, stem, take = 12) {
-  return allTrials(dir, stem).filter((trial) => trial.turns.length > 0).sort((a, b) => b.lastAskedAt.localeCompare(a.lastAskedAt)).slice(0, take);
-}
-
-// packages/player/src/bridge/preview.ts
+import { createHash as createHash3, randomUUID } from "node:crypto";
+import { existsSync as existsSync6, readdirSync as readdirSync2, statSync as statSync2 } from "node:fs";
+import { basename as basename2, dirname as dirname2, join as join7, resolve } from "node:path";
 var FOLDER = "/preview/folder/";
 var PLAY = "/play/";
 var MAX_MESSAGE = 4e3;
-var PLAY_ROUTES = /* @__PURE__ */ new Set(["lesson", "lesson/state", "lesson/shared", "tutor", "tutor/history"]);
-var Preview = class {
-  constructor(options) {
-    this.options = options;
-    this.dir = null;
-    this.stem = null;
-    this.server = null;
-    this.listening = null;
-    /** What the site said about itself when the play was last opened. */
-    this.facts = null;
-    /** The play each simulated trial runs on, which need not be the creator's. */
-    this.trialPlays = /* @__PURE__ */ new Map();
-    /**
-     * Said once, and only in a dev container or a Codespace, where the editor
-     * forwards ports (./peer.ts): what reaches the port reaches the answers.
-     */
-    this.portNoted = false;
-    /**
-     * **One tutor turn from the page**, streamed as the site's `/api/tutor`
-     * streams it: `localRoutes` keeps the reply and what it held; who answered
-     * and what it used are kept here once it ends.
-     */
-    this.askFor = (play) => async (turn, signal) => {
-      const picked = turn.sent.tutor?.model;
-      const choices = this.choices();
-      if (picked !== void 0 && !choices?.models.some((one) => one.id === picked)) {
-        return Response.json(
-          { error: `The preview does not offer ${String(picked)}. Pick another model by Send.` },
-          { status: 400 }
-        );
-      }
-      const { reply, save } = this.turn(
-        play,
-        turn.source,
-        turn.conversationId,
-        turn.messages.slice(-MAX_TURNS),
-        {
-          held: turn.held,
-          skipped: turn.skipped,
-          tree: turn.tree,
-          announced: turn.announced,
-          told: turn.told,
-          calculations: turn.calculations
-        },
-        turn.sent.tutor
-      );
-      signal?.addEventListener("abort", () => reply.cancel());
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          for await (const piece of reply.text) controller.enqueue(encoder.encode(piece));
-          const end = await reply.end;
-          if (end.error) {
-            controller.enqueue(
-              encoder.encode(
-                `${ANSWER_STOPPED}The tutor stopped: ${end.error} (This is the preview built as ${PREVIEW_BUILD}.)`
-              )
-            );
-          } else if (end.stop === "max_tokens") {
-            controller.enqueue(
-              encoder.encode(`${ANSWER_STOPPED}The answer ran out of room. Ask for the rest.`)
-            );
-          }
-          save(end.usage, end.model);
-          controller.close();
-        }
-      });
-      return new Response(stream, {
-        status: 200,
-        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }
-      });
-    };
-    /** The preview's sign-in to Labs, made once its own address is known. */
-    this.labsIn = null;
-  }
-  /** The folder `/play/<path>` is under. */
-  root() {
-    return resolve(this.options.root ?? process.cwd());
-  }
-  /** Point the preview at a play: its `.wplay` file, its stem, or a folder with one. */
-  async open(path2) {
-    const found = findPlay(path2);
-    this.dir = found.dir;
-    this.stem = found.stem;
-    this.facts = await askSite(this.options.site);
-    const port = await this.listen();
-    const lesson = this.lesson();
-    const origin = `http://127.0.0.1:${port}`;
-    const under = this.playPath(found);
-    return {
-      url: `${origin}/preview/local`,
-      origin,
-      play: under === null ? null : `${origin}${PLAY}${under}`,
-      root: this.root(),
-      stem: found.stem,
-      lesson,
-      notes: [...siteNotes(this.options.site, this.facts), ...this.portNote()]
-    };
-  }
-  /** A play's address under `/play/`, its path from the root encoded a part at a time; null outside it. */
-  playPath(play) {
-    const file2 = join7(play.dir, `${play.stem}.wplay`);
-    const root = this.root();
-    if (!file2.startsWith(root + sep)) return null;
-    return file2.slice(root.length + 1).split(sep).map(encodeURIComponent).join("/");
-  }
-  portNote() {
-    if (this.portNoted || !inContainer()) return [];
-    this.portNoted = true;
-    return [
-      "This preview runs in a container. If its port is forwarded, keep it private: anyone who can reach it can read the lesson, answers included."
-    ];
-  }
-  /** The play as it stands, read afresh: the author's `.wplay` file, which changes under us. */
-  files(play = this.current()) {
-    if (!play) return null;
-    const one = playFile(play.dir, play.stem);
-    if (!one) return null;
-    const source = readFileSync7(one, "utf8");
-    return { source, changed: hashOf(source), file: basename2(one) };
-  }
-  /**
-   * What the page says round the lesson: its file, which tutor, the choices.
-   * Editable in the creator; a student's preview by path only plays it.
-   */
-  meta(play = this.current(), editable = true) {
-    const read = this.files(play);
-    return {
-      stem: play?.stem ?? "",
-      ...read ? { file: read.file } : {},
-      editable,
-      changed: read?.changed ?? "",
-      tutor: tutorWords(this.settings()),
-      choices: this.choices()
-    };
-  }
-  /** The student's page before anything has held, and what is wrong with the file. */
-  lesson() {
-    const read = this.files();
-    if (!read || !this.stem) return null;
-    return localLesson(read.source, [], { ...this.meta(), problems: [] });
-  }
-  /** The tutor's settings: the author's, else the site's tutor, else the defaults. */
-  settings() {
-    return tutorSettings(this.facts?.tutor);
-  }
-  /** The tutors the author can pick from in the chat, starting on `settings()`. */
-  choices() {
-    return tutorChoices(this.settings(), this.facts?.tutor);
-  }
-  /** The creator's assistant's settings: the author's, else the site's builder, else Opus. */
-  builderSettings() {
-    return builderSettings(this.facts?.builder);
-  }
-  /** The assistants the author can pick from in the creator's chat. */
-  builderChoices() {
-    return tutorChoices(this.builderSettings(), this.facts?.builder);
-  }
-  /** The trials of a play, newest first: the creator's when none is named. */
-  trials(play = this.current()) {
-    return play ? listTrials(play.dir, play.stem) : [];
-  }
-  /**
-   * **What this preview is, for whatever asks**: its build, the site it
-   * writes to, its address once it listens, and the play it shows. Nothing
-   * from the files: a page asking this may be anyone's.
-   */
-  about() {
-    return {
-      build: PREVIEW_BUILD,
-      site: this.options.site,
-      preview: this.listening === null ? null : `http://127.0.0.1:${this.listening}`,
-      open: this.stem
-    };
-  }
-  /** The play the preview shows now, if any. */
-  current() {
-    return this.dir && this.stem ? { dir: this.dir, stem: this.stem } : null;
-  }
-  async listen() {
-    if (this.listening !== null) return this.listening;
-    const server2 = http.createServer((request, response) => {
-      this.handle(request, response).catch((error62) => {
-        console.error("[wordplay] preview:", error62);
-        if (!response.headersSent) response.writeHead(500);
-        response.end();
-      });
-    });
-    server2.on("connection", (socket) => {
-      if (fromAnotherAccount(socket)) socket.destroy();
-    });
-    for (let port = this.options.port; port < this.options.port + 20; port += 1) {
-      const ok = await new Promise((done) => {
-        server2.once("error", () => done(false));
-        server2.listen(port, "127.0.0.1", () => done(true));
-      });
-      if (ok) {
-        this.server = server2;
-        this.listening = port;
-        return port;
-      }
-    }
-    throw new Error(`No free port from ${this.options.port} for the preview.`);
-  }
-  close() {
-    this.server?.close();
-  }
-  async handle(request, response) {
-    const url2 = new URL(request.url ?? "/", "http://127.0.0.1");
-    if (!this.named(request)) {
-      return json3(response, 403, { error: "The preview answers only at its own address." });
-    }
-    if (url2.pathname === "/" && request.method === "GET") {
-      response.writeHead(302, { Location: "/preview/local", "Cache-Control": "no-store" });
-      return response.end();
-    }
-    if (url2.pathname === "/preview/local" && request.method === "GET") return this.page(response);
-    const raw = (request.url ?? "/").split("?")[0];
-    if (raw.startsWith(PLAY)) return this.byPath(raw.slice(PLAY.length), url2, request, response);
-    if (/^\/preview\/(player|creator)\.(js|css)$/.test(url2.pathname)) {
-      return this.asset(url2.pathname.slice("/preview/".length), response);
-    }
-    if (url2.pathname === "/api/tikz" && request.method === "POST") {
-      if (!this.ours(request)) {
-        return json3(response, 403, { error: "Only the preview's own page may do that." });
-      }
-      return this.draw(request, response);
-    }
-    if (url2.pathname === "/preview/connect" && request.method === "GET") {
-      return this.connect(response);
-    }
-    if (url2.pathname === "/preview/connected" && request.method === "GET") {
-      return this.connected(url2, response);
-    }
-    if (url2.pathname === "/api/create/image" && request.method === "POST") {
-      if (!this.ours(request)) {
-        return json3(response, 403, { error: "Only the preview's own page may do that." });
-      }
-      return this.picture(request, response);
-    }
-    const turns = {
-      "/api/create/build": "build",
-      "/api/create/tutor": "tryTutor",
-      "/api/create/simulate": "simulate"
-    };
-    if (url2.pathname in turns && request.method === "POST") {
-      if (!this.ours(request)) {
-        return json3(response, 403, { error: "Only the preview's own page may do that." });
-      }
-      const sent = await body(request, 4 * MAX_FILE);
-      return this[turns[url2.pathname]](sent, response);
-    }
-    if (url2.pathname.startsWith(FOLDER) && request.method === "GET") {
-      return this.folderFile(this.dir, url2.pathname.slice(FOLDER.length), response);
-    }
-    if (!url2.pathname.startsWith("/preview/api/")) return this.pass(request, response);
-    const route = url2.pathname.slice("/preview/api/".length);
-    if (request.method !== "GET" && !this.ours(request)) {
-      return json3(response, 403, { error: "Only the preview's own page may do that." });
-    }
-    if (PLAY_ROUTES.has(route)) {
-      const play = this.current();
-      if (!play || !this.files(play)) return json3(response, 404, { error: "No wordplay is open." });
-      return this.answer(this.routes(play, FOLDER, true), route, url2, request, response);
-    }
-    if (route === "labs" && request.method === "GET")
-      return json3(response, 200, this.labs().status());
-    if (route === "models" && request.method === "GET") {
-      return json3(response, 200, { tutor: this.choices(), builder: this.builderChoices() });
-    }
-    if (route === "labs/sign-out" && request.method === "POST") {
-      this.labs().signOut();
-      return json3(response, 200, { ok: true });
-    }
-    if (route === "published" && request.method === "GET") {
-      const path2 = this.filePath();
-      const copy = path2 ? await publishedCopy(this.labs(), path2, this.options.site).catch(() => null) : null;
-      return json3(response, 200, { published: copy });
-    }
-    if (route === "publish" && request.method === "POST") {
-      const path2 = this.filePath();
-      if (!path2) return json3(response, 404, { ok: false, error: "No .wplay file is open." });
-      const sent = await body(request, 64 * 1024);
-      const { status, answer } = await publishFromDisk(
-        this.labs(),
-        path2,
-        this.options.site,
-        sent
-      ).catch((error62) => ({
-        status: 401,
-        answer: {
-          ok: false,
-          error: error62 instanceof Error ? error62.message : "Sign in to Wordplay to publish."
-        }
-      }));
-      return json3(response, status, answer);
-    }
-    if (route === "file" && request.method === "GET") return this.file(response);
-    if (route === "file" && request.method === "PUT") {
-      return this.write(await body(request, 4 * MAX_FILE), response);
-    }
-    return json3(response, 404, { error: "Nothing here." });
-  }
-  /**
-   * **Whether a request that changes something came from this preview's own
-   * page.** The server listens on 127.0.0.1 only, but a page on any other
-   * site can still send it a form's POST, and a write to the author's file or
-   * a turn on their plan is theirs to make: answered only for this origin,
-   * and for a Host that names it, so a DNS name rebound to 127.0.0.1 does not
-   * count. The plugin's own tools send no Origin at all.
-   */
-  ours(request) {
-    if (!this.named(request)) return false;
-    const origin = request.headers.origin;
-    return origin === void 0 || this.hosts().some((host) => origin === `http://${host}`);
-  }
-  /** The two names this server answers to. */
-  hosts() {
-    return [`127.0.0.1:${this.listening}`, `localhost:${this.listening}`];
-  }
-  /** Whether a request was sent to this server by one of its own names. */
-  named(request) {
-    return this.hosts().includes(request.headers.host ?? "");
-  }
-  /** The open play's one file, for the page's editor. */
-  filePath() {
-    if (!this.dir || !this.stem) return null;
-    const path2 = playFile(this.dir, this.stem);
-    return path2 ? realpathSync(path2) : null;
-  }
-  file(response) {
-    const path2 = this.filePath();
-    if (!path2) {
-      return json3(response, 404, {
-        error: "The wordplay's .wplay file is not there. Ask Claude to preview it again."
-      });
-    }
-    const text3 = readFileSync7(path2, "utf8");
-    return json3(response, 200, { file: basename2(path2), text: text3, changed: hashOf(text3) });
-  }
-  /**
-   * **The page's edit, written to the file**, only over the version it read
-   * (`base`, the hash it last loaded or saved): the file on disk is the
-   * source of truth and Claude may have changed it since, so a stale write
-   * is answered 409 with the file as it is, and the page keeps what the
-   * author typed by its rule (`lib/file-edit.ts`). Written to a temporary
-   * file and renamed over the old one, so nothing ever reads half a file.
-   */
-  write(sent, response) {
-    const path2 = this.filePath();
-    if (!path2) return json3(response, 404, { error: "No .wplay file is open." });
-    const { text: text3, base } = sent;
-    if (typeof text3 !== "string" || typeof base !== "string") {
-      return json3(response, 400, { error: "Nothing to write." });
-    }
-    if (text3.length > MAX_FILE) {
-      return json3(response, 413, {
-        error: `The file would be ${text3.length.toLocaleString("en-US")} characters; it may be ${MAX_FILE.toLocaleString("en-US")}.`
-      });
-    }
-    const current = readFileSync7(path2, "utf8");
-    if (hashOf(current) !== base)
-      return json3(response, 409, { text: current, changed: hashOf(current) });
-    const temp = join7(dirname2(path2), `.${basename2(path2)}.${randomUUID().slice(0, 8)}.tmp`);
-    writeFileSync6(temp, text3, { mode: statSync2(path2).mode & 511 });
-    renameSync2(temp, path2);
-    return json3(response, 200, { changed: hashOf(text3) });
-  }
-  /**
-   * **The preview's page is the creator** (docs/creator.md; Javi,
-   * 1 October: the plugin "should be the same" as Labs' creator), bundled
-   * into the plugin beside the player (`scripts/creator-build.ts`), which it
-   * falls back to in a plugin built before it.
-   */
-  page(response) {
-    const title = this.lesson()?.title.trim();
-    response.writeHead(200, {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store"
-    });
-    const head = [
-      "<!doctype html>",
-      '<html lang="en"><head><meta charset="utf-8">',
-      '<meta name="viewport" content="width=device-width, initial-scale=1">',
-      '<meta name="color-scheme" content="light dark">'
-    ];
-    if (existsSync6(join7(this.options.player, "creator.js"))) {
-      const guide = `${this.options.site.replace(/\/$/, "")}/create/how`.replace(/"/g, "&quot;");
-      const named = (title || "Wordplay").replace(/&/g, "&amp;").replace(/</g, "&lt;");
-      return response.end(
-        [
-          ...head,
-          `<title>${named}</title>`,
-          '<link rel="stylesheet" href="/preview/creator.css"></head>',
-          `<body><div id="creator" data-guide="${guide}"><p class="px-4 py-6 text-[14px]">Opening the wordplay\u2026</p></div>`,
-          '<script type="module" src="/preview/creator.js"></script>',
-          "</body></html>"
-        ].join("")
-      );
-    }
-    response.end(
-      [
-        ...head,
-        "</head>",
-        '<body class="min-h-screen">',
-        playerShell(title ? `${title} \xB7 Preview` : "Preview", "bridge"),
-        "</body></html>"
-      ].join("")
-    );
-  }
-  /** The player's script or stylesheet, from the plugin's own folder. */
-  asset(name, response) {
-    const path2 = join7(this.options.player, name);
-    if (!existsSync6(path2)) {
-      response.writeHead(404, { "Content-Type": "text/plain" });
-      return response.end("The plugin's player is missing. Reinstall the plugin.");
-    }
-    response.writeHead(200, {
-      "Content-Type": name.endsWith(".js") ? "text/javascript" : "text/css",
-      "Cache-Control": "no-store"
-    });
-    response.end(readFileSync7(path2));
-  }
-  /** A play's trials, kept on disk beside it, as `localRoutes` keeps them. */
-  store({ dir, stem }) {
-    return {
-      list: () => allTrials(dir, stem),
-      save: (trial) => {
-        const before2 = readTrial(dir, stem, trial.id);
-        writeTrial(dir, stem, { ...before2, ...trial, session: before2?.session ?? randomUUID() });
-      },
-      remove: (id) => removeTrial(dir, stem, id)
-    };
-  }
-  /** The routes every host answers, for one play, its folder served at `folder`. */
-  routes(play, folder, editable) {
-    return localRoutes({
-      source: () => this.files(play)?.source ?? "",
-      meta: () => this.meta(play, editable),
-      trials: this.store(play),
-      ask: this.askFor(play),
-      folder
-    });
-  }
-  /** One of the routes every host answers, relayed: the page's body read, its going heard. */
-  async answer(routes, route, url2, request, response) {
-    const sent = request.method === "POST" ? await body(request, 4 * MAX_FILE) : null;
-    const gone = new AbortController();
-    response.on("close", () => {
-      if (!response.writableFinished) gone.abort();
-    });
-    const answer = await routes(`${route}${url2.search}`, {
-      method: request.method,
-      ...sent ? { body: JSON.stringify(sent) } : {},
-      signal: gone.signal
-    });
-    return relay(response, answer ?? Response.json({ error: "Nothing here." }, { status: 404 }));
-  }
-  /**
-   * **A student's preview of a play, by its path** (docs/creator.md):
-   * `/play/<path>` is the bare player on that file, `/play/<path>/api/…` its
-   * routes and `/play/<path>/folder/…` the files beside it, read afresh on
-   * every request, its trials beside it. The path is from the root, its parts
-   * separated by `/`; one outside the root, through a `..` or a link, one
-   * not ending in `.wplay` and one not there are refused with a line. A
-   * folder holding one play goes to that play's address. Nothing here moves
-   * the creator.
-   */
-  async byPath(rest, url2, request, response) {
-    const refuse = (words2) => {
-      response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      response.end(words2);
-    };
-    const encoded = rest.split("/").filter(Boolean);
-    let parts;
-    try {
-      parts = encoded.map((part) => decodeURIComponent(part));
-    } catch {
-      return refuse("That is not a path.");
-    }
-    if (parts.some((part) => part === "." || part === ".." || /[\\/\0]/.test(part)))
-      return refuse("A play is found inside the preview's folder, never above it.");
-    const at = parts.findIndex((part) => part.endsWith(".wplay"));
-    const root = this.root();
-    const inside = (path2) => path2.startsWith(root + sep);
-    if (at < 0) {
-      const folder = resolve(root, ...parts);
-      if (request.method !== "GET" || !inside(folder) || !existsSync6(folder)) {
-        return refuse("Give the path of a .wplay file in the preview's folder.");
-      }
-      try {
-        const found = findPlay(folder);
-        const address = this.playPath(found);
-        if (address === null) return refuse("That play is outside the preview's folder.");
-        response.writeHead(302, { Location: `${PLAY}${address}`, "Cache-Control": "no-store" });
-        return response.end();
-      } catch (error62) {
-        return refuse(error62 instanceof Error ? error62.message : "There is no play there.");
-      }
-    }
-    const file2 = resolve(root, ...parts.slice(0, at + 1));
-    if (!inside(file2))
-      return refuse("A play is found inside the preview's folder, never above it.");
-    if (!existsSync6(file2) || !statSync2(file2).isFile())
-      return refuse(`There is no play at ${parts.slice(0, at + 1).join("/")}.`);
-    if (!realpathSync(file2).startsWith(realpathSync(root) + sep))
-      return refuse("A play is found inside the preview's folder, never above it.");
-    const play = { dir: dirname2(file2), stem: basename2(file2).replace(/\.wplay$/, "") };
-    const here = `${PLAY}${encoded.slice(0, at + 1).join("/")}`;
-    const [kind, ...tail] = encoded.slice(at + 1);
-    if (kind === void 0) {
-      if (request.method !== "GET") return refuse("Nothing here.");
-      return this.playPage(play, response);
-    }
-    if (kind === "folder" && request.method === "GET") {
-      return this.folderFile(play.dir, tail.join("/"), response);
-    }
-    const route = tail.join("/");
-    if (kind !== "api" || !PLAY_ROUTES.has(route)) return refuse("Nothing here.");
-    if (request.method !== "GET" && !this.ours(request)) {
-      return json3(response, 403, { error: "Only the preview's own page may do that." });
-    }
-    return this.answer(this.routes(play, `${here}/folder/`, false), route, url2, request, response);
-  }
-  /** **A student's preview, the bare player** the plugin bundles, on one play. */
-  playPage(play, response) {
-    const read = this.files(play);
-    const title = read ? titleOf(parseWordplay(read.source)) : "";
-    response.writeHead(200, {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store"
-    });
-    response.end(
-      [
-        "<!doctype html>",
-        '<html lang="en"><head><meta charset="utf-8">',
-        '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        '<meta name="color-scheme" content="light dark">',
-        "</head>",
-        '<body class="min-h-screen">',
-        playerShell(`${title || play.stem} \xB7 Preview`, "bridge", "/preview/"),
-        "</body></html>"
-      ].join("")
-    );
-  }
-  /**
-   * **A file beside the lesson** (SPEC.md, "The file": a relative URL
-   * resolves against where the file is), for the student's frame: only a
-   * kind a lesson may hold, and only inside the lesson's folder.
-   */
-  folderFile(dir, path2, response) {
-    const type = FOLDER_TYPES[/\.([a-z0-9]+)$/i.exec(path2)?.[1]?.toLowerCase() ?? ""];
-    let inside = null;
-    try {
-      inside = dir ? resolve(dir, decodeURIComponent(path2)) : null;
-    } catch {
-      inside = null;
-    }
-    if (!type || !inside || !dir || !inside.startsWith(resolve(dir) + sep)) {
-      response.writeHead(404).end();
-      return;
-    }
-    if (!existsSync6(inside) || !statSync2(inside).isFile()) {
-      response.writeHead(404).end();
-      return;
-    }
-    response.writeHead(200, {
-      "Content-Type": type,
-      "Cache-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "Content-Security-Policy": "default-src 'none'; sandbox"
-    });
-    response.end(readFileSync7(inside));
-  }
-  /**
-   * **The creator's assistant, on the author's model**: the prompt Labs'
-   * assistant is given (`builderPrompt`), on their key or their Claude Code,
-   * streamed as Labs streams it, so the page reads it the same. Nothing is
-   * kept: the page holds the conversation and the file.
-   */
-  build(sent, response) {
-    const file2 = typeof sent.file === "string" ? sent.file : "";
-    if (file2.length > MAX_FILE) {
-      return json3(response, 413, { error: "The wordplay is too long for the assistant." });
-    }
-    const messages = readTurns(sent.messages, MAX_BUILD_MESSAGE);
-    if (messages[messages.length - 1]?.role !== "user") {
-      return json3(response, 400, { error: "Say something." });
-    }
-    const system = builderPrompt(
-      file2,
-      readChanges(sent.changes),
-      readTurns(sent.trial, MAX_MESSAGE),
-      [],
-      "creator-local",
-      [],
-      pageWhere(file2, sent.page),
-      sent.fresh !== false
-    );
-    const settings = withChoice(this.builderSettings(), this.builderChoices(), sent.builder);
-    const reply = replyOn(settings, {
-      system,
-      messages,
-      role: "builder",
-      maxTokens: BUILD_MAX_TOKENS,
-      names: ["Author", "You"]
-    });
-    return this.streamTo(response, reply, "The assistant");
-  }
-  /**
-   * **The creator's student's view, its tutor on the author's model**: the
-   * file the page holds, as Labs' creator sends it (`/api/create/tutor`),
-   * its tries kept by the page.
-   */
-  tryTutor(sent, response) {
-    const file2 = typeof sent.file === "string" ? sent.file : "";
-    if (!file2.trim()) return json3(response, 400, { error: "There is no wordplay to try yet." });
-    if (file2.length > MAX_FILE) return json3(response, 413, { error: "The wordplay is too long." });
-    const messages = readTurns(sent.messages, MAX_MESSAGE);
-    if (messages[messages.length - 1]?.role !== "user") {
-      return json3(response, 400, { error: "Say something." });
-    }
-    const held = (Array.isArray(sent.held) ? sent.held : []).filter((one) => typeof one === "string").slice(0, 2e3);
-    const wordplay = parseWordplay(file2);
-    const { parts } = tutorTurn(wordplay, file2, titleOf(wordplay), { held, ...readView(sent) });
-    const settings = withChoice(this.settings(), this.choices(), sent.tutor);
-    const reply = replyOn(settings, { system: parts, messages });
-    return this.streamTo(response, reply, "The tutor");
-  }
-  /**
-   * **A simulated student, on the author's model** (`lib/simulate.ts`, the
-   * loop Labs' Simulate runs on ours): the student and the tutor each a
-   * turn on their key or their Claude Code, streamed as Labs streams it, a
-   * line of JSON at a time. The page keeps the try.
-   */
-  async simulate(sent, response) {
-    const file2 = typeof sent.file === "string" ? sent.file : "";
-    const persona = typeof sent.persona === "string" ? sent.persona.trim().slice(0, 400) : "";
-    if (!file2.trim()) return json3(response, 400, { error: "There is no wordplay to try yet." });
-    if (file2.length > MAX_FILE) return json3(response, 413, { error: "The wordplay is too long." });
-    if (!persona) return json3(response, 400, { error: "Say who the student is." });
-    response.writeHead(200, {
-      "Content-Type": "application/x-ndjson; charset=utf-8",
-      "Cache-Control": "no-store"
-    });
-    let gone = false;
-    let asking = null;
-    response.on("close", () => {
-      if (!response.writableFinished) {
-        gone = true;
-        asking?.();
-      }
-    });
-    const settings = withChoice(this.settings(), this.choices(), sent.tutor);
-    await simulate(file2, persona, `sim-${randomUUID().slice(0, 8)}`, {
-      ask: async ({ who, system, messages, maxTokens }) => {
-        if (gone) throw new Error("The page went.");
-        const reply = replyOn(settings, {
-          system,
-          messages,
-          maxTokens,
-          names: who === "learner" ? ["Tutor", "You (the student)"] : ["Student", "Tutor (you)"]
-        });
-        asking = reply.cancel;
-        let answer = "";
-        for await (const piece of reply.text) answer += piece;
-        const end = await reply.end;
-        asking = null;
-        if (end.error) throw new Error(end.error);
-        return answer;
-      },
-      send: (event) => {
-        if (!gone) response.write(`${JSON.stringify(event)}
-`);
-      },
-      explain: (error62) => error62 instanceof Error ? error62.message : "The run stopped."
-    });
-    response.end();
-  }
-  labs() {
-    this.labsIn ??= new LabsSignIn(
-      this.options.site,
-      `http://127.0.0.1:${this.listening}/preview/connected`
-    );
-    return this.labsIn;
-  }
-  /** Off to Labs' consent page, from the Publish tab's Sign in. */
-  async connect(response) {
-    try {
-      response.writeHead(302, { Location: await this.labs().start() });
-      response.end();
-    } catch (error62) {
-      said(response, error62 instanceof Error ? error62.message : "Wordplay could not be reached.");
-    }
-  }
-  /** Back from Labs: signed in, and on to the lesson again. */
-  async connected(url2, response) {
-    const code = url2.searchParams.get("code");
-    const state = url2.searchParams.get("state");
-    if (!code || !state) {
-      return said(response, "Wordplay did not sign the preview in. Sign in again.");
-    }
-    try {
-      await this.labs().finish(code, state);
-      response.writeHead(302, { Location: "/preview/local" });
-      response.end();
-    } catch (error62) {
-      said(response, error62 instanceof Error ? error62.message : "Signing in did not finish.");
-    }
-  }
-  /** The Publish tab's picture, sent on to Labs as the author. */
-  async picture(request, response) {
-    const chunks = [];
-    let size = 0;
-    for await (const chunk of request) {
-      size += chunk.length;
-      if (size > MAX_PICTURE) {
-        return json3(response, 413, { error: "Pictures must be under 5 MB. Use a smaller one." });
-      }
-      chunks.push(chunk);
-    }
-    try {
-      const answer = await this.labs().call("/api/publish/image", {
-        method: "POST",
-        headers: { "Content-Type": request.headers["content-type"] ?? "" },
-        body: Buffer.concat(chunks)
-      });
-      return json3(response, answer.status, await answer.json().catch(() => ({})));
-    } catch (error62) {
-      return json3(response, 401, {
-        error: error62 instanceof Error ? error62.message : "Sign in to Wordplay to add a picture."
-      });
-    }
-  }
-  /** A reply streamed to the page, its failure said in the page's words (`ANSWER_STOPPED`). */
-  async streamTo(response, reply, who) {
-    response.writeHead(200, {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store"
-    });
-    let gone = false;
-    response.on("close", () => {
-      if (!response.writableFinished) {
-        gone = true;
-        reply.cancel();
-      }
-    });
-    for await (const piece of reply.text) {
-      if (gone) break;
-      response.write(piece);
-    }
-    const end = await reply.end;
-    if (end.error && !gone) {
-      response.write(`${ANSWER_STOPPED}${who} stopped: ${end.error}`);
-    } else if (end.stop === "max_tokens" && !gone) {
-      response.write(`${ANSWER_STOPPED}The answer ran out of room. Ask for the rest.`);
-    }
-    response.end();
-  }
-  /**
-   * **One tutor turn, however it arrives**: from the page, streamed, or from
-   * a simulated student's `say_to_tutor`. The same prompt a student's turn
-   * on the site is sent (`tutorTurn`), on the conversation's own tutor, and
-   * a `save` that keeps which tutor answered and what it used once it ends.
-   */
-  turn({ dir, stem }, source, id, messages, view, choice) {
-    const wordplay = parseWordplay(source);
-    const { parts } = tutorTurn(wordplay, source, titleOf(wordplay), view);
-    const before2 = readTrial(dir, stem, id);
-    const resume = Boolean(
-      before2 && before2.turns.length > 0 && before2.turns.length === messages.length - 1
-    );
-    const session = before2 && (resume || before2.turns.length === 0) ? before2.session : randomUUID();
-    const last = messages[messages.length - 1];
-    const message = resume || messages.length === 1 ? last.content : replayed(messages);
-    const choices = this.choices();
-    const settings = withChoice(
-      withChoice(this.settings(), choices, before2?.tutor),
-      choices,
-      choice
-    );
-    const reply = replyOn(settings, { system: parts, messages, message, session, resume });
-    const save = (usage, model) => {
-      const now = readTrial(dir, stem, id);
-      const replies = messages.filter((turn) => turn.role === "assistant").length + 1;
-      writeTrial(dir, stem, {
-        ...now ?? { id, lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(), turns: [], held: view.held },
-        id,
-        session,
-        tutor: { model: settings.model, effort: settings.effort },
-        ...usage ? {
-          usage: [
-            ...now?.usage ?? [],
-            {
-              after: replies,
-              model: model ?? settings.model,
-              ...effortApplies(settings.model) ? { effort: settings.effort } : {},
-              ...usage
-            }
-          ]
-        } : {}
-      });
-    };
-    return { reply, save };
-  }
-  /**
-   * **A simulated student's trial** (`/wordplay:trial`): the same turns as
-   * the page's, driven by a subagent through the plugin's tools instead of
-   * by a person. It is shown the page as a screen reader reads it, never the
-   * context, and works its controls by name (`simulated-page.ts`); every
-   * trial is a file like the teacher's own, which `trial_report` reads.
-   */
-  startTrial(student, choice, on = this.current()) {
-    const read = on ? this.files(on) : null;
-    if (!read || !on) {
-      throw new Error(
-        on ? `There is no ${on.stem}.wplay in ${on.dir}.` : "No lesson is open: give start_trial the lesson's path."
-      );
-    }
-    const id = `sim-${randomUUID().slice(0, 8)}`;
-    const choices = this.choices();
-    if (choice?.model && !choices?.models.some((one) => one.id === choice.model)) {
-      throw new Error(
-        choices ? `The preview does not offer ${choice.model}: name one of ${choices.models.map((one) => one.id).join(", ")}.` : `On this key the tutor runs ${this.settings().model} only.`
-      );
-    }
-    const settings = withChoice(this.settings(), choices, choice);
-    const held = [];
-    this.trialPlays.set(id, on);
-    writeTrial(on.dir, on.stem, {
-      id,
-      session: randomUUID(),
-      lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      turns: [],
-      held,
-      reader: student.trim().slice(0, 300),
-      operations: [],
-      acts: [],
-      tutor: { model: settings.model, effort: settings.effort }
-    });
-    return {
-      id,
-      page: simulatedView(read.source, held, []),
-      tutor: tutorName(settings.model, settings.effort),
-      stem: on.stem
-    };
-  }
-  /**
-   * The student's message in a simulated trial, and the tutor's reply as the
-   * page shows it, with what changed: the tutor's `SHOW`s given, its `DO`s
-   * done on the page.
-   */
-  async say(id, said2) {
-    const { play, source, trial } = this.simulated(id);
-    if (trial.turns.length >= MAX_TURNS) {
-      throw new Error(`Trial ${id} has had its ${MAX_TURNS} turns; start another.`);
-    }
-    const wordplay = parseWordplay(source);
-    const operations = trial.operations ?? [];
-    const messages = [
-      ...trial.turns,
-      { role: "user", content: said2.slice(0, MAX_MESSAGE) }
-    ];
-    const { reply, save } = this.turn(
-      play,
-      source,
-      id,
-      messages,
-      {
-        held: trial.held,
-        tree: simulatedTree(source, trial.held, operations).tree,
-        announced: []
-      },
-      trial.tutor
-    );
-    let answer = "";
-    for await (const piece of reply.text) answer += piece;
-    const end = await reply.end;
-    save(end.usage, end.model);
-    const read = readMarkers(answer);
-    const done = [];
-    const performed = [];
-    let now = operations;
-    for (const action of read.actions) {
-      const tried = [...now, action];
-      const refused = simulatedTree(
-        source,
-        heldAfterReply(wordplay, trial.held, answer),
-        tried
-      ).refused;
-      if (refused) done.push(`The tutor could not operate the page: ${refused}`);
-      else {
-        now = tried;
-        performed.push(action);
-        done.push(`The tutor ${actionWords(action)}.`);
-      }
-    }
-    const held = heldAfterReply(wordplay, trial.held, answer);
-    const kept = readTrial(play.dir, play.stem, id) ?? trial;
-    const turns = answer.trim() ? [...messages, { role: "assistant", content: answer }] : messages;
-    writeTrial(play.dir, play.stem, {
-      ...kept,
-      lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      turns,
-      ...keptReply(
-        wordplay,
-        { held: kept.held, skipped: kept.skipped ?? [], events: kept.events ?? [] },
-        answer,
-        turns,
-        performed
-      ),
-      operations: now
-    });
-    const changes = [...done, ...changesBetween(wordplay, trial.held, held)];
-    return {
-      reply: read.text.trim(),
-      changes,
-      page: changes.length ? simulatedView(source, held, now) : null,
-      stopped: end.error ?? (end.stop === "max_tokens" ? "The answer ran out of room." : null)
-    };
-  }
-  /**
-   * **A simulated student's act on the page** (`do_on_page`): a control by
-   * its accessible name, pressed, or given a value, on the page's markup
-   * (`simulated-page.ts`). The page's scripts do not run here, so nothing is
-   * given by it: the tutor reads the page with the next message, and judges
-   * what is waiting from it.
-   */
-  act(id, name, value) {
-    const { play, source, trial } = this.simulated(id);
-    const wordplay = parseWordplay(source);
-    const action = value === void 0 ? { name } : { name, value };
-    const operations = [...trial.operations ?? [], action];
-    const { refused } = simulatedTree(source, trial.held, operations);
-    if (refused) throw new Error(refused);
-    const held = trial.held;
-    const line = `The student ${actionWords(action)}`;
-    writeTrial(play.dir, play.stem, {
-      ...trial,
-      lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      held,
-      operations,
-      acts: [
-        ...trial.acts ?? [],
-        { after: trial.turns.filter((turn) => turn.role === "assistant").length, text: line }
-      ]
-    });
-    return {
-      line,
-      changes: changesBetween(wordplay, trial.held, held),
-      page: simulatedView(source, held, operations)
-    };
-  }
-  /**
-   * What `trial_report` prints for one trial: the newest when none is named.
-   * Of the play named, else the one the trial ran on, else the creator's.
-   */
-  report(id, on) {
-    const play = on ?? (id ? this.trialPlays.get(id) : void 0) ?? this.current();
-    const read = play ? this.files(play) : null;
-    if (!read || !play) {
-      throw new Error("No wordplay is open: open one with preview_wordplay, or give its path.");
-    }
-    const trial = id ? readTrial(play.dir, play.stem, id) : this.trials(play)[0];
-    if (!trial)
-      throw new Error(id ? `There is no trial ${id} for ${play.stem}.` : "No trials yet.");
-    const report = trialReport(read.source, trial.turns, trial.acts ?? []);
-    const wordplay = parseWordplay(read.source);
-    const complete = report.completedAt !== null ? `the wordplay was complete after exchange ${report.completedAt}.` : wordplay.steps.length && isDone(wordplay, trial.held ?? []) ? "the wordplay was completed on the page, by its scripts or Skip." : "the wordplay did not complete.";
-    return [
-      `## Trial ${trial.id}${trial.reader ? `: ${trial.reader}` : ""}`,
-      "",
-      `${report.exchanges} ${report.exchanges === 1 ? "exchange" : "exchanges"}; ${complete}`,
-      "",
-      "What happened:",
-      ...report.timeline.length ? report.timeline.map((line) => `- ${line}`) : ["- Nothing changed on the page."],
-      "",
-      "Flagged:",
-      ...report.flags.length ? report.flags.map((line) => `- ${line}`) : ["- Nothing."],
-      ...spent(trial)
-    ].join("\n");
-  }
-  /** A simulated trial, on the play it was started on (the creator's, once the preview restarts). */
-  simulated(id) {
-    const play = this.trialPlays.get(id) ?? this.current();
-    const read = play ? this.files(play) : null;
-    if (!read || !play) {
-      throw new Error("No wordplay is open: open one with preview_wordplay, or give its path.");
-    }
-    const trial = readTrial(play.dir, play.stem, id);
-    if (!trial)
-      throw new Error(`There is no trial ${id} for ${play.stem}: start one with start_trial.`);
-    return { play, source: read.source, trial: { ...trial, held: trial.held ?? [] } };
-  }
-  /**
-   * **A diagram, drawn on this machine** with the site's own engine and code
-   * (`./engine`), answering exactly as the site's `/api/tikz` does. When the
-   * engine cannot be installed here (no npm, no network the first time), the
-   * site draws it instead, which needs the author's token.
-   */
-  async draw(request, response) {
-    const sent = await body(request);
-    const source = typeof sent.source === "string" ? sent.source : "";
-    if (!source.trim() || source.length > 2e4) return json3(response, 200, { svg: null });
-    try {
-      await ensureEngine();
-    } catch (error62) {
-      console.error("[wordplay] drawing on the site instead:", error62);
-      return this.pass(request, response, JSON.stringify(sent));
-    }
-    const drawn = await drawLocally(source);
-    return json3(
-      response,
-      200,
-      "svg" in drawn ? { svg: drawn.svg } : { svg: null, error: drawn.error }
-    );
-  }
-  /** Everything else is the site's, passed through with the site as its host. */
-  pass(request, response, read) {
-    const site2 = new URL(this.options.site);
-    const headers = { ...request.headers, host: site2.host };
-    delete headers.connection;
-    delete headers.cookie;
-    if (headers.origin) headers.origin = site2.origin;
-    if (typeof headers.referer === "string") {
-      headers.referer = site2.origin + new URL(headers.referer, "http://127.0.0.1").pathname;
-    }
-    const path2 = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
-    if (this.options.token && path2 === "/api/tikz") {
-      headers.authorization = `Bearer ${this.options.token}`;
-    }
-    if (read !== void 0) headers["content-length"] = Buffer.byteLength(read);
-    const client = site2.protocol === "http:" ? http : https;
-    const upstream = client.request(
-      {
-        protocol: site2.protocol,
-        hostname: site2.hostname,
-        port: site2.port || void 0,
-        path: request.url,
-        method: request.method,
-        headers
-      },
-      (answer) => {
-        const out = { ...answer.headers };
-        if (typeof out.location === "string" && out.location.startsWith(site2.origin)) {
-          out.location = out.location.slice(site2.origin.length) || "/";
-        }
-        delete out["set-cookie"];
-        delete out["strict-transport-security"];
-        response.writeHead(answer.statusCode ?? 502, out);
-        answer.pipe(response);
-      }
-    );
-    upstream.on("error", (error62) => {
-      if (!response.headersSent) response.writeHead(502, { "Content-Type": "text/plain" });
-      response.end(`The site at ${site2.origin} did not answer: ${error62.message}`);
-    });
-    if (read !== void 0) {
-      upstream.end(read);
-    } else {
-      request.pipe(upstream);
-    }
-  }
-};
+var PLAY_ROUTES = /* @__PURE__ */ new Set([
+  "lesson",
+  "lesson/state",
+  "lesson/shared",
+  "tutor",
+  "tutor/history"
+]);
 function tutorName(model, effort) {
   return `${modelName(model)}${effort && effortApplies(model) ? ` at ${effort}` : ""}`;
 }
@@ -70086,16 +68957,1117 @@ function replyOn(settings, turn) {
     resume: turn.resume ?? false
   });
 }
+function previewState(options) {
+  return {
+    options,
+    dir: null,
+    stem: null,
+    server: null,
+    listening: null,
+    facts: null,
+    trialPlays: /* @__PURE__ */ new Map(),
+    portNoted: false,
+    labsIn: null
+  };
+}
+
+// packages/player/src/bridge/preview-creator.ts
+function build(s, sent, response) {
+  const file2 = typeof sent.file === "string" ? sent.file : "";
+  if (file2.length > MAX_FILE) {
+    return json3(response, 413, { error: "The wordplay is too long for the assistant." });
+  }
+  const messages = readTurns(sent.messages, MAX_BUILD_MESSAGE);
+  if (messages[messages.length - 1]?.role !== "user") {
+    return json3(response, 400, { error: "Say something." });
+  }
+  const system = builderPrompt(
+    file2,
+    readChanges(sent.changes),
+    readTurns(sent.trial, MAX_MESSAGE),
+    [],
+    "creator-local",
+    [],
+    pageWhere(file2, sent.page),
+    sent.fresh !== false
+  );
+  const settings = withChoice(builderSettingsOf(s), builderChoices(s), sent.builder);
+  const reply = replyOn(settings, {
+    system,
+    messages,
+    role: "builder",
+    maxTokens: BUILD_MAX_TOKENS,
+    names: ["Author", "You"]
+  });
+  return streamTo(s, response, reply, "The assistant");
+}
+function tryTutor(s, sent, response) {
+  const file2 = typeof sent.file === "string" ? sent.file : "";
+  if (!file2.trim()) return json3(response, 400, { error: "There is no wordplay to try yet." });
+  if (file2.length > MAX_FILE) return json3(response, 413, { error: "The wordplay is too long." });
+  const messages = readTurns(sent.messages, MAX_MESSAGE);
+  if (messages[messages.length - 1]?.role !== "user") {
+    return json3(response, 400, { error: "Say something." });
+  }
+  const held = (Array.isArray(sent.held) ? sent.held : []).filter((one) => typeof one === "string").slice(0, 2e3);
+  const wordplay = parseWordplay(file2);
+  const { parts } = tutorTurn(wordplay, file2, titleOf(wordplay), { held, ...readView(sent) });
+  const settings = withChoice(settingsOf(s), choicesOf(s), sent.tutor);
+  const reply = replyOn(settings, { system: parts, messages });
+  return streamTo(s, response, reply, "The tutor");
+}
+async function simulateOf(s, sent, response) {
+  const file2 = typeof sent.file === "string" ? sent.file : "";
+  const persona = typeof sent.persona === "string" ? sent.persona.trim().slice(0, 400) : "";
+  if (!file2.trim()) return json3(response, 400, { error: "There is no wordplay to try yet." });
+  if (file2.length > MAX_FILE) return json3(response, 413, { error: "The wordplay is too long." });
+  if (!persona) return json3(response, 400, { error: "Say who the student is." });
+  response.writeHead(200, {
+    "Content-Type": "application/x-ndjson; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  let gone = false;
+  let asking = null;
+  response.on("close", () => {
+    if (!response.writableFinished) {
+      gone = true;
+      asking?.();
+    }
+  });
+  const settings = withChoice(settingsOf(s), choicesOf(s), sent.tutor);
+  await simulate(file2, persona, `sim-${randomUUID2().slice(0, 8)}`, {
+    ask: async ({ who, system, messages, maxTokens }) => {
+      if (gone) throw new Error("The page went.");
+      const reply = replyOn(settings, {
+        system,
+        messages,
+        maxTokens,
+        names: who === "learner" ? ["Tutor", "You (the student)"] : ["Student", "Tutor (you)"]
+      });
+      asking = reply.cancel;
+      let answer = "";
+      for await (const piece of reply.text) answer += piece;
+      const end = await reply.end;
+      asking = null;
+      if (end.error) throw new Error(end.error);
+      return answer;
+    },
+    send: (event) => {
+      if (!gone) response.write(`${JSON.stringify(event)}
+`);
+    },
+    explain: (error62) => error62 instanceof Error ? error62.message : "The run stopped."
+  });
+  response.end();
+}
+function labs(s) {
+  s.labsIn ??= new LabsSignIn(s.options.site, `http://127.0.0.1:${s.listening}/preview/connected`);
+  return s.labsIn;
+}
+async function connect(s, response) {
+  try {
+    response.writeHead(302, { Location: await labs(s).start() });
+    response.end();
+  } catch (error62) {
+    said(response, error62 instanceof Error ? error62.message : "Wordplay could not be reached.");
+  }
+}
+async function connected(s, url2, response) {
+  const code = url2.searchParams.get("code");
+  const state = url2.searchParams.get("state");
+  if (!code || !state) {
+    return said(response, "Wordplay did not sign the preview in. Sign in again.");
+  }
+  try {
+    await labs(s).finish(code, state);
+    response.writeHead(302, { Location: "/preview/local" });
+    response.end();
+  } catch (error62) {
+    said(response, error62 instanceof Error ? error62.message : "Signing in did not finish.");
+  }
+}
+async function picture(s, request, response) {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of request) {
+    size += chunk.length;
+    if (size > MAX_PICTURE) {
+      return json3(response, 413, { error: "Pictures must be under 5 MB. Use a smaller one." });
+    }
+    chunks.push(chunk);
+  }
+  try {
+    const answer = await labs(s).call("/api/publish/image", {
+      method: "POST",
+      headers: { "Content-Type": request.headers["content-type"] ?? "" },
+      body: Buffer.concat(chunks)
+    });
+    return json3(response, answer.status, await answer.json().catch(() => ({})));
+  } catch (error62) {
+    return json3(response, 401, {
+      error: error62 instanceof Error ? error62.message : "Sign in to Wordplay to add a picture."
+    });
+  }
+}
+function turnOf(s, { dir, stem }, source, id, messages, view, choice) {
+  const wordplay = parseWordplay(source);
+  const { parts } = tutorTurn(wordplay, source, titleOf(wordplay), view);
+  const before2 = readTrial(dir, stem, id);
+  const resume = Boolean(
+    before2 && before2.turns.length > 0 && before2.turns.length === messages.length - 1
+  );
+  const session = before2 && (resume || before2.turns.length === 0) ? before2.session : randomUUID2();
+  const last = messages[messages.length - 1];
+  const message = resume || messages.length === 1 ? last.content : replayed(messages);
+  const choices = choicesOf(s);
+  const settings = withChoice(withChoice(settingsOf(s), choices, before2?.tutor), choices, choice);
+  const reply = replyOn(settings, { system: parts, messages, message, session, resume });
+  const save = (usage, model) => {
+    const now = readTrial(dir, stem, id);
+    const replies = messages.filter((turn) => turn.role === "assistant").length + 1;
+    writeTrial(dir, stem, {
+      ...now ?? { id, lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(), turns: [], held: view.held },
+      id,
+      session,
+      tutor: { model: settings.model, effort: settings.effort },
+      ...usage ? {
+        usage: [
+          ...now?.usage ?? [],
+          {
+            after: replies,
+            model: model ?? settings.model,
+            ...effortApplies(settings.model) ? { effort: settings.effort } : {},
+            ...usage
+          }
+        ]
+      } : {}
+    });
+  };
+  return { reply, save };
+}
+
+// packages/player/src/bridge/preview-server.ts
+async function listen(s) {
+  if (s.listening !== null) return s.listening;
+  const server2 = http.createServer((request, response) => {
+    handle(s, request, response).catch((error62) => {
+      console.error("[wordplay] preview:", error62);
+      if (!response.headersSent) response.writeHead(500);
+      response.end();
+    });
+  });
+  server2.on("connection", (socket) => {
+    if (fromAnotherAccount(socket)) socket.destroy();
+  });
+  for (let port = s.options.port; port < s.options.port + 20; port += 1) {
+    const ok = await new Promise((done) => {
+      server2.once("error", () => done(false));
+      server2.listen(port, "127.0.0.1", () => done(true));
+    });
+    if (ok) {
+      s.server = server2;
+      s.listening = port;
+      return port;
+    }
+  }
+  throw new Error(`No free port from ${s.options.port} for the preview.`);
+}
+function close2(s) {
+  s.server?.close();
+}
+async function handle(s, request, response) {
+  const url2 = new URL(request.url ?? "/", "http://127.0.0.1");
+  if (!namedOf(s, request)) {
+    return json3(response, 403, { error: "The preview answers only at its own address." });
+  }
+  if (url2.pathname === "/" && request.method === "GET") {
+    response.writeHead(302, { Location: "/preview/local", "Cache-Control": "no-store" });
+    return response.end();
+  }
+  if (url2.pathname === "/preview/local" && request.method === "GET") return page(s, response);
+  const raw = (request.url ?? "/").split("?")[0];
+  if (raw.startsWith(PLAY)) return byPath(s, raw.slice(PLAY.length), url2, request, response);
+  if (/^\/preview\/(player|creator)\.(js|css)$/.test(url2.pathname)) {
+    return asset(s, url2.pathname.slice("/preview/".length), response);
+  }
+  if (url2.pathname === "/api/tikz" && request.method === "POST") {
+    if (!ours(s, request)) {
+      return json3(response, 403, { error: "Only the preview's own page may do that." });
+    }
+    return draw2(s, request, response);
+  }
+  if (url2.pathname === "/preview/connect" && request.method === "GET") {
+    return connect(s, response);
+  }
+  if (url2.pathname === "/preview/connected" && request.method === "GET") {
+    return connected(s, url2, response);
+  }
+  if (url2.pathname === "/api/create/image" && request.method === "POST") {
+    if (!ours(s, request)) {
+      return json3(response, 403, { error: "Only the preview's own page may do that." });
+    }
+    return picture(s, request, response);
+  }
+  const turns = {
+    "/api/create/build": build,
+    "/api/create/tutor": tryTutor,
+    "/api/create/simulate": simulateOf
+  };
+  if (url2.pathname in turns && request.method === "POST") {
+    if (!ours(s, request)) {
+      return json3(response, 403, { error: "Only the preview's own page may do that." });
+    }
+    const sent = await body(request, 4 * MAX_FILE);
+    return turns[url2.pathname](s, sent, response);
+  }
+  if (url2.pathname.startsWith(FOLDER) && request.method === "GET") {
+    return folderFile(s, s.dir, url2.pathname.slice(FOLDER.length), response);
+  }
+  if (!url2.pathname.startsWith("/preview/api/")) return pass(s, request, response);
+  const route = url2.pathname.slice("/preview/api/".length);
+  if (request.method !== "GET" && !ours(s, request)) {
+    return json3(response, 403, { error: "Only the preview's own page may do that." });
+  }
+  if (PLAY_ROUTES.has(route)) {
+    const play = currentOf(s);
+    if (!play || !files(s, play)) return json3(response, 404, { error: "No wordplay is open." });
+    return answerOf(s, routesOf(s, play, FOLDER, true), route, url2, request, response);
+  }
+  if (route === "labs" && request.method === "GET") return json3(response, 200, labs(s).status());
+  if (route === "models" && request.method === "GET") {
+    return json3(response, 200, { tutor: choicesOf(s), builder: builderChoices(s) });
+  }
+  if (route === "labs/sign-out" && request.method === "POST") {
+    labs(s).signOut();
+    return json3(response, 200, { ok: true });
+  }
+  if (route === "published" && request.method === "GET") {
+    const path2 = filePath(s);
+    const copy = path2 ? await publishedCopy(labs(s), path2, s.options.site).catch(() => null) : null;
+    return json3(response, 200, { published: copy });
+  }
+  if (route === "publish" && request.method === "POST") {
+    const path2 = filePath(s);
+    if (!path2) return json3(response, 404, { ok: false, error: "No .wplay file is open." });
+    const sent = await body(request, 64 * 1024);
+    const { status, answer } = await publishFromDisk(labs(s), path2, s.options.site, sent).catch(
+      (error62) => ({
+        status: 401,
+        answer: {
+          ok: false,
+          error: error62 instanceof Error ? error62.message : "Sign in to Wordplay to publish."
+        }
+      })
+    );
+    return json3(response, status, answer);
+  }
+  if (route === "file" && request.method === "GET") return fileOf(s, response);
+  if (route === "file" && request.method === "PUT") {
+    return write(s, await body(request, 4 * MAX_FILE), response);
+  }
+  return json3(response, 404, { error: "Nothing here." });
+}
+function ours(s, request) {
+  if (!namedOf(s, request)) return false;
+  const origin = request.headers.origin;
+  return origin === void 0 || hosts(s).some((host) => origin === `http://${host}`);
+}
+function hosts(s) {
+  return [`127.0.0.1:${s.listening}`, `localhost:${s.listening}`];
+}
+function namedOf(s, request) {
+  return hosts(s).includes(request.headers.host ?? "");
+}
+function filePath(s) {
+  if (!s.dir || !s.stem) return null;
+  const path2 = playFile(s.dir, s.stem);
+  return path2 ? realpathSync(path2) : null;
+}
+function fileOf(s, response) {
+  const path2 = filePath(s);
+  if (!path2) {
+    return json3(response, 404, {
+      error: "The wordplay's .wplay file is not there. Ask Claude to preview it again."
+    });
+  }
+  const text3 = readFileSync7(path2, "utf8");
+  return json3(response, 200, { file: basename3(path2), text: text3, changed: hashOf(text3) });
+}
+function write(s, sent, response) {
+  const path2 = filePath(s);
+  if (!path2) return json3(response, 404, { error: "No .wplay file is open." });
+  const { text: text3, base } = sent;
+  if (typeof text3 !== "string" || typeof base !== "string") {
+    return json3(response, 400, { error: "Nothing to write." });
+  }
+  if (text3.length > MAX_FILE) {
+    return json3(response, 413, {
+      error: `The file would be ${text3.length.toLocaleString("en-US")} characters; it may be ${MAX_FILE.toLocaleString("en-US")}.`
+    });
+  }
+  const current = readFileSync7(path2, "utf8");
+  if (hashOf(current) !== base)
+    return json3(response, 409, { text: current, changed: hashOf(current) });
+  const temp = join8(dirname3(path2), `.${basename3(path2)}.${randomUUID3().slice(0, 8)}.tmp`);
+  writeFileSync6(temp, text3, { mode: statSync3(path2).mode & 511 });
+  renameSync2(temp, path2);
+  return json3(response, 200, { changed: hashOf(text3) });
+}
+function page(s, response) {
+  const title = lessonOf(s)?.title.trim();
+  response.writeHead(200, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  const head = [
+    "<!doctype html>",
+    '<html lang="en"><head><meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    '<meta name="color-scheme" content="light dark">'
+  ];
+  if (existsSync7(join8(s.options.player, "creator.js"))) {
+    const guide = `${s.options.site.replace(/\/$/, "")}/create/how`.replace(/"/g, "&quot;");
+    const named = (title || "Wordplay").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    return response.end(
+      [
+        ...head,
+        `<title>${named}</title>`,
+        '<link rel="stylesheet" href="/preview/creator.css"></head>',
+        `<body><div id="creator" data-guide="${guide}"><p class="px-4 py-6 text-[14px]">Opening the wordplay\u2026</p></div>`,
+        '<script type="module" src="/preview/creator.js"></script>',
+        "</body></html>"
+      ].join("")
+    );
+  }
+  response.end(
+    [
+      ...head,
+      "</head>",
+      '<body class="min-h-screen">',
+      playerShell(title ? `${title} \xB7 Preview` : "Preview", "bridge"),
+      "</body></html>"
+    ].join("")
+  );
+}
+function asset(s, name, response) {
+  const path2 = join8(s.options.player, name);
+  if (!existsSync7(path2)) {
+    response.writeHead(404, { "Content-Type": "text/plain" });
+    return response.end("The plugin's player is missing. Reinstall the plugin.");
+  }
+  response.writeHead(200, {
+    "Content-Type": name.endsWith(".js") ? "text/javascript" : "text/css",
+    "Cache-Control": "no-store"
+  });
+  response.end(readFileSync7(path2));
+}
+function playPage(s, play, response) {
+  const read = files(s, play);
+  const title = read ? titleOf(parseWordplay(read.source)) : "";
+  response.writeHead(200, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  response.end(
+    [
+      "<!doctype html>",
+      '<html lang="en"><head><meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '<meta name="color-scheme" content="light dark">',
+      "</head>",
+      '<body class="min-h-screen">',
+      playerShell(`${title || play.stem} \xB7 Preview`, "bridge", "/preview/"),
+      "</body></html>"
+    ].join("")
+  );
+}
+function folderFile(s, dir, path2, response) {
+  const type = FOLDER_TYPES[/\.([a-z0-9]+)$/i.exec(path2)?.[1]?.toLowerCase() ?? ""];
+  let inside = null;
+  try {
+    inside = dir ? resolve2(dir, decodeURIComponent(path2)) : null;
+  } catch {
+    inside = null;
+  }
+  if (!type || !inside || !dir || !inside.startsWith(resolve2(dir) + sep)) {
+    response.writeHead(404).end();
+    return;
+  }
+  if (!existsSync7(inside) || !statSync3(inside).isFile()) {
+    response.writeHead(404).end();
+    return;
+  }
+  response.writeHead(200, {
+    "Content-Type": type,
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Content-Security-Policy": "default-src 'none'; sandbox"
+  });
+  response.end(readFileSync7(inside));
+}
+async function streamTo(s, response, reply, who) {
+  response.writeHead(200, {
+    "Content-Type": "text/plain; charset=utf-8",
+    "Cache-Control": "no-store"
+  });
+  let gone = false;
+  response.on("close", () => {
+    if (!response.writableFinished) {
+      gone = true;
+      reply.cancel();
+    }
+  });
+  for await (const piece of reply.text) {
+    if (gone) break;
+    response.write(piece);
+  }
+  const end = await reply.end;
+  if (end.error && !gone) {
+    response.write(`${ANSWER_STOPPED}${who} stopped: ${end.error}`);
+  } else if (end.stop === "max_tokens" && !gone) {
+    response.write(`${ANSWER_STOPPED}The answer ran out of room. Ask for the rest.`);
+  }
+  response.end();
+}
+async function draw2(s, request, response) {
+  const sent = await body(request);
+  const source = typeof sent.source === "string" ? sent.source : "";
+  if (!source.trim() || source.length > 2e4) return json3(response, 200, { svg: null });
+  try {
+    await ensureEngine();
+  } catch (error62) {
+    console.error("[wordplay] drawing on the site instead:", error62);
+    return pass(s, request, response, JSON.stringify(sent));
+  }
+  const drawn = await drawLocally(source);
+  return json3(
+    response,
+    200,
+    "svg" in drawn ? { svg: drawn.svg } : { svg: null, error: drawn.error }
+  );
+}
+function pass(s, request, response, read) {
+  const site2 = new URL(s.options.site);
+  const headers = { ...request.headers, host: site2.host };
+  delete headers.connection;
+  delete headers.cookie;
+  if (headers.origin) headers.origin = site2.origin;
+  if (typeof headers.referer === "string") {
+    headers.referer = site2.origin + new URL(headers.referer, "http://127.0.0.1").pathname;
+  }
+  const path2 = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
+  if (s.options.token && path2 === "/api/tikz") {
+    headers.authorization = `Bearer ${s.options.token}`;
+  }
+  if (read !== void 0) headers["content-length"] = Buffer.byteLength(read);
+  const client = site2.protocol === "http:" ? http : https;
+  const upstream = client.request(
+    {
+      protocol: site2.protocol,
+      hostname: site2.hostname,
+      port: site2.port || void 0,
+      path: request.url,
+      method: request.method,
+      headers
+    },
+    (answer) => {
+      const out = { ...answer.headers };
+      if (typeof out.location === "string" && out.location.startsWith(site2.origin)) {
+        out.location = out.location.slice(site2.origin.length) || "/";
+      }
+      delete out["set-cookie"];
+      delete out["strict-transport-security"];
+      response.writeHead(answer.statusCode ?? 502, out);
+      answer.pipe(response);
+    }
+  );
+  upstream.on("error", (error62) => {
+    if (!response.headersSent) response.writeHead(502, { "Content-Type": "text/plain" });
+    response.end(`The site at ${site2.origin} did not answer: ${error62.message}`);
+  });
+  if (read !== void 0) {
+    upstream.end(read);
+  } else {
+    request.pipe(upstream);
+  }
+}
+
+// packages/player/src/bridge/preview-plays.ts
+function rootOf(s) {
+  return resolve3(s.options.root ?? process.cwd());
+}
+async function open3(s, path2) {
+  const found = findPlay(path2);
+  s.dir = found.dir;
+  s.stem = found.stem;
+  s.facts = await askSite(s.options.site);
+  const port = await listen(s);
+  const lesson = lessonOf(s);
+  const origin = `http://127.0.0.1:${port}`;
+  const under = playPath(s, found);
+  return {
+    url: `${origin}/preview/local`,
+    origin,
+    play: under === null ? null : `${origin}${PLAY}${under}`,
+    root: rootOf(s),
+    stem: found.stem,
+    lesson,
+    notes: [...siteNotes(s.options.site, s.facts), ...portNote(s)]
+  };
+}
+function playPath(s, play) {
+  const file2 = join9(play.dir, `${play.stem}.wplay`);
+  const root = rootOf(s);
+  if (!file2.startsWith(root + sep2)) return null;
+  return file2.slice(root.length + 1).split(sep2).map(encodeURIComponent).join("/");
+}
+function portNote(s) {
+  if (s.portNoted || !inContainer()) return [];
+  s.portNoted = true;
+  return [
+    "This preview runs in a container. If its port is forwarded, keep it private: anyone who can reach it can read the lesson, answers included."
+  ];
+}
+function files(s, play = currentOf(s)) {
+  if (!play) return null;
+  const one = playFile(play.dir, play.stem);
+  if (!one) return null;
+  const source = readFileSync8(one, "utf8");
+  return { source, changed: hashOf(source), file: basename4(one) };
+}
+function meta3(s, play = currentOf(s), editable = true) {
+  const read = files(s, play);
+  return {
+    stem: play?.stem ?? "",
+    ...read ? { file: read.file } : {},
+    editable,
+    changed: read?.changed ?? "",
+    tutor: tutorWords(settingsOf(s)),
+    choices: choicesOf(s)
+  };
+}
+function lessonOf(s) {
+  const read = files(s);
+  if (!read || !s.stem) return null;
+  return localLesson(read.source, [], { ...meta3(s), problems: [] });
+}
+function settingsOf(s) {
+  return tutorSettings(s.facts?.tutor);
+}
+function choicesOf(s) {
+  return tutorChoices(settingsOf(s), s.facts?.tutor);
+}
+function builderSettingsOf(s) {
+  return builderSettings(s.facts?.builder);
+}
+function builderChoices(s) {
+  return tutorChoices(builderSettingsOf(s), s.facts?.builder);
+}
+function trials(s, play = currentOf(s)) {
+  return play ? listTrials(play.dir, play.stem) : [];
+}
+function about(s) {
+  return {
+    build: PREVIEW_BUILD,
+    site: s.options.site,
+    preview: s.listening === null ? null : `http://127.0.0.1:${s.listening}`,
+    open: s.stem
+  };
+}
+function currentOf(s) {
+  return s.dir && s.stem ? { dir: s.dir, stem: s.stem } : null;
+}
+function store(s, { dir, stem }) {
+  return {
+    list: () => allTrials(dir, stem),
+    save: (trial) => {
+      const before2 = readTrial(dir, stem, trial.id);
+      writeTrial(dir, stem, { ...before2, ...trial, session: before2?.session ?? randomUUID4() });
+    },
+    remove: (id) => removeTrial(dir, stem, id)
+  };
+}
+function routesOf(s, play, folder, editable) {
+  return localRoutes({
+    source: () => files(s, play)?.source ?? "",
+    meta: () => meta3(s, play, editable),
+    trials: store(s, play),
+    ask: askFor(s, play),
+    folder
+  });
+}
+async function answerOf(s, routes, route, url2, request, response) {
+  const sent = request.method === "POST" ? await body(request, 4 * MAX_FILE) : null;
+  const gone = new AbortController();
+  response.on("close", () => {
+    if (!response.writableFinished) gone.abort();
+  });
+  const answer = await routes(`${route}${url2.search}`, {
+    method: request.method,
+    ...sent ? { body: JSON.stringify(sent) } : {},
+    signal: gone.signal
+  });
+  return relay(response, answer ?? Response.json({ error: "Nothing here." }, { status: 404 }));
+}
+async function byPath(s, rest, url2, request, response) {
+  const refuse = (words2) => {
+    response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    response.end(words2);
+  };
+  const encoded = rest.split("/").filter(Boolean);
+  let parts;
+  try {
+    parts = encoded.map((part) => decodeURIComponent(part));
+  } catch {
+    return refuse("That is not a path.");
+  }
+  if (parts.some((part) => part === "." || part === ".." || /[\\/\0]/.test(part)))
+    return refuse("A play is found inside the preview's folder, never above it.");
+  const at = parts.findIndex((part) => part.endsWith(".wplay"));
+  const root = rootOf(s);
+  const inside = (path2) => path2.startsWith(root + sep2);
+  if (at < 0) {
+    const folder = resolve3(root, ...parts);
+    if (request.method !== "GET" || !inside(folder) || !existsSync8(folder)) {
+      return refuse("Give the path of a .wplay file in the preview's folder.");
+    }
+    try {
+      const found = findPlay(folder);
+      const address = playPath(s, found);
+      if (address === null) return refuse("That play is outside the preview's folder.");
+      response.writeHead(302, { Location: `${PLAY}${address}`, "Cache-Control": "no-store" });
+      return response.end();
+    } catch (error62) {
+      return refuse(error62 instanceof Error ? error62.message : "There is no play there.");
+    }
+  }
+  const file2 = resolve3(root, ...parts.slice(0, at + 1));
+  if (!inside(file2)) return refuse("A play is found inside the preview's folder, never above it.");
+  if (!existsSync8(file2) || !statSync4(file2).isFile())
+    return refuse(`There is no play at ${parts.slice(0, at + 1).join("/")}.`);
+  if (!realpathSync2(file2).startsWith(realpathSync2(root) + sep2))
+    return refuse("A play is found inside the preview's folder, never above it.");
+  const play = { dir: dirname4(file2), stem: basename4(file2).replace(/\.wplay$/, "") };
+  const here = `${PLAY}${encoded.slice(0, at + 1).join("/")}`;
+  const [kind, ...tail] = encoded.slice(at + 1);
+  if (kind === void 0) {
+    if (request.method !== "GET") return refuse("Nothing here.");
+    return playPage(s, play, response);
+  }
+  if (kind === "folder" && request.method === "GET") {
+    return folderFile(s, play.dir, tail.join("/"), response);
+  }
+  const route = tail.join("/");
+  if (kind !== "api" || !PLAY_ROUTES.has(route)) return refuse("Nothing here.");
+  if (request.method !== "GET" && !ours(s, request)) {
+    return json3(response, 403, { error: "Only the preview's own page may do that." });
+  }
+  return answerOf(s, routesOf(s, play, `${here}/folder/`, false), route, url2, request, response);
+}
+function askFor(s, play) {
+  return async (turn, signal) => {
+    const picked = turn.sent.tutor?.model;
+    const choices = choicesOf(s);
+    if (picked !== void 0 && !choices?.models.some((one) => one.id === picked)) {
+      return Response.json(
+        { error: `The preview does not offer ${String(picked)}. Pick another model by Send.` },
+        { status: 400 }
+      );
+    }
+    const { reply, save } = turnOf(
+      s,
+      play,
+      turn.source,
+      turn.conversationId,
+      turn.messages.slice(-MAX_TURNS),
+      {
+        held: turn.held,
+        skipped: turn.skipped,
+        tree: turn.tree,
+        announced: turn.announced,
+        told: turn.told,
+        calculations: turn.calculations
+      },
+      turn.sent.tutor
+    );
+    signal?.addEventListener("abort", () => reply.cancel());
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const piece of reply.text) controller.enqueue(encoder.encode(piece));
+        const end = await reply.end;
+        if (end.error) {
+          controller.enqueue(
+            encoder.encode(
+              `${ANSWER_STOPPED}The tutor stopped: ${end.error} (This is the preview built as ${PREVIEW_BUILD}.)`
+            )
+          );
+        } else if (end.stop === "max_tokens") {
+          controller.enqueue(
+            encoder.encode(`${ANSWER_STOPPED}The answer ran out of room. Ask for the rest.`)
+          );
+        }
+        save(end.usage, end.model);
+        controller.close();
+      }
+    });
+    return new Response(stream, {
+      status: 200,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }
+    });
+  };
+}
+
+// packages/player/src/bridge/preview-trials.ts
+init_define_WORDPLAY_ENGINE();
+import { randomUUID as randomUUID5 } from "node:crypto";
+
+// packages/player/src/lib/simulated-page.ts
+init_define_WORDPLAY_ENGINE();
+function hidden(element) {
+  for (let at = element; at; at = at.parentElement)
+    if (hiddenFromReader(at)) return true;
+  return false;
+}
+function controlNamed(document2, name) {
+  const key2 = matchKey(name);
+  for (const element of Array.from(document2.body.querySelectorAll("*"))) {
+    const role = roleOf(element);
+    if (!role || !CONTROL_ROLES.has(role) || hidden(element)) continue;
+    if (matchKey(nameOf(element)) === key2) return element;
+  }
+  return null;
+}
+function operate(document2, { name, value }) {
+  const control = controlNamed(document2, name);
+  if (!control) return `Nothing on the page is a control named "${name}".`;
+  if (control.hasAttribute("disabled") || control.getAttribute("aria-disabled") === "true")
+    return `"${name}" is disabled.`;
+  const tag = control.tagName.toLowerCase();
+  const type = (control.getAttribute("type") ?? "").toLowerCase();
+  const checkable = tag === "input" && (type === "checkbox" || type === "radio");
+  if (value === void 0) {
+    if (checkable) {
+      toggleChecked(document2, control, !control.hasAttribute("checked"));
+      return null;
+    }
+    const pressed = control.getAttribute("aria-pressed");
+    if (pressed === "true" || pressed === "false")
+      control.setAttribute("aria-pressed", pressed === "true" ? "false" : "true");
+    const expanded = control.getAttribute("aria-expanded");
+    if (expanded === "true" || expanded === "false")
+      control.setAttribute("aria-expanded", expanded === "true" ? "false" : "true");
+    return null;
+  }
+  if (tag === "select") {
+    const options = Array.from(control.querySelectorAll("option"));
+    const option = options.find(
+      (one) => matchKey(one.textContent ?? "") === matchKey(value) || matchKey(one.getAttribute("value") ?? "") === matchKey(value)
+    );
+    if (!option) return `"${name}" has no choice "${value}".`;
+    for (const one of options) one.removeAttribute("selected");
+    option.setAttribute("selected", "");
+    return null;
+  }
+  if (checkable) {
+    toggleChecked(document2, control, !/^(false|no|off|unchecked)$/i.test(value.trim()));
+    return null;
+  }
+  if (tag === "textarea") {
+    control.textContent = value;
+    return null;
+  }
+  if (tag === "input") {
+    control.setAttribute("value", value);
+    return null;
+  }
+  return `"${name}" is a ${roleOf(control)}, which takes no value.`;
+}
+function toggleChecked(document2, control, want) {
+  if (want && control.getAttribute("type")?.toLowerCase() === "radio") {
+    const group = control.getAttribute("name");
+    if (group) {
+      for (const other of Array.from(document2.querySelectorAll(`input[type="radio"]`)))
+        if (other.getAttribute("name") === group) other.removeAttribute("checked");
+    }
+  }
+  if (want) control.setAttribute("checked", "");
+  else control.removeAttribute("checked");
+}
+function simulatedTree(source, held, operations) {
+  const document2 = studentDocument(source, held);
+  let refused = null;
+  for (const operation of operations) refused = operate(document2, operation);
+  return { tree: documentTree(document2.body), refused };
+}
+function simulatedView(source, held, operations) {
+  const wordplay = parseWordplay(source);
+  const title = titleOf(wordplay);
+  const tree = treeText(simulatedTree(source, held, operations).tree).join("\n");
+  return `${title ? `# ${title}
+
+` : ""}${tree}
+
+---
+${isDone(wordplay, held) ? "The wordplay is complete." : "The wordplay is not complete yet."}`;
+}
+
+// packages/player/src/bridge/preview-trials.ts
+function startTrial(s, student, choice, on = currentOf(s)) {
+  const read = on ? files(s, on) : null;
+  if (!read || !on) {
+    throw new Error(
+      on ? `There is no ${on.stem}.wplay in ${on.dir}.` : "No lesson is open: give start_trial the lesson's path."
+    );
+  }
+  const id = `sim-${randomUUID5().slice(0, 8)}`;
+  const choices = choicesOf(s);
+  if (choice?.model && !choices?.models.some((one) => one.id === choice.model)) {
+    throw new Error(
+      choices ? `The preview does not offer ${choice.model}: name one of ${choices.models.map((one) => one.id).join(", ")}.` : `On this key the tutor runs ${settingsOf(s).model} only.`
+    );
+  }
+  const settings = withChoice(settingsOf(s), choices, choice);
+  const held = [];
+  s.trialPlays.set(id, on);
+  writeTrial(on.dir, on.stem, {
+    id,
+    session: randomUUID5(),
+    lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    turns: [],
+    held,
+    reader: student.trim().slice(0, 300),
+    operations: [],
+    acts: [],
+    tutor: { model: settings.model, effort: settings.effort }
+  });
+  return {
+    id,
+    page: simulatedView(read.source, held, []),
+    tutor: tutorName(settings.model, settings.effort),
+    stem: on.stem
+  };
+}
+async function say(s, id, said2) {
+  const { play, source, trial } = simulated(s, id);
+  if (trial.turns.length >= MAX_TURNS) {
+    throw new Error(`Trial ${id} has had its ${MAX_TURNS} turns; start another.`);
+  }
+  const wordplay = parseWordplay(source);
+  const operations = trial.operations ?? [];
+  const messages = [
+    ...trial.turns,
+    { role: "user", content: said2.slice(0, MAX_MESSAGE) }
+  ];
+  const { reply, save } = turnOf(
+    s,
+    play,
+    source,
+    id,
+    messages,
+    {
+      held: trial.held,
+      tree: simulatedTree(source, trial.held, operations).tree,
+      announced: []
+    },
+    trial.tutor
+  );
+  let answer = "";
+  for await (const piece of reply.text) answer += piece;
+  const end = await reply.end;
+  save(end.usage, end.model);
+  const read = readMarkers(answer);
+  const done = [];
+  const performed = [];
+  let now = operations;
+  for (const action of read.actions) {
+    const tried = [...now, action];
+    const refused = simulatedTree(
+      source,
+      heldAfterReply(wordplay, trial.held, answer),
+      tried
+    ).refused;
+    if (refused) done.push(`The tutor could not operate the page: ${refused}`);
+    else {
+      now = tried;
+      performed.push(action);
+      done.push(`The tutor ${actionWords(action)}.`);
+    }
+  }
+  const held = heldAfterReply(wordplay, trial.held, answer);
+  const kept = readTrial(play.dir, play.stem, id) ?? trial;
+  const turns = answer.trim() ? [...messages, { role: "assistant", content: answer }] : messages;
+  writeTrial(play.dir, play.stem, {
+    ...kept,
+    lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    turns,
+    ...keptReply(
+      wordplay,
+      { held: kept.held, skipped: kept.skipped ?? [], events: kept.events ?? [] },
+      answer,
+      turns,
+      performed
+    ),
+    operations: now
+  });
+  const changes = [...done, ...changesBetween(wordplay, trial.held, held)];
+  return {
+    reply: read.text.trim(),
+    changes,
+    page: changes.length ? simulatedView(source, held, now) : null,
+    stopped: end.error ?? (end.stop === "max_tokens" ? "The answer ran out of room." : null)
+  };
+}
+function act(s, id, name, value) {
+  const { play, source, trial } = simulated(s, id);
+  const wordplay = parseWordplay(source);
+  const action = value === void 0 ? { name } : { name, value };
+  const operations = [...trial.operations ?? [], action];
+  const { refused } = simulatedTree(source, trial.held, operations);
+  if (refused) throw new Error(refused);
+  const held = trial.held;
+  const line = `The student ${actionWords(action)}`;
+  writeTrial(play.dir, play.stem, {
+    ...trial,
+    lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    held,
+    operations,
+    acts: [
+      ...trial.acts ?? [],
+      { after: trial.turns.filter((turn) => turn.role === "assistant").length, text: line }
+    ]
+  });
+  return {
+    line,
+    changes: changesBetween(wordplay, trial.held, held),
+    page: simulatedView(source, held, operations)
+  };
+}
+function simulated(s, id) {
+  const play = s.trialPlays.get(id) ?? currentOf(s);
+  const read = play ? files(s, play) : null;
+  if (!read || !play) {
+    throw new Error("No wordplay is open: open one with preview_wordplay, or give its path.");
+  }
+  const trial = readTrial(play.dir, play.stem, id);
+  if (!trial)
+    throw new Error(`There is no trial ${id} for ${play.stem}: start one with start_trial.`);
+  return { play, source: read.source, trial: { ...trial, held: trial.held ?? [] } };
+}
+
+// packages/player/src/bridge/preview-report.ts
+init_define_WORDPLAY_ENGINE();
+function reportOf(s, id, on) {
+  const play = on ?? (id ? s.trialPlays.get(id) : void 0) ?? currentOf(s);
+  const read = play ? files(s, play) : null;
+  if (!read || !play) {
+    throw new Error("No wordplay is open: open one with preview_wordplay, or give its path.");
+  }
+  const trial = id ? readTrial(play.dir, play.stem, id) : trials(s, play)[0];
+  if (!trial) throw new Error(id ? `There is no trial ${id} for ${play.stem}.` : "No trials yet.");
+  const report = trialReport(read.source, trial.turns, trial.acts ?? []);
+  const wordplay = parseWordplay(read.source);
+  const complete = report.completedAt !== null ? `the wordplay was complete after exchange ${report.completedAt}.` : wordplay.steps.length && isDone(wordplay, trial.held ?? []) ? "the wordplay was completed on the page, by its scripts or Skip." : "the wordplay did not complete.";
+  return [
+    `## Trial ${trial.id}${trial.reader ? `: ${trial.reader}` : ""}`,
+    "",
+    `${report.exchanges} ${report.exchanges === 1 ? "exchange" : "exchanges"}; ${complete}`,
+    "",
+    "What happened:",
+    ...report.timeline.length ? report.timeline.map((line) => `- ${line}`) : ["- Nothing changed on the page."],
+    "",
+    "Flagged:",
+    ...report.flags.length ? report.flags.map((line) => `- ${line}`) : ["- Nothing."],
+    ...spent(trial)
+  ].join("\n");
+}
+
+// packages/player/src/bridge/preview.ts
+var Preview = class {
+  constructor(options) {
+    this.s = previewState(options);
+  }
+  /** Point the preview at a play: its `.wplay` file, its stem, or a folder with one. */
+  open(path2) {
+    return open3(this.s, path2);
+  }
+  /** The student's page before anything has held, and what is wrong with the file. */
+  lesson() {
+    return lessonOf(this.s);
+  }
+  /** The tutor's settings: the author's, else the site's tutor, else the defaults. */
+  settings() {
+    return settingsOf(this.s);
+  }
+  /** The creator's assistant's settings: the author's, else the site's builder, else Opus. */
+  builderSettings() {
+    return builderSettingsOf(this.s);
+  }
+  /** The trials of a play, newest first: the creator's when none is named. */
+  trials(play) {
+    return trials(this.s, play);
+  }
+  /**
+   * **What this preview is, for whatever asks**: its build, the site it
+   * writes to, its address once it listens, and the play it shows. Nothing
+   * from the files: a page asking this may be anyone's.
+   */
+  about() {
+    return about(this.s);
+  }
+  /** The play the preview shows now, if any. */
+  current() {
+    return currentOf(this.s);
+  }
+  close() {
+    return close2(this.s);
+  }
+  /**
+   * **A simulated student's trial** (`/wordplay:trial`): the same turns as
+   * the page's, driven by a subagent through the plugin's tools instead of
+   * by a person. It is shown the page as a screen reader reads it, never the
+   * context, and works its controls by name (`simulated-page.ts`); every
+   * trial is a file like the teacher's own, which `trial_report` reads.
+   */
+  startTrial(student, choice, on) {
+    return startTrial(this.s, student, choice, on);
+  }
+  /**
+   * The student's message in a simulated trial, and the tutor's reply as the
+   * page shows it, with what changed: the tutor's `SHOW`s given, its `DO`s
+   * done on the page.
+   */
+  say(id, said2) {
+    return say(this.s, id, said2);
+  }
+  /**
+   * **A simulated student's act on the page** (`do_on_page`): a control by
+   * its accessible name, pressed, or given a value, on the page's markup
+   * (`simulated-page.ts`). The page's scripts do not run here, so nothing is
+   * given by it: the tutor reads the page with the next message, and judges
+   * what is waiting from it.
+   */
+  act(id, name, value) {
+    return act(this.s, id, name, value);
+  }
+  /**
+   * What `trial_report` prints for one trial: the newest when none is named.
+   * Of the play named, else the one the trial ran on, else the creator's.
+   */
+  report(id, on) {
+    return reportOf(this.s, id, on);
+  }
+};
 
 // packages/player/src/bridge/main.ts
-process.env.PROMPTS_DIR ??= join8(dirname3(fileURLToPath(import.meta.url)), "prompts");
+process.env.PROMPTS_DIR ??= join10(dirname5(fileURLToPath(import.meta.url)), "prompts");
 var site = (process.env.WORDPLAY_URL || "https://wordplaylabs.com").replace(/\/$/, "");
 var preview = new Preview({
   site,
   token: process.env.WORDPLAY_TOKEN || "",
   port: Number(process.env.WORDPLAY_PORT) || 4747,
   // The player the page is, bundled beside this server in the plugin.
-  player: join8(dirname3(fileURLToPath(import.meta.url)), "..", "player"),
+  player: join10(dirname5(fileURLToPath(import.meta.url)), "..", "player"),
   // Any play under the folder Claude Code started it in opens by its path at /play/<path>.
   root: process.cwd()
 });
@@ -70106,9 +70078,9 @@ var server = new McpServer({
   websiteUrl: site,
   icons: [{ src: `${site}/icon-512.png`, mimeType: "image/png", sizes: ["512x512"] }]
 });
-var say = (text3) => ({ content: [{ type: "text", text: text3 }] });
+var say2 = (text3) => ({ content: [{ type: "text", text: text3 }] });
 var failed = (error62) => ({
-  ...say(error62 instanceof Error ? error62.message : String(error62)),
+  ...say2(error62 instanceof Error ? error62.message : String(error62)),
   isError: true
 });
 var READS = {
@@ -70144,7 +70116,7 @@ server.registerTool(
       const opened = await preview.open(path2);
       const problems = opened.lesson.problems;
       const shown = browserOpened || (browserOpened = openInBrowser(opened.url));
-      return say(
+      return say2(
         [
           shown ? `The creator is open in the author's browser at ${opened.url}, on ${opened.stem}; ${opened.lesson.tutor}. If they do not see it, give them that address.` : `Open ${opened.url} to try ${opened.stem} as a learner; ${opened.lesson.tutor}. No browser was opened here: give the author that address.`,
           // In the desktop app's Code tab you can look at the page and use it yourself.
@@ -70173,19 +70145,19 @@ server.registerTool(
     annotations: READS
   },
   async ({ path: path2, take }) => {
-    let trials;
+    let trials2;
     try {
-      trials = preview.trials(path2 ? findPlay(path2) : void 0).slice(0, take ?? 3);
+      trials2 = preview.trials(path2 ? findPlay(path2) : void 0).slice(0, take ?? 3);
     } catch (error62) {
       return failed(error62);
     }
-    if (trials.length === 0) {
-      return say(
+    if (trials2.length === 0) {
+      return say2(
         "No trials yet. Open the preview with preview_wordplay and talk to the tutor there, or start one with start_trial."
       );
     }
-    return say(
-      trials.map(
+    return say2(
+      trials2.map(
         (trial) => [
           `## Trial ${trial.id} (last turn ${trial.lastAskedAt})`,
           "",
@@ -70225,7 +70197,7 @@ server.registerTool(
         { model, effort },
         path2 ? findPlay(path2) : void 0
       );
-      return say(
+      return say2(
         [
           `Trial ${trial.id} has begun on ${trial.stem}; the tutor is ${trial.tutor}.`,
           "You are the student. This is the page as your screen reader reads it:",
@@ -70254,7 +70226,7 @@ server.registerTool(
   async ({ trial, message }) => {
     try {
       const turn = await preview.say(trial, message);
-      return say(
+      return say2(
         [
           `Tutor: ${turn.reply}`,
           turn.stopped ? `(The tutor stopped: ${turn.stopped})` : "",
@@ -70285,7 +70257,7 @@ server.registerTool(
   async ({ trial, control, value }) => {
     try {
       const done = preview.act(trial, control, value);
-      return say(
+      return say2(
         [`${done.line}.`, ...done.changes, `
 The page now reads:
 
@@ -70311,7 +70283,7 @@ server.registerTool(
   },
   async ({ trial, path: path2 }) => {
     try {
-      return say(preview.report(trial, path2 ? findPlay(path2) : void 0));
+      return say2(preview.report(trial, path2 ? findPlay(path2) : void 0));
     } catch (error62) {
       return failed(error62);
     }
@@ -70325,10 +70297,10 @@ server.registerTool(
     annotations: READS
   },
   async () => {
-    const about = preview.about();
+    const about2 = preview.about();
     return {
-      content: [{ type: "text", text: JSON.stringify(about) }],
-      structuredContent: about
+      content: [{ type: "text", text: JSON.stringify(about2) }],
+      structuredContent: about2
     };
   }
 );
