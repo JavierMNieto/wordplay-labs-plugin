@@ -39035,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "d63d467f1d37";
+var PREVIEW_BUILD = false ? "source" : "9f83c50b507a";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39414,7 +39414,7 @@ init_define_WORDPLAY_ENGINE();
 var KEY_KINDS = ["number", "constant", "unit", "function"];
 var isKeyElement = (element) => element.tagName.toLowerCase() === "data" && element.hasAttribute("data-key");
 function calculatorOf(element) {
-  const chat = element.closest("[data-chat]");
+  const chat = element.closest("[data-chat]:not(body)");
   if (chat) return chat.hasAttribute("data-calculator") ? chat : null;
   return element.closest("label")?.querySelector("input[data-calculator]") ?? null;
 }
@@ -39580,6 +39580,24 @@ function refusalOfShared(block, value) {
     }
   }
   return null;
+}
+
+// packages/format/src/openings.ts
+init_define_WORDPLAY_ENGINE();
+var squash = (text3) => text3.replace(/\s+/g, " ").trim();
+function chatBeside(wordplay) {
+  return wordplay.body?.getAttribute("data-chat")?.trim().toLowerCase() !== "false";
+}
+function openingOf(wordplay) {
+  return squash(wordplay.body?.getAttribute("data-opening") ?? "") || null;
+}
+function chatOpenings(wordplay) {
+  const lines = {};
+  for (const chat of wordplay.chats) {
+    const line = squash(chat.element.getAttribute("data-opening") ?? "");
+    if (line && !(chat.name in lines)) lines[chat.name] = line;
+  }
+  return lines;
 }
 
 // packages/format/src/tree.ts
@@ -51427,10 +51445,10 @@ function hiddenFromReader(element) {
   return element.getAttribute("aria-hidden") === "true" || element.hasAttribute("hidden") || SKIPPED.has(element.tagName.toLowerCase());
 }
 function chatName(element) {
-  const label = squash(element.getAttribute("aria-label") ?? "").trim();
+  const label = squash2(element.getAttribute("aria-label") ?? "").trim();
   if (label) return label;
   const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-  return squash(heading?.textContent ?? "").trim() || "Chat";
+  return squash2(heading?.textContent ?? "").trim() || "Chat";
 }
 function isLive(element) {
   const live = element.getAttribute("aria-live");
@@ -51477,10 +51495,10 @@ function valueOf(element, role) {
   if (tag === "progress" || tag === "meter") return element.getAttribute("value") ?? void 0;
   return void 0;
 }
-var squash = (text3) => text3.replace(/\s+/g, " ");
+var squash2 = (text3) => text3.replace(/\s+/g, " ");
 var matchKey = (text3) => text3.toLowerCase().replace(/\s+/g, "");
 function nameOf(element) {
-  return squash(
+  return squash2(
     computeAccessibleName(element, {
       getComputedStyle: (one) => styleOf(one)
     })
@@ -51493,7 +51511,7 @@ function childrenOf(element, options) {
   const out = [];
   for (const child of Array.from(element.childNodes)) {
     if (child.nodeType === 3) {
-      const text3 = squash(child.textContent ?? "");
+      const text3 = squash2(child.textContent ?? "");
       if (text3.trim()) out.push({ role: "text", name: text3 });
       else if (text3) out.push({ role: "text", name: " " });
       continue;
@@ -51518,7 +51536,7 @@ function nodesOf(element, options) {
   const role = roleOf(element);
   if (element.hasAttribute("data-met") && (!role || role === "generic")) {
     const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-    const name2 = squash(element.getAttribute("aria-label") ?? "").trim() || squash(heading?.textContent ?? "").trim() || (element.getAttribute("data-met") ?? "");
+    const name2 = squash2(element.getAttribute("aria-label") ?? "").trim() || squash2(heading?.textContent ?? "").trim() || (element.getAttribute("data-met") ?? "");
     return [{ role: "group", name: name2, ...withChildren(childrenOf(element, options)) }];
   }
   const live = isLive(element);
@@ -51559,7 +51577,7 @@ function tidy(nodes) {
   const out = [];
   for (const node2 of nodes) {
     const last = out[out.length - 1];
-    if (node2.role === "text" && last?.role === "text") last.name = squash(last.name + node2.name);
+    if (node2.role === "text" && last?.role === "text") last.name = squash2(last.name + node2.name);
     else out.push(node2.role === "text" ? { ...node2 } : node2);
   }
   return out.map((node2) => node2.role === "text" ? { role: "text", name: node2.name.trim() } : node2).filter((node2) => node2.role !== "text" || node2.name);
@@ -51625,12 +51643,12 @@ function conditionOf(element) {
   const expect = element.getAttribute("data-expect");
   return expect === null ? null : expect.trim();
 }
-var squash2 = (text3) => text3.replace(/\s+/g, " ").trim();
+var squash3 = (text3) => text3.replace(/\s+/g, " ").trim();
 function nameOfElement(element, fallback) {
-  const label = squash2(element.getAttribute("aria-label") ?? "");
+  const label = squash3(element.getAttribute("aria-label") ?? "");
   if (label) return label;
   const heading = element.querySelector("h1, h2, h3, h4, h5, h6");
-  const text3 = squash2(heading?.textContent ?? "");
+  const text3 = squash3(heading?.textContent ?? "");
   return text3 || fallback;
 }
 function parseWordplay(source) {
@@ -51656,7 +51674,7 @@ function parseWordplay(source) {
           parent: holder,
           children: [],
           key: KEY_KINDS.includes(kind) ? kind : null,
-          label: squash2(child.textContent ?? ""),
+          label: squash3(child.textContent ?? ""),
           value: (child.getAttribute("value") ?? "").trim(),
           condition: conditionOf(child),
           calculator: calculatorOf(child)
@@ -51740,7 +51758,7 @@ function parseWordplay(source) {
   return wordplay;
 }
 function titleOf(wordplay) {
-  return squash2(wordplay.document.querySelector("title")?.textContent ?? "");
+  return squash3(wordplay.document.querySelector("title")?.textContent ?? "");
 }
 function givenParts(wordplay, held) {
   const holds = new Set(held);
@@ -51806,7 +51824,7 @@ function contextText(element) {
   const paragraphs = [];
   let line = "";
   const end = () => {
-    const text3 = squash2(line);
+    const text3 = squash3(line);
     if (text3) paragraphs.push(text3);
     line = "";
   };
@@ -51909,7 +51927,7 @@ function readableProblems(wordplay) {
         `data-skip goes on a step, a <section> with a condition, not on this ${describe3(element)}.`
       );
     const calculator = element.hasAttribute("data-calculator");
-    const chat = element.hasAttribute("data-chat");
+    const chat = element !== body2 && element.hasAttribute("data-chat");
     if (calculator && !chat && element.tagName.toLowerCase() !== "input")
       problems.push(`data-calculator goes on an <input> or a chat, not on a ${describe3(element)}.`);
     if (chat && element.closest("[data-context]"))
@@ -51924,6 +51942,9 @@ function readableProblems(wordplay) {
     else if (key2 !== null && !KEY_KINDS.includes(key2.trim().toLowerCase()))
       problems.push(`data-key is ${KEY_KINDS.join(", ")}, not "${key2}".`);
   }
+  const beside = body2?.getAttribute("data-chat");
+  if (beside != null && beside.trim().toLowerCase() !== "false")
+    problems.push(`data-chat on the <body> is "false" or left out, not "${beside}".`);
   if (body2?.hasAttribute("data-context"))
     problems.push("The <body> cannot be context: it is what the student sees.");
   if (body2 && hasCondition(body2))
@@ -52009,6 +52030,16 @@ function readableProblems(wordplay) {
         `An opening line is ${line.length} characters; it may be ${MAX_OPENING}, a sentence or two.`
       );
   }
+  if (!chatBeside(wordplay)) {
+    if (body2?.hasAttribute("data-opening"))
+      problems.push(
+        "This wordplay has no chat beside the page, so the opening line on its <body> is never shown. Put it on a chat in the page (data-opening on the data-chat element), or take it off."
+      );
+    if (!wordplay.chats.length && wordplay.parts.some((part) => part.condition !== null))
+      problems.push(
+        "This wordplay has no chat anywhere, so the tutor hears nothing: a condition holds only when a script says so (document.wordplay.met) or the step is skipped. Draw a chat in the page (data-chat), or take the attribute off the <body>."
+      );
+  }
   for (const step of wordplay.steps)
     if (!nameOfElement(step.element, ""))
       problems.push(
@@ -52091,21 +52122,6 @@ function localRunFacts(turns, events) {
     messages: turns.filter((turn) => turn.role === "user").length,
     seconds: activeSeconds(events.map((event) => event.at))
   };
-}
-
-// packages/format/src/openings.ts
-init_define_WORDPLAY_ENGINE();
-var squash3 = (text3) => text3.replace(/\s+/g, " ").trim();
-function openingOf(wordplay) {
-  return squash3(wordplay.body?.getAttribute("data-opening") ?? "") || null;
-}
-function chatOpenings(wordplay) {
-  const lines = {};
-  for (const chat of wordplay.chats) {
-    const line = squash3(chat.element.getAttribute("data-opening") ?? "");
-    if (line && !(chat.name in lines)) lines[chat.name] = line;
-  }
-  return lines;
 }
 
 // packages/player/src/lib/frame-document.ts
@@ -66614,16 +66630,18 @@ var katex = {
 init_define_WORDPLAY_ENGINE();
 var ATTRIBUTES = [
   ["[src]", "src"],
-  ["a[href], link[href], area[href]", "href"],
+  ["a[href], area[href]", "href", true],
+  ["link[href]", "href"],
   ["[poster]", "poster"],
   ["object[data]", "data"]
 ];
 var CSS_URL = /url\(\s*(['"]?)([^'")]*)\1\s*\)/gi;
 var isRelative = (url2) => url2.trim() !== "" && !/^([a-z][a-z0-9+.-]*:|\/\/|#|\?)/i.test(url2.trim());
-var referenceOf = (url2) => ({
+var referenceOf = (url2, link) => ({
   url: url2,
   relative: isRelative(url2),
-  data: /^data:/i.test(url2.trim())
+  data: /^data:/i.test(url2.trim()),
+  link
 });
 function srcsetOf(value) {
   return value.split(/,\s+/).map((one) => one.trim()).filter(Boolean).map((one) => {
@@ -66633,8 +66651,8 @@ function srcsetOf(value) {
 }
 function rewriteReferences(document2, change) {
   let changed = false;
-  const swap = (url2) => {
-    const next = change(url2);
+  const swap = (url2, link = false) => {
+    const next = change(url2, link);
     if (next !== url2) changed = true;
     return next;
   };
@@ -66642,10 +66660,10 @@ function rewriteReferences(document2, change) {
     const next = swap(url2);
     return next === url2 ? whole : `url(${quote}${next}${quote})`;
   });
-  for (const [selector, attribute2] of ATTRIBUTES)
+  for (const [selector, attribute2, link] of ATTRIBUTES)
     for (const element of Array.from(document2.querySelectorAll(selector))) {
       const value = element.getAttribute(attribute2) ?? "";
-      const next = swap(value);
+      const next = swap(value, link);
       if (next !== value) element.setAttribute(attribute2, next);
     }
   for (const element of Array.from(document2.querySelectorAll("[srcset]"))) {
@@ -66671,8 +66689,10 @@ function rewriteReferences(document2, change) {
 }
 function referencesIn(document2) {
   const found = /* @__PURE__ */ new Map();
-  rewriteReferences(document2, (url2) => {
-    if (!found.has(url2)) found.set(url2, referenceOf(url2));
+  rewriteReferences(document2, (url2, link) => {
+    const seen = found.get(url2);
+    if (!seen) found.set(url2, referenceOf(url2, link));
+    else if (seen.link && !link) found.set(url2, { ...seen, link: false });
     return url2;
   });
   return [...found.values()];
@@ -66962,6 +66982,7 @@ function localLesson(source, held, meta4, events = [], turns = []) {
     progress: progressOf(wordplay, held),
     events: shownEvents(wordplay, events, localRunFacts(turns, events)),
     openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
+    chat: chatBeside(wordplay),
     problems: [
       .../* @__PURE__ */ new Set([
         ...meta4.problems,

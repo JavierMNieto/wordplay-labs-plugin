@@ -279,7 +279,10 @@ How to write it:
      beside what a student would want to talk through, with context inside
      it for that conversation alone. Its first line, a question that starts
      the conversation where the page cannot, is `data-opening` on it; the
-     tutor's own chat's is on the body.
+     tutor's own chat's is on the body. A wordplay whose questions are all
+     asked in chats on the page, or that asks none, says `data-chat="false"`
+     on its `<body>`: no chat beside it; an opening line then goes on a chat
+     in the page, not the body.
    - **Words the tutor says on the page**, a character's line, a caption, a
      verdict, go in an `<output>` the tutor writes (`data-tutor`), named for
      who or what it is. Characters talking with the student are a chat the
@@ -333,7 +336,9 @@ How to write it:
    are the steps**; a hint or a figure is a reveal and counts for nothing.
    Name each step by what it is, never by what it gives away; one the
    student must earn has no Skip. A long wordplay is in pages of a screen
-   or two each; a short one is one page.
+   or two each; a short one is one page. A link to another wordplay on
+   the site is its name, `<a href="sodium-2">`; the reader goes there and
+   has the way back. Outside links open in a new tab.
 {{!-- Rule 9: push the teacher with a recommendation, one spot that could
       be better at a time. --}}
 9. **Say where it could be better, and offer the fix.** The wordplay is the

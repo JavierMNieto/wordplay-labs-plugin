@@ -262,6 +262,11 @@ ignore, and the file loses nothing:
 - Each `<section>` directly in the body without a condition is drawn as a
   page, with the pages along the foot; one with a condition is a step,
   drawn where it is.
+- A link to an id on another page turns to that page. A link to anything
+  else opens it: another wordplay on the site in place of this one, with
+  the way back over its title; anything off the site in a new tab. A
+  wordplay is linked by its name, `<a href="sodium-2">`, which resolves
+  beside this one.
 - Progress as a thin bar over the page that only shows it, and on the card
   of a wordplay started; Skip at each waiting step, where it will appear.
 - The tutor's chat beside the page, and chats in the page (`data-chat`),
@@ -269,7 +274,8 @@ ignore, and the file loses nothing:
   conversation with the tutor's, shown in it as a thread: the tutor reads
   every message in order, knowing where it was said, and answers there.
   A chat holding an output the tutor writes is drawn by the teacher:
-  Wordplay draws no box in it.
+  Wordplay draws no box in it. A wordplay with no chat beside the page
+  says so on its body (`data-chat="false"`), and keeps the chats in it.
 - Mathematics: `$…$` in text is a formula and `$$…$$` one on its own line,
   drawn with KaTeX, except inside `code`, `pre`, `script`, `style` and
   fields. The tutor reads the source as written.
@@ -286,7 +292,7 @@ Its attributes:
 
 | Attribute | On any element, means |
 |---|---|
-| `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
+| `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. On the `<body>`, `data-chat="false"`: no chat beside the page. The tutor still answers the chats in the page and writes where the teacher marked; what was said beside the page is said nowhere. |
 | `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-skip="false"` | On a step: no Skip for it. |
@@ -364,7 +370,10 @@ output the tutor writes unnamed, named as another, named with a colon or
 inside context, `data-tutor` on anything but an `<output>`, an
 attribute nearly one of these or no longer read, `document.tutor`, the
 object's old name, in a script, `data-opening` on anything but the body or
-a chat or over {{maxOpening}} characters, and a shared block it cannot read. It
+a chat or over {{maxOpening}} characters, `data-chat` on the body with any
+value but "false", an opening line on the body of a wordplay with no chat
+beside the page, a condition in a wordplay with no chat anywhere, and a
+shared block it cannot read. It
 refuses to publish an unknown `data-wordplay` version, a file over the
 limit, an id used twice, a shared block it cannot read, and a control the
 tutor cannot see: one with no accessible name, on a page where nothing is
