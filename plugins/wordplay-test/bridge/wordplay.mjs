@@ -39035,7 +39035,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "2c14509b6567";
+var PREVIEW_BUILD = false ? "source" : "e46ba6155bf9";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -66745,6 +66745,10 @@ var katex = {
   __domTree
 };
 
+// packages/ui/src/lib/math-text.ts
+init_define_WORDPLAY_ENGINE();
+var INLINE_MATH = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?![ \t\r\n])((?:\\.|[^$\\\n])+?)(?<![ \t\r\n])\$(?!\d)/g;
+
 // packages/format/src/references.ts
 init_define_WORDPLAY_ENGINE();
 var ATTRIBUTES = [
@@ -66889,7 +66893,6 @@ function partHtml(source, ids, held) {
 
 // packages/player/src/lib/frame-document.ts
 var NOT_MATH = /* @__PURE__ */ new Set(["script", "style", "code", "pre", "textarea", "template", "kbd", "samp"]);
-var MATH = /\$\$([\s\S]+?)\$\$|(?<![\\$])\$(?!\s)((?:\\\$|[^$\n])+?)(?<!\s)\$(?!\d)/g;
 function draw(tex, display) {
   try {
     return katex.renderToString(tex, { displayMode: display, throwOnError: false, output: "html" });
@@ -66912,12 +66915,12 @@ function drawMath(root) {
   visit2(root);
   for (const text3 of texts) {
     const source = text3.textContent ?? "";
-    MATH.lastIndex = 0;
-    if (!MATH.test(source)) continue;
-    MATH.lastIndex = 0;
+    INLINE_MATH.lastIndex = 0;
+    if (!INLINE_MATH.test(source)) continue;
+    INLINE_MATH.lastIndex = 0;
     let html = "";
     let at = 0;
-    for (const found of source.matchAll(MATH)) {
+    for (const found of source.matchAll(INLINE_MATH)) {
       html += escape6(source.slice(at, found.index));
       const tex = found[1] ?? found[2];
       const drawn = draw(tex, found[1] !== void 0);
