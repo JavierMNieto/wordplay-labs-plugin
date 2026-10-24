@@ -120,7 +120,7 @@ these members:
 |---|---|---|
 | `met(id)` | That element's condition holds: the host gives it, as if the tutor had said so. An id not waiting is ignored. | |
 | `tell(text)` | The text reaches the tutor at its next turn. A live region is read out to the student too; this is not. | {{maxAnnouncement}} characters |
-| `say(text, chat?)` | A message from the student, as if typed, in the chat named or the tutor's own: the tutor answers it now, and is told it came from the page. `tell` waits for the next message; `say` is one. | {{maxSaid}} characters, {{maxPageSays}} a minute |
+| `say(text, chat?)` | A message from the student, as if typed, in the chat named or the tutor's own: the tutor answers it now, and is told it came from the page. Returns a promise of the reply as the student reads it, once it ends; refused, it rejects with why. `tell` waits for the next message; `say` is one. | {{maxSaid}} characters, {{maxPageSays}} a minute |
 | `keep(value)` | Keeps one JSON value, the page's own state, with the conversation; each call replaces the last. A larger value is dropped, with a warning in the console. | {{maxKept}} bytes |
 | `kept` | The value last kept in this conversation, or `undefined`; there before the first script runs. | |
 
@@ -177,7 +177,7 @@ Page 2 of *The game from Marienbad*:
 ```html
 <!doctype html>
 <html lang="en">
-<body data-wordplay="1">
+<body data-wordplay="1" data-chat data-progress data-skip>
 
 <div data-context>The game is Nim with one row. The computer plays perfectly.</div>
 
@@ -257,19 +257,27 @@ Two steps: the hint counts for nothing, and the second has no Skip.
 ## What Wordplay adds
 
 The above is the standard. Wordplay's site adds tooling that another host may
-ignore, and the file loses nothing:
+ignore, and the file loses nothing. Nothing of it is drawn unless the file
+asks: a wordplay with none of it is its HTML, in the site's reading column.
+What is drawn around the page is declared on the `<body>`, each a boolean
+attribute with no value, as `<video controls>` declares its player; what is
+drawn in the page is an element in it.
 
-- Each `<section>` directly in the body without a condition is drawn as a
-  page, with the pages along the foot; one with a condition is a step,
-  drawn where it is.
-- Progress as a thin bar over the page that only shows it, and on the card
-  of a wordplay started; Skip at each waiting step, where it will appear.
-- The tutor's chat beside the page, and chats in the page (`data-chat`),
-  so a question is asked where it arises. A chat in the page is one
-  conversation with the tutor's, shown in it as a thread: the tutor reads
-  every message in order, knowing where it was said, and answers there.
-  A chat holding an output the tutor writes is drawn by the teacher:
-  Wordplay draws no box in it.
+- The `<body>`'s declarations: `data-chat`, the tutor's chat beside the
+  page; `data-progress`, progress as a thin bar over the page that only
+  shows it; `data-pages`, each `<section>` directly in the body without a
+  condition drawn as a page, with the pages along the foot; `data-skip`,
+  Skip at each waiting step, where it will appear.
+- With `data-pages`, a link to an id on another page turns to that page. A
+  link to anything else opens it: another wordplay on the site in place of
+  this one, with the way back over its title; anything off the site in a
+  new tab. A wordplay is linked by its name, `<a href="sodium-2">`, which
+  resolves beside this one.
+- Chats in the page (`data-chat` on a `<div>`), so a question is asked
+  where it arises. A chat in the page is one conversation with the tutor's,
+  shown in it as a thread: the tutor reads every message in order, knowing
+  where it was said, and answers there. A chat holding an output the tutor
+  writes is drawn by the teacher: Wordplay draws no box in it.
 - Mathematics: `$…$` in text is a formula and `$$…$$` one on its own line,
   drawn with KaTeX, except inside `code`, `pre`, `script`, `style` and
   fields. The tutor reads the source as written.
@@ -286,10 +294,12 @@ Its attributes:
 
 | Attribute | On any element, means |
 |---|---|
-| `data-chat` | On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name. Context inside it is given with it, as any context is with its parent. |
+| `data-chat` | On the `<body>`: the tutor's chat beside the page. On a `<div>`: a chat with the tutor drawn in it, after what it holds, named by its accessible name; context inside it is given with it. The tutor answers in each chat and writes where the teacher marked; what has no chat to be said in is said nowhere. |
+| `data-progress` | On the `<body>`: progress drawn over the page. |
+| `data-pages` | On the `<body>`: the sections directly in it are pages, one shown at a time. |
+| `data-skip` | On the `<body>`: Skip at each waiting step. On a step, `data-skip="false"`: none for it, and the student must earn it. |
 | `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
-| `data-skip="false"` | On a step: no Skip for it. |
 | `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
 | `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
 
@@ -309,7 +319,7 @@ page's script writes, and every reader reads the whole wall:
 | Member | Does | At most |
 |---|---|---|
 | `share(value)` | This reader's entry, any JSON, replacing their last; `null` takes it away. A value the block below refuses is not sent, with a warning in the console. | {{maxShared}} bytes, {{maxShares}} a minute |
-| `shared` | The wall, `{ mine, entries, count }`: this reader's entry, every reader's newest first ({{sharedEntries}} unless the block says), and how many in all. An entry is `{ value, at, guest, by?, who?, facts? }`. There before the first script runs. | |
+| `shared` | The wall, `{ mine, entries, count, tally }`: this reader's entry, every reader's newest first ({{sharedEntries}} unless the block says), how many in all, and `tally`, for each field the block names: `{ [value]: n }` for a choice or boolean field, `{ n, sum }` for a number field, over every entry and not only those sent. An entry is `{ value, at, guest, by?, who?, facts? }`. There before the first script runs. | |
 | `person(who)` | The site's chip for an entry's `who`, or the anonymous one for `null`. | |
 
 **`wordplay:shared`** fires on the document when the wall changes. An
@@ -330,11 +340,12 @@ as JSON, every key optional:
 | `entries` | How many are sent, at most {{maxSharedEntries}} |
 | `facts` | Any of `"seconds"` (start to done), `"steps"` (the tutor gave), `"messages"`, `"skips"` |
 | `tutor` | `true`: the tutor may write a reader's entry as it judges it |
+| `tally` | The names of fields to total over every entry: for a `choice` or `boolean` field, how many entries hold each value; for a `number` field, how many and their sum. A `text` field cannot be tallied |
 
 The class's guesses, shown once the student has guessed:
 
 ```html
-<body data-wordplay="1">
+<body data-wordplay="1" data-chat>
   <script type="application/wordplay-shared">
     { "fields": { "guess": { "type": "number", "min": 0, "max": 100 } } }
   </script>
@@ -357,18 +368,35 @@ The class's guesses, shown once the student has guessed:
 </body>
 ```
 
+**Standing.** A wordplay reads where its reader stands on the wordplays it
+links to, and on itself:
+
+| Member | Does |
+|---|---|
+| `standing(name?)` | For a wordplay this file links to, by the name its link uses (`<a href="sodium-2">`), `{ title, completed, minutes, mine }`: its title; how many readers finished it, each once; its length in minutes as the site says it, `null` until measured; and `mine`, this reader's own, `null` until they start it, else `{ done, given, total }`. With no name, this wordplay's own. A name the file does not link to answers `null`. There before the first script runs, and not changed while the page is open. |
+
+A link to a wordplay is marked by the host as its reader stands on it:
+`data-started` while a conversation of theirs is under way, `data-done` once
+any of theirs finished it, so a page colors its links in CSS alone. A guest
+of a device has `mine` for this device's conversations. Another host answers
+zero counts and `null` for every name.
+
 **Checks.** Wordplay says what looks like a mistake: a step with no
-accessible name, `data-skip` off a step, an id used twice, a chat unnamed,
-named as another or for its box ("Chat about …"), a key outside a calculator or of an unknown kind, an
-output the tutor writes unnamed, named as another, named with a colon or
-inside context, `data-tutor` on anything but an `<output>`, an
-attribute nearly one of these or no longer read, `document.tutor`, the
-object's old name, in a script, `data-opening` on anything but the body or
-a chat or over {{maxOpening}} characters, and a shared block it cannot read. It
-refuses to publish an unknown `data-wordplay` version, a file over the
-limit, an id used twice, a shared block it cannot read, and a control the
-tutor cannot see: one with no accessible name, on a page where nothing is
-named or live.
+accessible name, an id used twice, a chat unnamed, named as another or for
+its box ("Chat about …"), a key outside a calculator or of an unknown kind,
+an output the tutor writes unnamed, named as another, named with a colon or
+inside context, `data-tutor` on anything but an `<output>`, an attribute
+nearly one of these or no longer read, `document.tutor`, the object's old
+name, in a script, `data-opening` on anything but the body or a chat or
+over {{maxOpening}} characters, a declaration on the body with a value or
+on anything but the body, `data-skip` on anything but the body or a step or
+with any value but "false" on a step, `data-skip="false"` in a wordplay
+that offers no Skip, an opening line on the body of a wordplay with no chat
+beside the page, a condition in a wordplay with no chat anywhere, and a
+shared block it cannot read. It refuses to publish an unknown
+`data-wordplay` version, a file over the limit, an id used twice, a shared
+block it cannot read, and a control the tutor cannot see: one with no
+accessible name, on a page where nothing is named or live.
 
 ## Limits
 

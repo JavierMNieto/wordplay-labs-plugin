@@ -13,8 +13,10 @@
 `````
 {{else}}
 Nothing is written yet. Your first reply writes the whole file in a
-`<file>` block: the document, `data-wordplay="1"` on its body, the title and
-the opening, and no context yet.
+`<file>` block: the document, `data-wordplay="1"` on its body with what
+Wordplay draws for it (`data-chat data-progress data-pages data-skip`, unless
+the wordplay needs one left out), the title and the opening, and no context
+yet.
 {{/if}}
 
 {{#if page}}

@@ -1,13 +1,13 @@
 {
   "name": "wordplay",
   "displayName": "Wordplay",
-  "version": "2026.1021.175609",
+  "version": "2026.1024.120123",
   "description": "Write wordplays from your own material as .wplay files in your folder, try them with the tutor and simulated students on your own Claude plan, and publish them on Wordplay when you say so.",
   "author": {
     "name": "Wordplay Labs",
     "url": "https://wordplaylabs.com"
   },
-  "homepage": "https://creator.wordplaylabs.com/claude",
+  "homepage": "https://creator.wordplaylabs.com/ai",
   "repository": "https://github.com/JavierMNieto/wordplay-labs-plugin",
   "license": "MIT",
   "keywords": [
@@ -18,7 +18,7 @@
     "wplay"
   ],
   "icon": "./logo.png",
-  "documentationUrl": "https://creator.wordplaylabs.com/claude",
+  "documentationUrl": "https://creator.wordplaylabs.com/ai",
   "supportUrl": "https://github.com/JavierMNieto/wordplay-labs-plugin/issues",
   "privacyPolicyUrl": "https://wordplaylabs.com/privacy"
 }

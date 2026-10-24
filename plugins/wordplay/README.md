@@ -30,7 +30,7 @@ It saves as you type; keep the terminal open while you work. No browser
 opened (over SSH, in a container)? It gives the address to open yourself.
 
 The full steps for each app, the Claude app and others included:
-https://creator.wordplaylabs.com/claude
+https://creator.wordplaylabs.com/ai
 
 ## What it adds
 
