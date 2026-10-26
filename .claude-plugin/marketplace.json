@@ -12,7 +12,7 @@
       "source": "./plugins/wordplay-test",
       "description": "Wordplay's plugin, writing to and previewing against the test site, test.wordplaylabs.com.",
       "homepage": "https://test.wordplaylabs.com",
-      "license": "MIT"
+      "license": "Apache-2.0"
     }
   ]
 }

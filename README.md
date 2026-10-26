@@ -11,4 +11,4 @@ claude plugin install wordplay-test@wordplay-test
 ```
 
 Published from Wordplay's own repository each time its test branch moves;
-changes made here are replaced. MIT licensed: see [LICENSE](LICENSE).
+changes made here are replaced. Apache-2.0 licensed: see [LICENSE](LICENSE).

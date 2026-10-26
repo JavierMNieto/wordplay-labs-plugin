@@ -18,6 +18,8 @@ data-expect and data-context, with document.wordplay for scripts and sections
 as the steps that count; and on 9 October with data-tutor, the one place
 the tutor writes, and document.wordplay.say. The decisions behind it, and its
 history, are in docs/wordplay-format.md.
+
+Licensed under Apache-2.0 with the rest of packages/ (packages/LICENSE).
 --}}
 # The `.wplay` format
 
