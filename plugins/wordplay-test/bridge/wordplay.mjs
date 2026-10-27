@@ -38482,13 +38482,35 @@ import { join } from "node:path";
 
 // packages/player/src/lib/ai.ts
 init_define_WORDPLAY_ENGINE();
+
+// packages/player/src/lib/own-models.ts
+init_define_WORDPLAY_ENGINE();
+var OWN_KEY_DEFAULTS = {
+  anthropic: "claude-sonnet-5-5",
+  openai: "gpt-6.1-sol"
+};
+
+// packages/player/src/lib/ai.ts
+function wirePicture(kind, picture2) {
+  if ("url" in picture2) {
+    return kind === "anthropic" ? { type: "image", source: { type: "url", url: picture2.url } } : { type: "image_url", image_url: { url: picture2.url } };
+  }
+  return kind === "anthropic" ? {
+    type: "image",
+    source: { type: "base64", media_type: picture2.mediaType, data: picture2.data }
+  } : { type: "image_url", image_url: { url: `data:${picture2.mediaType};base64,${picture2.data}` } };
+}
 function wireMessages(kind, messages) {
-  return messages.map(({ role, content, images }) => {
-    if (!images?.length) return { role, content };
-    const pictures = images.map(
-      (data) => kind === "anthropic" ? { type: "image", source: { type: "base64", media_type: "image/png", data } } : { type: "image_url", image_url: { url: `data:image/png;base64,${data}` } }
+  return messages.map(({ role, content, images, pictures: shown }) => {
+    if (!images?.length && !shown?.length) return { role, content };
+    const pictures = (images ?? []).map(
+      (data) => wirePicture(kind, { label: "", mediaType: "image/png", data })
     );
-    return { role, content: [...pictures, { type: "text", text: content }] };
+    const lesson = (shown ?? []).flatMap((picture2) => [
+      { type: "text", text: picture2.label },
+      wirePicture(kind, picture2)
+    ]);
+    return { role, content: [...lesson, ...pictures, { type: "text", text: content }] };
   });
 }
 var DEFAULT_BASE = {
@@ -38500,6 +38522,33 @@ function provider() {
 }
 function assistantModel() {
   return process.env.AI_ASSISTANT_MODEL || "";
+}
+function aiDumb() {
+  return process.env.AI_PROVIDER === "dumb";
+}
+var DUMB_REPLIES = [
+  "Interesting. Have you tried turning it off and on again?",
+  "I am only a stand-in tutor, but that sounds right to me. Or wrong. One of the two.",
+  "Hmm. What would a duck say about that?",
+  "Bold claim. Can you say it again, but louder?"
+];
+function dumbReply(messages) {
+  const said2 = messages.filter((one) => one.role === "user").at(-1)?.content ?? "";
+  const last = said2.trim().split("\n").at(-1)?.trim() ?? "";
+  const reply = DUMB_REPLIES[messages.length % DUMB_REPLIES.length];
+  return last ? `${reply} You said: "${last.slice(0, 200)}".` : reply;
+}
+function dumbStream(messages, signal) {
+  const encoder = new TextEncoder();
+  const words2 = dumbReply(messages).split(/(?<= )/);
+  let at = 0;
+  return new ReadableStream({
+    async pull(controller) {
+      if (signal?.aborted || at >= words2.length) return controller.close();
+      await new Promise((done) => setTimeout(done, 40));
+      controller.enqueue(encoder.encode(words2[at++]));
+    }
+  });
 }
 function aiModel(role = "assistant") {
   if (role === "tutor" && process.env.AI_TUTOR_MODEL) return process.env.AI_TUTOR_MODEL;
@@ -38516,6 +38565,7 @@ function aiModel(role = "assistant") {
 }
 var DEFAULT_STUDENT_MODEL = "claude-haiku-5-5";
 var DEFAULT_BUILDER_MODEL = "claude-opus-5-5";
+var OWN_KEY_MODELS = OWN_KEY_DEFAULTS;
 var ROLE_EFFORT = {
   builder: "medium",
   tutor: "low",
@@ -38581,10 +38631,12 @@ function explainAiFailure(error62) {
   }
 }
 async function askAi(options) {
-  const key2 = process.env.AI_API_KEY;
-  const model = options.model?.trim() || aiModel(options.role);
+  const own2 = options.own;
+  if (!own2 && aiDumb()) return dumbStream(options.messages, options.signal);
+  const key2 = own2 ? own2.key : process.env.AI_API_KEY;
+  const model = options.model?.trim() || (own2 ? OWN_KEY_MODELS[own2.provider] : aiModel(options.role));
   if (!key2 || !model) throw new Error("No inference provider configured.");
-  const kind = provider();
+  const kind = own2 ? own2.provider : provider();
   const effort = takesEffort(model) ? options.effort !== void 0 ? options.effort : aiEffort(options.role) : null;
   const started = Date.now();
   const report = (usage, failure2, firstAt) => options.onCall?.({
@@ -38604,7 +38656,8 @@ async function askAi(options) {
     firstTokenMs: firstAt === null ? null : firstAt - started
   });
   const request = providerRequest(kind, {
-    base: (process.env.AI_BASE_URL || DEFAULT_BASE[kind]).replace(/\/$/, ""),
+    // `AI_OWN_BASE_URL` is the browser suite's stand-in alone (e2e/fake-ai.ts).
+    base: ((own2 ? process.env.AI_OWN_BASE_URL : process.env.AI_BASE_URL) || DEFAULT_BASE[kind]).replace(/\/$/, ""),
     key: key2,
     model,
     system: options.system,
@@ -38612,7 +38665,9 @@ async function askAi(options) {
     maxTokens: options.maxTokens ?? 1500,
     effort,
     cache: options.cache,
-    longLived: options.longLived
+    longLived: options.longLived,
+    own: Boolean(own2),
+    webSearch: options.webSearch
   });
   const deadline = new AbortController();
   const timer = setTimeout(() => deadline.abort(), FIRST_RESPONSE_MS);
@@ -38693,8 +38748,9 @@ function providerRequest(kind, options) {
         // than eating the answer's. An unused ceiling costs nothing.
         max_tokens: maxTokens + THINKING_ROOM,
         ...effort ? { output_config: { effort } } : {},
+        ...options.webSearch ? { tools: [webSearchTool(model)] } : {},
         stream: true,
-        ...extraBody()
+        ...options.own ? {} : extraBody()
       }
     };
   }
@@ -38704,10 +38760,19 @@ function providerRequest(kind, options) {
     body: {
       model,
       messages: [{ role: "system", content: parts.join("") }, ...wireMessages(kind, messages)],
-      max_tokens: maxTokens,
+      ...options.own ? { max_completion_tokens: maxTokens + THINKING_ROOM } : { max_tokens: maxTokens },
       stream: true,
-      ...extraBody()
+      ...options.own ? {} : extraBody()
     }
+  };
+}
+var WEB_SEARCHES = 5;
+function webSearchTool(model) {
+  const filters2 = /^claude-(opus|sonnet)-(5|4-[6-9])/.test(model);
+  return {
+    type: filters2 ? "web_search_20260209" : "web_search_20250305",
+    name: "web_search",
+    max_uses: WEB_SEARCHES
   };
 }
 function deltaOf(payload, kind) {
@@ -39035,7 +39100,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "7e636192ed19";
+var PREVIEW_BUILD = false ? "source" : "29c25003756b";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39425,6 +39490,18 @@ function keyElementsOf(calculator) {
     (one) => calculatorOf(one) === calculator
   );
 }
+
+// packages/format/src/slot.ts
+init_define_WORDPLAY_ENGINE();
+var SLOT = "data-wordplay-slot";
+var CONTAINER = "data-container";
+var CONTAINER_KINDS = ["stack", "reserved", "fixed"];
+function containerKind(element) {
+  if (!element || element.tagName.toLowerCase() !== "div") return null;
+  const kind = element.getAttribute(CONTAINER);
+  return CONTAINER_KINDS.includes(kind ?? "") ? kind : null;
+}
+var STAND_IN = "data-wordplay-stand-in";
 
 // packages/format/src/shared.ts
 init_define_WORDPLAY_ENGINE();
@@ -51331,7 +51408,14 @@ function styleOf(_element) {
 }
 
 // packages/format/src/tree.ts
-var STATES = ["checked", "pressed", "selected", "expanded", "disabled"];
+var STATES = [
+  "checked",
+  "pressed",
+  "selected",
+  "expanded",
+  "disabled",
+  "current"
+];
 var NAMED_FROM_CONTENT = /* @__PURE__ */ new Set([
   "button",
   "link",
@@ -51662,7 +51746,7 @@ function documentTree(body2, current = 0) {
     ...pages.map((section, at) => ({
       role: "page",
       name: section.getAttribute("aria-label")?.trim() || section.querySelector("h1, h2, h3, h4, h5, h6")?.textContent?.trim() || `Page ${at + 1}`,
-      ...at === current ? { value: "shown" } : {},
+      ...at === current ? { state: ["current"] } : {},
       children: accessibilityTree(section)
     }))
   ];
@@ -51683,6 +51767,8 @@ var WORDPLAY_ATTRIBUTES = [
   "data-skip",
   "data-calculator",
   "data-key",
+  "data-container",
+  "data-group",
   "data-person",
   "data-opening"
 ];
@@ -51997,6 +52083,13 @@ function readableProblems(wordplay) {
       problems.push(`data-calculator goes on an <input> or a chat, not on a ${describe3(element)}.`);
     if (chat && element.closest("[data-context]"))
       problems.push("A chat inside context is never shown: move it out of the context.");
+    const container = element.getAttribute("data-container");
+    if (container !== null && element.tagName.toLowerCase() !== "div")
+      problems.push(`data-container goes on a <div>, not on a ${describe3(element)}.`);
+    else if (container !== null && !CONTAINER_KINDS.includes(container))
+      problems.push(`data-container is ${CONTAINER_KINDS.join(", ")}, not "${container}".`);
+    if (element.hasAttribute("data-group") && element.tagName.toLowerCase() !== "div")
+      problems.push(`data-group goes on a <div>, not on a ${describe3(element)}.`);
     if (chat && BOX_NAME.test(chatName(element)))
       problems.push(
         `The chat "${chatName(element)}" is named for the box, not its subject. Name it for what it is about, in a few words.`
@@ -66833,10 +66926,6 @@ function folderPath(url2) {
 // packages/format/src/student.ts
 init_define_WORDPLAY_ENGINE();
 
-// packages/format/src/slot.ts
-init_define_WORDPLAY_ENGINE();
-var SLOT = "data-wordplay-slot";
-
 // packages/format/src/strip.ts
 init_define_WORDPLAY_ENGINE();
 function stripDocument(document2) {
@@ -66857,8 +66946,83 @@ function loadingLater(wordplay) {
   for (const media of Array.from(wordplay.document.querySelectorAll("video, audio")))
     if (!media.hasAttribute("preload")) media.setAttribute("preload", "metadata");
 }
-function slotted(wordplay, given) {
+var LAYOUT = /* @__PURE__ */ new Set([
+  "class",
+  "style",
+  "width",
+  "height",
+  "colspan",
+  "rowspan",
+  "type",
+  "viewBox",
+  "viewbox",
+  "preserveAspectRatio",
+  "preserveaspectratio"
+]);
+var DROPPED = "[data-expect], [data-context], script, template, noscript, iframe, object, embed";
+function scrubbedCss(css) {
+  return css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@import[^;]*;?/gi, "").replace(/url\([^)]*\)/gi, "none").replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
+}
+function standInOf(element, id) {
+  const copy = element.cloneNode(true);
+  for (const gone of Array.from(copy.querySelectorAll(DROPPED))) gone.remove();
+  for (const drawing of Array.from(copy.querySelectorAll("svg"))) drawing.replaceChildren();
+  const sheets = [copy, ...Array.from(copy.querySelectorAll("style"))].filter(
+    (one) => one.tagName.toLowerCase() === "style"
+  );
+  for (const sheet of sheets) {
+    const css = scrubbedCss(sheet.textContent ?? "");
+    for (const attribute2 of Array.from(sheet.attributes)) sheet.removeAttribute(attribute2.name);
+    sheet.textContent = css;
+  }
+  for (const one of [copy, ...Array.from(copy.querySelectorAll("*"))]) {
+    if (one.tagName.toLowerCase() === "style") continue;
+    for (const attribute2 of Array.from(one.attributes))
+      if (!LAYOUT.has(attribute2.name)) one.removeAttribute(attribute2.name);
+    const style = one.getAttribute("style");
+    if (style) one.setAttribute("style", scrubbedCss(style));
+  }
+  const comments = copy.ownerDocument.createTreeWalker(copy, 128);
+  const said2 = [];
+  for (let one = comments.nextNode(); one; one = comments.nextNode()) said2.push(one);
+  for (const one of said2) one.parentNode?.removeChild(one);
+  const walker = copy.ownerDocument.createTreeWalker(copy, 4);
+  for (let text3 = walker.nextNode(); text3; text3 = walker.nextNode())
+    if (text3.parentElement?.tagName.toLowerCase() !== "style")
+      text3.textContent = (text3.textContent ?? "").replace(/\S/g, "x");
+  copy.setAttribute(STAND_IN, id);
+  copy.setAttribute("aria-hidden", "true");
+  copy.setAttribute("inert", "");
+  return copy;
+}
+function contained(wordplay, given, order) {
+  const parts = new Map(wordplay.slotted.map((part) => [part.element, part]));
+  const when = (id) => {
+    const at = order.indexOf(id);
+    return at < 0 ? Infinity : at;
+  };
+  for (const container of Array.from(wordplay.document.querySelectorAll("div[data-container]"))) {
+    const kind = containerKind(container);
+    if (!kind) continue;
+    const children = Array.from(container.children);
+    const nodes = Array.from(container.childNodes);
+    const waiting = children.filter(
+      (child) => parts.has(child) && !given.has(parts.get(child).id)
+    );
+    if (kind !== "stack")
+      for (const child of waiting) child.after(standInOf(child, parts.get(child).id));
+    if (kind === "fixed") continue;
+    const always = nodes.filter((node2) => node2.nodeType !== 1 || !parts.has(node2));
+    const shown = children.filter((child) => parts.has(child) && given.has(parts.get(child).id)).sort((a, b) => when(parts.get(a).id) - when(parts.get(b).id));
+    const after2 = Array.from(container.children).filter(
+      (child) => waiting.includes(child) || child.hasAttribute(STAND_IN)
+    );
+    container.replaceChildren(...always, ...shown, ...after2);
+  }
+}
+function slotted(wordplay, given, order = []) {
   loadingLater(wordplay);
+  contained(wordplay, given, order);
   for (const step of wordplay.slotted) {
     if (given.has(step.id)) {
       if (step.kind !== "key") step.element.setAttribute(MET, step.id);
@@ -66874,16 +67038,18 @@ function slotted(wordplay, given) {
 }
 function studentDocument(source, held) {
   const wordplay = parseWordplay(source);
-  slotted(wordplay, givenParts(wordplay, held));
+  const order = [...held];
+  slotted(wordplay, givenParts(wordplay, order), order);
   return wordplay.document;
 }
 function partHtml(source, ids, held) {
   const wanted = new Set(ids);
   const wordplay = parseWordplay(source);
-  const given = givenParts(wordplay, held);
+  const order = [...held];
+  const given = givenParts(wordplay, order);
   const out = [];
   const steps = wordplay.slotted.filter((step) => wanted.has(step.id) && given.has(step.id));
-  slotted(wordplay, given);
+  slotted(wordplay, given, order);
   for (const step of steps) {
     if (steps.some((other) => other !== step && other.element.contains(step.element))) continue;
     out.push({ id: step.id, html: step.element.outerHTML });
@@ -66957,7 +67123,7 @@ function inFolder(document2, folder) {
 
 // packages/player/src/lib/wordplay-state.ts
 init_define_WORDPLAY_ENGINE();
-var MARKER = /^[ \t]*\[\[\s*(SHOW|DO|WRITE|SHARE)\s*:\s*((?:[^\]\n]|\](?!\]))*?)\s*\]\][ \t]*$/gim;
+var MARKER = /^[ \t]*\[\[\s*(SHOW|DO|WRITE|CHECK|SHARE)\s*:\s*((?:[^\]\n]|\](?!\]))*?)\s*\]\][ \t]*$/gim;
 function readMarkers(reply) {
   const show = [];
   const actions = [];
@@ -66967,6 +67133,7 @@ function readMarkers(reply) {
     const what2 = found[2].trim();
     if (!what2) continue;
     const kind = found[1].toUpperCase();
+    if (kind === "CHECK") continue;
     if (kind === "SHOW") show.push(what2);
     else if (kind === "SHARE") {
       try {
@@ -67131,6 +67298,11 @@ init_define_WORDPLAY_ENGINE();
 // packages/player/src/lib/chats.ts
 init_define_WORDPLAY_ENGINE();
 var LINE = /^\[(?:In the chat “([^”\n]{1,200})”(, from the page)?|(From the page))\]\n/;
+var clean = (name) => name.replace(/[”\n]/g, " ").trim().slice(0, 200) || "Chat";
+function inChat(name, text3) {
+  return `[In the chat \u201C${clean(name)}\u201D]
+${text3}`;
+}
 function chatOfMessage(content) {
   const found = LINE.exec(content);
   return found ? {
@@ -67170,7 +67342,10 @@ function tutorEnvelope(wordplay, source, title, view) {
   const given = givenParts(wordplay, view.held);
   return {
     title,
-    context: wordplay.contexts.filter((context) => given.has(context.id) && context.text).map((context) => ({ id: context.id, text: context.text })),
+    context: wordplay.contexts.filter((context) => given.has(context.id) && context.text).map((context) => {
+      const chat = wordplay.chats.find((one) => one.element.contains(context.element))?.name;
+      return { id: context.id, text: context.text, ...chat ? { chat } : {} };
+    }),
     waiting: waitingParts(wordplay, view.held).filter((part) => part.condition !== null).map((part) => ({
       id: part.id,
       kind: part.kind,
@@ -67184,6 +67359,7 @@ function tutorEnvelope(wordplay, source, title, view) {
     calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
     skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
     done: isDone(wordplay, view.held),
+    pictures: view.pictures ?? 0,
     share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null,
     openings: [
       ...openingOf(wordplay) ? [`In your chat: ${openingOf(wordplay)}`] : [],
@@ -67211,6 +67387,13 @@ function calculationLine({ on, line, value, error: error62, put, seen }) {
   const gave = value !== void 0 ? `${shown} = ${value}` : `${shown} gave no value: ${error62}`;
   return `- for "${on}": ${gave}${put ? ", put in it" : ""}${seen ? "" : " (new)"}`;
 }
+function whereIn(tree) {
+  const pages = tree.filter((node2) => node2.role === "page");
+  const at = pages.findIndex((node2) => node2.state?.includes("current"));
+  if (pages.length < 2 || at < 0) return "";
+  const name = pages[at].name;
+  return `page ${at + 1} of ${pages.length}${name && name !== `Page ${at + 1}` ? `, "${name}"` : ""}`;
+}
 function asData(line) {
   let was;
   let now = line;
@@ -67224,11 +67407,13 @@ var asLine = (line) => asData(line).replace(/\s*\n\s*/g, " ").replace(/</g, "&lt
 function envelopeBindings(envelope) {
   return {
     title: envelope.title,
-    context: envelope.context.map((one) => `${one.id}: ${one.text}`).join("\n\n"),
+    context: envelope.context.map((one) => `${one.id}${one.chat ? ` (the chat "${one.chat}" alone)` : ""}: ${one.text}`).join("\n\n"),
     waiting: envelope.waiting.map(
       (one) => `- ${one.id}, ${WHAT[one.kind](one.name ?? "")} (expect: ${one.condition})`
     ),
     page: treeText(envelope.tree).map(asData),
+    pictures: envelope.pictures > 0,
+    where: whereIn(envelope.tree),
     announced: envelope.announced.map((line) => `- ${asLine(line)}`),
     told: envelope.told.map((line) => `- ${asLine(line)}`),
     calculations: envelope.calculations.map((one) => asLine(calculationLine(one))),
@@ -67468,7 +67653,18 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     const sent = readBody(init);
     const file2 = source();
     const wordplay = parseWordplay(file2);
-    const before2 = find3(sent.conversationId);
+    const left = find3(sent.conversationId) ? void 0 : find3(sent.from);
+    const carried = left && {
+      id: newId(),
+      turns: [],
+      lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      held: left.held,
+      ...left.skipped?.length ? { skipped: left.skipped } : {},
+      events: [],
+      ...left.page ? { page: left.page } : {}
+    };
+    if (carried) trials2.save(carried);
+    const before2 = carried ?? find3(sent.conversationId);
     let held = before2?.held ?? [];
     let skipped = before2?.skipped ?? [];
     let events = before2?.events ?? [];
@@ -67884,7 +68080,7 @@ function svgSanitizer(make, window2, options = {}) {
     return purifier;
   };
   return (source) => {
-    const clean = sanitizer().sanitize(source, {
+    const clean2 = sanitizer().sanitize(source, {
       USE_PROFILES: { svg: true, svgFilters: true },
       // foreignObject is an HTML escape hatch inside SVG, and the one element
       // that reopens everything the SVG profile just closed.
@@ -67897,7 +68093,7 @@ function svgSanitizer(make, window2, options = {}) {
       ],
       FORBID_ATTR: ["onload", "onerror", "onclick", "onmouseover"]
     });
-    return /<svg[\s>]/i.test(clean) ? clean : null;
+    return /<svg[\s>]/i.test(clean2) ? clean2 : null;
   };
 }
 
@@ -68004,17 +68200,17 @@ function tikzDrawer(deps) {
     const hash2 = createHash("sha256").update(source.trim()).digest("hex");
     const known = failed2.get(hash2);
     if (known !== void 0) return { error: known };
-    let clean = recleaned.get(hash2);
-    if (clean === void 0) {
+    let clean2 = recleaned.get(hash2);
+    if (clean2 === void 0) {
       const cached2 = await deps.store.get(hash2);
       if (cached2) {
-        clean = await deps.sanitize(cached2);
+        clean2 = await deps.sanitize(cached2);
         if (recleaned.size >= MAX_REMEMBERED_FAILURES) recleaned.clear();
-        recleaned.set(hash2, clean);
+        recleaned.set(hash2, clean2);
       }
     }
-    if (clean) return { svg: dressTikzSvg(clean) };
-    if (clean === null) return { error: "The drawing could not be made safe to show." };
+    if (clean2) return { svg: dressTikzSvg(clean2) };
+    if (clean2 === null) return { error: "The drawing could not be made safe to show." };
     try {
       const svg = await render6(`\\begin{document}
 ${source}
@@ -68651,7 +68847,7 @@ function pageWhere(file2, sent) {
   if (!page2 || pages.length < 2) return null;
   return `page ${sent} of ${pages.length}, \u201C${page2.name}\u201D`;
 }
-function builderPrompt(file2, changes, trial, material = [], host = "creator", lessons = [], page2 = null, fresh = true) {
+function builderPrompt(file2, changes, trial, material = [], host = "creator", lessons = [], page2 = null, fresh = true, element = null) {
   const text3 = file2.trim();
   const tried = trialText(trial);
   return [
@@ -68682,8 +68878,13 @@ ${one.text}
       changes: changeLines(changes),
       fresh: Boolean(tried && fresh),
       page: page2 ?? ""
-    })
+    }) + (element === null ? "" : `
+
+${prompt("element", { element: element.trim() })}`)
   ];
+}
+function readElement(sent) {
+  return typeof sent === "string" && sent.length <= MAX_FILE ? sent : null;
 }
 function fileProblems(file2) {
   const wordplay = parseWordplay(file2);
@@ -68777,13 +68978,23 @@ async function simulate(source, persona, id, host) {
   const title = titleOf(wordplay);
   const turns = [];
   let held = [];
+  const chats = wordplay.chats.map((chat) => chat.name);
+  const inTheirChat = (typed2) => {
+    const found = /^\s*\[([^\]\n]{1,200})\]\s*/.exec(typed2);
+    const name = found ? chats.find((one) => one.trim().toLowerCase() === found[1].trim().toLowerCase()) : void 0;
+    return name && found ? inChat(name, typed2.slice(found[0].length)) : typed2;
+  };
+  const typed = (content) => {
+    const { chat, text: text3 } = chatOfMessage(content);
+    return chat ? `[${chat}] ${text3}` : content;
+  };
   const theirs = () => [
     {
       role: "user",
       content: "The lesson is open in front of you. Write your first message to the tutor."
     },
     ...turns.map(
-      (turn) => turn.role === "user" ? { role: "assistant", content: turn.content } : { role: "user", content: readMarkers(turn.content).text }
+      (turn) => turn.role === "user" ? { role: "assistant", content: typed(turn.content) } : { role: "user", content: readMarkers(turn.content).text }
     )
   ];
   const complete = () => wordplay.steps.length > 0 && isDone(wordplay, held);
@@ -68806,8 +69017,9 @@ async function simulate(source, persona, id, host) {
         maxTokens: LEARNER_MAX_TOKENS
       })).trim();
       if (!student || DONE.test(student)) break;
-      turns.push({ role: "user", content: student.slice(0, MAX_TUTOR_MESSAGE) });
-      host.send({ role: "user", content: student });
+      const message = inTheirChat(student.slice(0, MAX_TUTOR_MESSAGE));
+      turns.push({ role: "user", content: message });
+      host.send({ role: "user", content: message });
       const { parts } = tutorTurn(wordplay, source, title, { held });
       const tutor = await host.ask({
         who: "tutor",
@@ -68816,8 +69028,13 @@ async function simulate(source, persona, id, host) {
         maxTokens: TUTOR_MAX_TOKENS
       });
       turns.push({ role: "assistant", content: tutor });
+      const before2 = new Set(held);
       held = heldAfterReply(wordplay, held, tutor);
-      host.send({ role: "assistant", content: tutor });
+      const given = held.filter((one) => !before2.has(one)).map((one) => {
+        const part = wordplay.parts.find((each) => each.id === one);
+        return part && "name" in part && part.name || one;
+      });
+      host.send({ role: "assistant", content: tutor, ...given.length ? { given } : {} });
       if (said2 === MAX_SAID2 - 1) ended = `the student had said ${MAX_SAID2} things`;
     }
     if (complete()) ended = "the lesson is complete";
@@ -69152,7 +69369,9 @@ function build(s, sent, response) {
     "creator-local",
     [],
     pageWhere(file2, sent.page),
-    sent.fresh !== false
+    sent.fresh !== false,
+    // One element written in its own chat (the editor's Custom element).
+    readElement(sent.element)
   );
   const settings = withChoice(builderSettingsOf(s), builderChoices(s), sent.builder);
   const reply = replyOn(settings, {

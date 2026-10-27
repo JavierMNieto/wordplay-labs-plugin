@@ -132,7 +132,8 @@ and how they are drawn is the teacher's.
 **Privacy.** Every element marked `data-context` is stripped before anything
 reaches the student's browser. This is the one rule a host must never break.
 A step or reveal reaches the browser only once given, without its
-`data-expect`, which is often the answer. Where a host lets readers share
+`data-expect`, which is often the answer; before, at most its stand-in
+in a container that keeps room ("What Wordplay adds"). Where a host lets readers share
 (Wordplay's `share`, below), what a reader shares is seen by every reader
 of the wordplay, with their profile only where the teacher asks for names
 and the reader has not chosen to be anonymous.
@@ -338,8 +339,17 @@ Its attributes:
 | `data-skip` | On the `<body>`: Skip at each waiting step. On a step, `data-skip="false"`: none for it, and the student must earn it. |
 | `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
+| `data-container="…"` | On a `<div>`: its reveals appear as it says. `stack`, one under another in the order they are given, taking no room before; `reserved`, the same with room kept for all of them from the start; `fixed`, each in its own place, room kept for all of them. |
+| `data-group` | On a `<div>`: blocks the editor keeps together. Nothing to the student. |
 | `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
 | `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
+
+**A container keeps room with stand-ins**: for each reveal not given in a
+`reserved` or `fixed` one, a hidden copy with its class, style and
+stylesheet, every letter an `x`, nothing quoted, drawn or addressed. It says how much room the
+reveal takes, never what it says; a picture keeps only its `height`. In a
+`stack` or `reserved` one, what has no condition comes first, then the
+reveals in the order they were given.
 
 **The name of a step**, in the chat, on the page and in the creator, is its
 accessible name: its `aria-label`, else its first heading, else its id.
@@ -720,7 +730,7 @@ How to write for the page, which is a browser's own, in a frame of its own:
   `fill-opacity="0.15"`; never a white or pale fill, which hides a label in
   the dark.
 - **Pictures** cannot be drawn: ask the teacher for one and place it with
-  `<img src="address" alt="what it shows">`.
+  `<figure><img src="address" alt="what it shows"><figcaption>…</figcaption></figure>`.
 - **Scripts** are inline, or from `cdn.jsdelivr.net/npm/`; the page reaches
   no network, posts no form, and keeps nothing between visits of its own;
   what it hands `document.wordplay.keep` comes back ("Scripts"). What you

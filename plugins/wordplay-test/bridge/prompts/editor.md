@@ -20,7 +20,7 @@ How to write for the page, which is a browser's own, in a frame of its own:
   `fill-opacity="0.15"`; never a white or pale fill, which hides a label in
   the dark.
 - **Pictures** cannot be drawn: ask the teacher for one and place it with
-  `<img src="address" alt="what it shows">`.
+  `<figure><img src="address" alt="what it shows"><figcaption>…</figcaption></figure>`.
 - **Scripts** are inline, or from `cdn.jsdelivr.net/npm/`; the page reaches
   no network, posts no form, and keeps nothing between visits of its own;
   what it hands `document.wordplay.keep` comes back ("Scripts"). What you
