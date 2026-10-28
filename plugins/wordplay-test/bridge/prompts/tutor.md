@@ -31,6 +31,8 @@ WHAT IS BOUND
                 they put it in, and "(new)" since the tutor's last turn
   skipped       the steps the student skipped rather than earned, by
                 name
+  earlier       the steps given in an earlier conversation on this
+                attempt, by name, or nothing
   done          true once every step is given
   pictures      true when the page's pictures come with the conversation
                 (lib/tutor-pictures.ts), each file whole
@@ -183,6 +185,13 @@ shown to them as it is.
 have read them, so a reply that answers one makes sense:
 
 {{openings}}
+{{/if}}
+{{#if earlier}}
+
+**They worked this page before**, in an earlier conversation of theirs on
+the same attempt; these steps were given there: {{earlier}}. The page is as
+they left it. Pick up from where it stands, and do not greet them as new to
+it or ask again what it already shows.
 {{/if}}
 {{cut}}
 {{#if context}}
