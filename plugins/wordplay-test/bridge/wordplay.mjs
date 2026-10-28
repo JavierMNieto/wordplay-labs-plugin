@@ -38490,6 +38490,87 @@ var OWN_KEY_DEFAULTS = {
   openai: "gpt-6.1-sol"
 };
 
+// packages/player/src/lib/picture-size.ts
+init_define_WORDPLAY_ENGINE();
+var PICTURE_TOKENS_UNKNOWN = 1568;
+var MOST = 4784;
+var HEAD_BYTES = 65536;
+function pictureTokens(data) {
+  if (!data) return PICTURE_TOKENS_UNKNOWN;
+  const size = pictureSize(headOf(data));
+  if (!size || !size.width || !size.height) return PICTURE_TOKENS_UNKNOWN;
+  return Math.min(Math.ceil(size.width / 28) * Math.ceil(size.height / 28), MOST);
+}
+function headOf(data) {
+  const base643 = data.replace(/^data:[^,]*,/, "");
+  const length = Math.min(base643.length, Math.ceil(HEAD_BYTES / 3) * 4);
+  const text3 = (() => {
+    try {
+      return atob(base643.slice(0, length - length % 4));
+    } catch {
+      return "";
+    }
+  })();
+  const bytes = new Uint8Array(text3.length);
+  for (let at = 0; at < text3.length; at += 1) bytes[at] = text3.charCodeAt(at);
+  return bytes;
+}
+function pictureSize(bytes) {
+  const at = (index) => bytes[index] ?? 0;
+  const ascii = (from, to) => String.fromCharCode(...Array.from(bytes.subarray(from, to)));
+  if (bytes.length >= 24 && at(0) === 137 && ascii(1, 4) === "PNG") {
+    const be = (index) => (at(index) << 24 | at(index + 1) << 16 | at(index + 2) << 8 | at(index + 3)) >>> 0;
+    return { width: be(16), height: be(20) };
+  }
+  if (bytes.length >= 10 && ascii(0, 3) === "GIF") {
+    return { width: at(6) | at(7) << 8, height: at(8) | at(9) << 8 };
+  }
+  if (at(0) === 255 && at(1) === 216) {
+    let index = 2;
+    while (index + 9 < bytes.length) {
+      if (at(index) !== 255) {
+        index += 1;
+        continue;
+      }
+      const marker = at(index + 1);
+      if (marker === 255) {
+        index += 1;
+        continue;
+      }
+      if (marker === 1 || marker >= 208 && marker <= 216) {
+        index += 2;
+        continue;
+      }
+      const frame = marker >= 192 && marker <= 207 && ![196, 200, 204].includes(marker);
+      if (frame)
+        return {
+          height: at(index + 5) << 8 | at(index + 6),
+          width: at(index + 7) << 8 | at(index + 8)
+        };
+      index += 2 + (at(index + 2) << 8 | at(index + 3));
+    }
+    return null;
+  }
+  if (bytes.length >= 20 && ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") {
+    const chunk = ascii(12, 16);
+    if (chunk === "VP8 ")
+      return {
+        width: (at(26) | at(27) << 8) & 16383,
+        height: (at(28) | at(29) << 8) & 16383
+      };
+    if (chunk === "VP8L") {
+      const bits = (at(21) | at(22) << 8 | at(23) << 16 | at(24) << 24) >>> 0;
+      return { width: (bits & 16383) + 1, height: (bits >>> 14 & 16383) + 1 };
+    }
+    if (chunk === "VP8X")
+      return {
+        width: 1 + (at(24) | at(25) << 8 | at(26) << 16),
+        height: 1 + (at(27) | at(28) << 8 | at(29) << 16)
+      };
+  }
+  return null;
+}
+
 // packages/player/src/lib/ai.ts
 function wirePicture(kind, picture2) {
   if ("url" in picture2) {
@@ -38639,6 +38720,7 @@ async function askAi(options) {
   const kind = own2 ? own2.provider : provider();
   const effort = takesEffort(model) ? options.effort !== void 0 ? options.effort : aiEffort(options.role) : null;
   const started = Date.now();
+  const measured = measureMessages(options.messages);
   const report = (usage, failure2, firstAt) => options.onCall?.({
     operation: options.role ?? "assistant",
     provider: kind,
@@ -38653,7 +38735,9 @@ async function askAi(options) {
     stopReason: usage.stop,
     failure: failure2,
     durationMs: Date.now() - started,
-    firstTokenMs: firstAt === null ? null : firstAt - started
+    firstTokenMs: firstAt === null ? null : firstAt - started,
+    parts: options.parts ?? null,
+    ...measured
   });
   const request = providerRequest(kind, {
     // `AI_OWN_BASE_URL` is the browser suite's stand-in alone (e2e/fake-ai.ts).
@@ -38700,6 +38784,23 @@ async function askAi(options) {
     `${options.role ?? "assistant"} ${model} parts=${fingerprints(options.system)}`,
     (end) => report(end.usage, end.failure, end.firstAt)
   );
+}
+function measureMessages(messages) {
+  let conversationChars = 0;
+  let pictureCount = 0;
+  let tokens = 0;
+  for (const message of messages) {
+    conversationChars += message.content.length;
+    for (const image of message.images ?? []) {
+      pictureCount += 1;
+      tokens += pictureTokens(image);
+    }
+    for (const picture2 of message.pictures ?? []) {
+      pictureCount += 1;
+      tokens += pictureTokens("data" in picture2 ? picture2.data : null);
+    }
+  }
+  return { conversationChars, pictureCount, pictureTokens: tokens };
 }
 var MAX_CACHE_MARKERS = 4;
 var EPHEMERAL = { type: "ephemeral" };
@@ -38762,7 +38863,9 @@ function providerRequest(kind, options) {
       messages: [{ role: "system", content: parts.join("") }, ...wireMessages(kind, messages)],
       ...options.own ? { max_completion_tokens: maxTokens + THINKING_ROOM } : { max_tokens: maxTokens },
       stream: true,
-      ...options.own ? {} : extraBody()
+      // **A teacher's OpenAI key says what the call used** (plans/ai-usage-by-part.md): the
+      // stream's last chunk carries `usage` only when asked for; the site's router is left as it is.
+      ...options.own ? { stream_options: { include_usage: true } } : extraBody()
     }
   };
 }
@@ -38831,6 +38934,35 @@ function readWithin(reader, ms) {
     })
   ]).finally(() => clearTimeout(timer));
 }
+var USAGE_WAIT_MS = 2e3;
+async function usageAfter(reader, decoder, pending, usage) {
+  const until = Date.now() + USAGE_WAIT_MS;
+  let rest = pending;
+  for (; ; ) {
+    const lines = rest.split("\n");
+    rest = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (payload === "[DONE]") return;
+      usage.readOpenAi(payload);
+      if (usage.counted) return;
+    }
+    const left = until - Date.now();
+    if (left <= 0) return;
+    let read;
+    try {
+      read = await readWithin(reader, left);
+    } catch {
+      return;
+    }
+    if (read.done) {
+      usage.readOpenAi(rest.replace(/^data:/, "").trim());
+      return;
+    }
+    rest += decoder.decode(read.value, { stream: true });
+  }
+}
 var Usage = class {
   constructor() {
     this.input = 0;
@@ -38842,6 +38974,8 @@ var Usage = class {
     this.stop = null;
     /** The characters handed to the reader, which is output less the thinking. */
     this.textChars = 0;
+    /** Whether an OpenAI-shaped stream has sent its `usage` chunk yet. */
+    this.counted = false;
   }
   read(payload) {
     let event;
@@ -38873,6 +39007,7 @@ var Usage = class {
       return;
     }
     if (chunk.usage) {
+      this.counted = true;
       const cached2 = chunk.usage.prompt_tokens_details?.cached_tokens ?? 0;
       this.input = Math.max(0, (chunk.usage.prompt_tokens ?? 0) - cached2);
       this.cacheRead = cached2;
@@ -38985,10 +39120,16 @@ function textOf(body2, kind, label, ended) {
         }
         if (over) {
           finished = true;
-          logged(
-            usage.stop === "refusal" ? "refused" : usage.stop === "max_tokens" ? "limit" : null
-          );
-          letGo(reader);
+          const failure2 = usage.stop === "refusal" ? "refused" : usage.stop === "max_tokens" ? "limit" : null;
+          if (kind !== "anthropic" && !usage.counted) {
+            void usageAfter(reader, decoder, pending, usage).finally(() => {
+              logged(failure2);
+              letGo(reader);
+            });
+          } else {
+            logged(failure2);
+            letGo(reader);
+          }
           if (usage.stop === "refusal") {
             controller.error(new AiError("refused", "The model declined to answer."));
           } else if (usage.stop === "max_tokens") {
@@ -39100,7 +39241,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "29c25003756b";
+var PREVIEW_BUILD = false ? "source" : "a4c31909b547";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -68339,6 +68480,24 @@ import { randomUUID as randomUUID2 } from "node:crypto";
 // packages/player/src/lib/builder-turn.ts
 init_define_WORDPLAY_ENGINE();
 
+// packages/player/src/lib/measure.ts
+init_define_WORDPLAY_ENGINE();
+function measureFile(source) {
+  const text3 = source.trim();
+  if (!text3) return { file: 0, scripts: 0, context: 0 };
+  const document2 = parseWordplay(text3).document;
+  const outer = (elements) => elements.reduce((sum, element) => sum + element.outerHTML.length, 0);
+  const contexts = Array.from(document2.querySelectorAll("[data-context]")).filter(
+    (element) => !element.parentElement?.closest("[data-context]")
+  );
+  const scripted = Array.from(document2.querySelectorAll("script, style")).filter(
+    (element) => !element.closest("[data-context]")
+  );
+  const scripts = Math.min(outer(scripted), text3.length);
+  const context = Math.min(outer(contexts), text3.length - scripts);
+  return { file: text3.length - scripts - context, scripts, context };
+}
+
 // packages/player/src/lib/lesson-guide.ts
 init_define_WORDPLAY_ENGINE();
 
@@ -68847,41 +69006,53 @@ function pageWhere(file2, sent) {
   if (!page2 || pages.length < 2) return null;
   return `page ${sent} of ${pages.length}, \u201C${page2.name}\u201D`;
 }
-function builderPrompt(file2, changes, trial, material = [], host = "creator", lessons = [], page2 = null, fresh = true, element = null) {
+function builderPrompt(...args) {
+  return builderParts(...args).pieces;
+}
+function builderParts(file2, changes, trial, material = [], host = "creator", lessons = [], page2 = null, fresh = true, element = null) {
   const text3 = file2.trim();
   const tried = trialText(trial);
-  return [
-    `${lessonGuide(host)}
+  const guide = `${lessonGuide(host)}
 
-`,
-    ...material.length ? [
-      `${prompt("material", {
-        // The template walks strings, so each file is its heading and its fence here.
-        files: material.map((one) => `## ${one.name}
+`;
+  const materialPiece = material.length ? `${prompt("material", {
+    // The template walks strings, so each file is its heading and its fence here.
+    files: material.map((one) => `## ${one.name}
 
 \`\`\`\`\`
 ${one.text}
 \`\`\`\`\``)
-      })}
+  })}
 
-`
-    ] : [],
-    ...lessons.length ? [`${lessonsPiece(lessons)}
+` : "";
+  const lessonsText = lessons.length ? `${lessonsPiece(lessons)}
 
-`] : [],
-    ...tried ? [`${prompt("trial", { trial: tried })}
+` : "";
+  const trialPiece = tried ? `${prompt("trial", { trial: tried })}
 
-`] : [],
-    prompt("creator", {
-      file: text3,
-      problems: text3 ? fileProblems(file2) : [],
-      changes: changeLines(changes),
-      fresh: Boolean(tried && fresh),
-      page: page2 ?? ""
-    }) + (element === null ? "" : `
+` : "";
+  const last = prompt("creator", {
+    file: text3,
+    problems: text3 ? fileProblems(file2) : [],
+    changes: changeLines(changes),
+    fresh: Boolean(tried && fresh),
+    page: page2 ?? ""
+  }) + (element === null ? "" : `
 
-${prompt("element", { element: element.trim() })}`)
-  ];
+${prompt("element", { element: element.trim() })}`);
+  const pieces = [guide, materialPiece, lessonsText, trialPiece, last].filter(Boolean);
+  const sized = last.includes(text3) ? measureFile(text3) : { file: 0, scripts: 0, context: 0 };
+  const measure = {
+    guide: guide.length,
+    ...materialPiece ? { material: materialPiece.length } : {},
+    ...lessonsText ? { lessons: lessonsText.length } : {},
+    ...trialPiece ? { trial: trialPiece.length } : {},
+    file: sized.file,
+    scripts: sized.scripts,
+    context: sized.context,
+    instructions: last.length - sized.file - sized.scripts - sized.context
+  };
+  return { pieces, measure };
 }
 function readElement(sent) {
   return typeof sent === "string" && sent.length <= MAX_FILE ? sent : null;
@@ -68897,9 +69068,31 @@ var CUT = "\0";
 function tutorParts(envelope) {
   return prompt("tutor", { ...envelopeBindings(envelope), cut: CUT }).split(CUT).filter((part) => part.trim());
 }
+var STAND_IN2 = "";
+function lengthWithout(envelope, blank) {
+  const bindings = { ...envelopeBindings(envelope), cut: CUT };
+  let standing = 0;
+  for (const key2 of blank) {
+    const value = bindings[key2];
+    const said2 = Array.isArray(value) ? value.some((one) => String(one).trim()) : Boolean(value && String(value).trim());
+    if (!said2) continue;
+    bindings[key2] = Array.isArray(value) ? [STAND_IN2] : STAND_IN2;
+    standing += STAND_IN2.length;
+  }
+  return prompt("tutor", bindings).split(CUT).filter((part) => part.trim()).join("").length - standing;
+}
+function tutorMeasure(envelope) {
+  const whole = lengthWithout(envelope, []);
+  const of = (keys2) => Math.max(0, whole - lengthWithout(envelope, keys2));
+  const context = of(["context"]);
+  const page2 = of(["page"]);
+  const waiting = of(["waiting"]);
+  const activity = of(["announced", "told", "calculations", "skipped"]);
+  return { rules: whole - context - page2 - waiting - activity, context, page: page2, waiting, activity };
+}
 function tutorTurn(wordplay, source, title, view) {
   const envelope = tutorEnvelope(wordplay, source, title, view);
-  return { parts: tutorParts(envelope), envelope };
+  return { parts: tutorParts(envelope), envelope, measure: tutorMeasure(envelope) };
 }
 
 // packages/player/src/lib/simulate.ts
@@ -69010,22 +69203,27 @@ async function simulate(source, persona, id, host) {
         ended = spent2;
         break;
       }
+      const page2 = studentView(source, held);
+      const learner = prompt("learner", { persona, page: page2 });
+      const viewChars = learner.length - prompt("learner", { persona, page: "" }).length;
       const student = (await host.ask({
         who: "learner",
-        system: [prompt("learner", { persona, page: studentView(source, held) })],
+        system: [learner],
         messages: theirs(),
-        maxTokens: LEARNER_MAX_TOKENS
+        maxTokens: LEARNER_MAX_TOKENS,
+        measure: { rules: learner.length - viewChars, page: viewChars }
       })).trim();
       if (!student || DONE.test(student)) break;
       const message = inTheirChat(student.slice(0, MAX_TUTOR_MESSAGE));
       turns.push({ role: "user", content: message });
       host.send({ role: "user", content: message });
-      const { parts } = tutorTurn(wordplay, source, title, { held });
+      const { parts, measure } = tutorTurn(wordplay, source, title, { held });
       const tutor = await host.ask({
         who: "tutor",
         system: parts,
         messages: turns,
-        maxTokens: TUTOR_MAX_TOKENS
+        maxTokens: TUTOR_MAX_TOKENS,
+        measure
       });
       turns.push({ role: "assistant", content: tutor });
       const before2 = new Set(held);
