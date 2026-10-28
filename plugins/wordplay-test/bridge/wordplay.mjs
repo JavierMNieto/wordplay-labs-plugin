@@ -38696,7 +38696,7 @@ function explainAiFailure(error62) {
     case "busy":
       return "The model is busy right now. Wait a minute, then send your message again.";
     case "long":
-      return "This conversation has grown too long for the model. Start a new conversation to carry on.";
+      return "This conversation has grown too long for the model. Send a shorter message.";
     case "setup":
       return "The model provider refused the site's request, so sending again will not help. The reason is in the site's log.";
     case "provider":
@@ -39241,7 +39241,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "e1a7f8e4ea8d";
+var PREVIEW_BUILD = false ? "source" : "1b5582859773";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67332,15 +67332,6 @@ function progressOf(wordplay, held) {
     skippable: skippable(wordplay, held).map((step) => step.id)
   };
 }
-function givenBefore(wordplay, held, events) {
-  if (events.length >= MAX_EVENTS) return [];
-  const now = givenParts(wordplay, held);
-  const first = givenParts(wordplay, []);
-  const here = new Set(
-    events.filter((one) => one.kind === "given" || one.kind === "skipped").map((one) => one.id)
-  );
-  return wordplay.steps.filter((step) => now.has(step.id) && !first.has(step.id) && !here.has(step.id)).map((step) => step.id);
-}
 var MAX_EVENTS = 300;
 var repliesIn = (turns) => turns.filter((turn) => turn.role === "assistant").length;
 function turnsBeforeEdit(turns, replaces) {
@@ -67482,8 +67473,7 @@ function summaryOf(wordplay, row) {
     messages: row.turns.length,
     stepsEarned: wordplay.steps.filter((step) => given.has(step.id) && !skipped.has(step.id)).length,
     pageAt: row.page?.at ?? 0,
-    done: isDone(wordplay, row.held),
-    attempt: row.attempt ?? row.id
+    done: isDone(wordplay, row.held)
   };
 }
 
@@ -67515,7 +67505,6 @@ function tutorEnvelope(wordplay, source, title, view) {
     told: (view.told ?? []).slice(-MAX_TOLD),
     calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
     skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
-    earlier: wordplay.steps.filter((step) => given.has(step.id) && view.before?.includes(step.id)).map((step) => step.name),
     done: isDone(wordplay, view.held),
     pictures: view.pictures ?? 0,
     share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null,
@@ -67576,7 +67565,6 @@ function envelopeBindings(envelope) {
     told: envelope.told.map((line) => `- ${asLine(line)}`),
     calculations: envelope.calculations.map((one) => asLine(calculationLine(one))),
     skipped: envelope.skipped.map((name) => `- "${name}"`),
-    earlier: envelope.earlier.map((name) => `"${name}"`).join(", "),
     done: envelope.done,
     share: envelope.share,
     openings: envelope.openings.map((line) => `- ${line}`)
@@ -67747,8 +67735,7 @@ function readView(sent) {
     tree: readTree(sent.tree),
     announced: readAnnounced(sent.announced),
     told: readTold(sent.told),
-    calculations: readCalculations(sent.calculations),
-    before: readIds(sent.before)
+    calculations: readCalculations(sent.calculations)
   };
 }
 
@@ -67813,19 +67800,7 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     const sent = readBody(init);
     const file2 = source();
     const wordplay = parseWordplay(file2);
-    const left = find3(sent.conversationId) ? void 0 : find3(sent.from);
-    const carried = left && {
-      id: newId(),
-      turns: [],
-      lastAskedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      held: left.held,
-      ...left.skipped?.length ? { skipped: left.skipped } : {},
-      events: [],
-      ...left.page ? { page: left.page } : {},
-      attempt: left.attempt ?? left.id
-    };
-    if (carried) trials2.save(carried);
-    const before2 = carried ?? find3(sent.conversationId);
+    const before2 = find3(sent.conversationId);
     let held = before2?.held ?? [];
     let skipped = before2?.skipped ?? [];
     let events = before2?.events ?? [];
@@ -67896,8 +67871,6 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
         held,
         skipped: before2?.skipped ?? [],
         ...readView(sent),
-        // Worked out here, from the trial, whatever the page sent.
-        before: before2?.attempt ? givenBefore(parseWordplay(file2), held, before2.events ?? []) : [],
         sent
       },
       init?.signal
@@ -70288,8 +70261,7 @@ function askFor(s, play) {
         tree: turn.tree,
         announced: turn.announced,
         told: turn.told,
-        calculations: turn.calculations,
-        before: turn.before
+        calculations: turn.calculations
       },
       turn.sent.tutor
     );
