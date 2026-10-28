@@ -39241,7 +39241,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "1b5582859773";
+var PREVIEW_BUILD = false ? "source" : "b8a3f14388cb";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67361,9 +67361,9 @@ function keptAfter(wordplay, kept, change, cause) {
       ...event(action.value === void 0 ? "pressed" : "set", action.name.slice(0, 200), "tutor"),
       ...action.value !== void 0 ? { value: action.value.slice(0, 200) } : {}
     })),
-    ...[...new Set((change.wrote ?? []).map((name) => name.slice(0, 200)))].map(
-      (name) => event("changed", name, "tutor")
-    )
+    ...[
+      ...new Map((change.wrote ?? []).map((write2) => [write2.name.slice(0, 200), write2.text]))
+    ].map(([name, text3]) => ({ ...event("changed", name, "tutor"), value: text3 }))
   ];
   if (isDone(wordplay, held) && !isDone(wordplay, kept.held)) events.push(event("done", ""));
   const page2 = change.page ?? kept.page;
@@ -67399,6 +67399,14 @@ function shownEvents(wordplay, events, run2 = {}) {
     const unnamed = part.name === part.id;
     const name = !unnamed ? part.name : part.kind === "step" ? "A step" : part.element.tagName.toLowerCase() === "aside" ? "A hint" : "Something new";
     return [{ ...event, name, step: part.kind === "step" }];
+  });
+}
+function writesLanded(turns, names) {
+  const reply = turns.filter((turn) => turn.role === "assistant").at(-1);
+  const writes = reply ? readMarkers(reply.content).writes : [];
+  return names.flatMap((name) => {
+    const write2 = writes.filter((one) => one.name.trim().slice(0, 200) === name).at(-1);
+    return write2 ? [write2] : [];
   });
 }
 
@@ -67470,7 +67478,7 @@ function summaryOf(wordplay, row) {
     firstLine: chatOfMessage(said2).text.replace(/\s+/g, " ").trim().slice(0, 120),
     startedAt: iso(row.createdAt ?? row.lastAskedAt),
     lastAt: iso(row.lastAskedAt),
-    messages: row.turns.length,
+    messages: row.turns.length + 2 * (row.repliesLetGo ?? 0),
     stepsEarned: wordplay.steps.filter((step) => given.has(step.id) && !skipped.has(step.id)).length,
     pageAt: row.page?.at ?? 0,
     done: isDone(wordplay, row.held)
@@ -67808,7 +67816,7 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     if (typeof sent.skip === "string")
       ({ held, skipped } = heldAfterSkip(wordplay, held, skipped, sent.skip));
     const did = before2 ? readDid(sent.did) : [];
-    const wrote = before2 ? readWrote(sent.wrote) : [];
+    const wrote = before2 ? writesLanded(before2.turns, readWrote(sent.wrote)) : [];
     const page2 = readPage(sent.page);
     let id = before2?.id ?? null;
     if (held.length > (before2?.held.length ?? 0) || did.length || wrote.length || page2) {
