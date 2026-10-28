@@ -39241,7 +39241,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "a4c31909b547";
+var PREVIEW_BUILD = false ? "source" : "844465cb003e";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -51717,7 +51717,13 @@ function roleOf(element) {
   }
 }
 function hiddenFromReader(element) {
-  return element.getAttribute("aria-hidden") === "true" || element.hasAttribute("hidden") || SKIPPED.has(element.tagName.toLowerCase());
+  return element.getAttribute("aria-hidden") === "true" || element.hasAttribute("hidden") || SKIPPED.has(element.tagName.toLowerCase()) || foldedAway(element);
+}
+function foldedAway(element) {
+  const chat = element.parentElement;
+  return Boolean(
+    chat?.hasAttribute("data-chat") && chat.hasAttribute("data-folded") && !element.classList.contains("wordplay-chat-toggle")
+  );
 }
 function chatName(element) {
   const label = squash(element.getAttribute("aria-label") ?? "").trim();
@@ -51798,7 +51804,7 @@ function childrenOf(element, options) {
 }
 function nodesOf(element, options) {
   if (hiddenFromReader(element) || options.skip?.(element)) return [];
-  if (element.hasAttribute("data-chat-box") || element.hasAttribute("data-calculator-button") || element.hasAttribute("data-calculator-room") || element.hasAttribute("data-skip-button") || element.hasAttribute("data-wordplay-live"))
+  if (element.hasAttribute("data-chat-box") && !element.classList.contains("wordplay-chat-toggle") || element.hasAttribute("data-calculator-button") || element.hasAttribute("data-calculator-room") || element.hasAttribute("data-skip-button") || element.hasAttribute("data-wordplay-live"))
     return [];
   if (element.tagName.toLowerCase() === "data" && element.hasAttribute("data-key")) return [];
   if (element.hasAttribute("data-chat")) {
