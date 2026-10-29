@@ -38690,6 +38690,19 @@ function failureOf(status, said2) {
   if (status >= 500) return "provider";
   return "setup";
 }
+function refusalLine(call, provider2, status, said2) {
+  let type = "";
+  let message = said2;
+  try {
+    const body2 = JSON.parse(said2);
+    const error62 = typeof body2.error === "object" && body2.error ? body2.error : null;
+    type = error62?.type ?? error62?.code ?? body2.type ?? "";
+    message = error62?.message ?? (typeof body2.error === "string" ? body2.error : body2.message) ?? said2;
+  } catch {
+  }
+  const text3 = (typeof message === "string" ? message : JSON.stringify(message) ?? "").replace(/\b(?:sk|pk|rk|key|api)[-_][A-Za-z0-9_-]{8,}/gi, "[key]").replace(/\b[A-Za-z0-9_-]{40,}\b/g, "[key]").replace(/\s+/g, " ").trim().slice(0, 300);
+  return `[ai] refused ${call} provider=${provider2} status=${status} type=${String(type) || "none"} message=${JSON.stringify(text3)}`;
+}
 function explainAiFailure(error62) {
   const failure2 = error62 instanceof AiError ? error62.failure : "unreachable";
   switch (failure2) {
@@ -38775,6 +38788,10 @@ async function askAi(options) {
   if (!response.ok || !response.body) {
     const detail = await response.text().catch(() => "");
     const failure2 = failureOf(response.status, detail);
+    if (!response.ok)
+      console.error(
+        refusalLine(`${options.role ?? "assistant"} ${model}`, kind, response.status, detail)
+      );
     report(new Usage(), failure2, null);
     throw new AiError(failure2, `Inference failed (${response.status}): ${detail.slice(0, 500)}`);
   }
@@ -39100,6 +39117,7 @@ function textOf(body2, kind, label, ended) {
           const refusal = errorIn(payload);
           if (refusal) {
             finished = true;
+            if (label) console.error(refusalLine(label, kind, "stream", payload));
             logged(refusal.failure);
             controller.error(
               new AiError(refusal.failure, `Inference stream refused: ${refusal.said}`)
@@ -39241,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "b8a3f14388cb";
+var PREVIEW_BUILD = false ? "source" : "90ec8f4c8993";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
