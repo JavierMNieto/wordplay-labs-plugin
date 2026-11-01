@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "90ec8f4c8993";
+var PREVIEW_BUILD = false ? "source" : "3847bc2c7555";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39665,7 +39665,8 @@ var STAND_IN = "data-wordplay-stand-in";
 // packages/format/src/shared.ts
 init_define_WORDPLAY_ENGINE();
 var SHARED_TYPE = "application/wordplay-shared";
-var SHARED_FACTS = ["seconds", "steps", "messages", "skips"];
+var SHARED_FACTS = ["messages"];
+var RETIRED_FACTS = ["seconds", "steps", "skips"];
 var KEYS = /* @__PURE__ */ new Set(["fields", "names", "guests", "entries", "facts", "tutor", "tally"]);
 var MAX_FIELDS = 40;
 var isPlain = (value) => !!value && typeof value === "object" && !Array.isArray(value);
@@ -39732,9 +39733,10 @@ function readSharedJson(text3) {
   if (sent.facts !== void 0) {
     for (const fact of Array.isArray(sent.facts) ? sent.facts : [sent.facts]) {
       if (SHARED_FACTS.includes(fact)) facts.push(fact);
+      else if (RETIRED_FACTS.includes(fact)) continue;
       else
         problems.push(
-          `The shared block asks for the fact "${String(fact)}", which Wordplay does not know: ${SHARED_FACTS.join(", ")}.`
+          `The shared block asks for the fact "${String(fact)}", which Wordplay does not know: the one it knows is "messages".`
         );
     }
   }
@@ -39875,15 +39877,10 @@ function countsOver(block, values) {
 
 // packages/format/src/adds.ts
 init_define_WORDPLAY_ENGINE();
-var DECLARATIONS = ["data-chat", "data-progress", "data-pages", "data-skip"];
+var DECLARATIONS = ["data-chat", "data-pages"];
 function addsOf(wordplay) {
   const has = (name) => wordplay.body?.hasAttribute(name) ?? false;
-  return {
-    chat: has("data-chat"),
-    progress: has("data-progress"),
-    pages: has("data-pages"),
-    skip: has("data-skip")
-  };
+  return { chat: has("data-chat"), pages: has("data-pages") };
 }
 
 // packages/format/src/tree.ts
@@ -51822,7 +51819,7 @@ function childrenOf(element, options) {
 }
 function nodesOf(element, options) {
   if (hiddenFromReader(element) || options.skip?.(element)) return [];
-  if (element.hasAttribute("data-chat-box") && !element.classList.contains("wordplay-chat-toggle") || element.hasAttribute("data-calculator-button") || element.hasAttribute("data-calculator-room") || element.hasAttribute("data-skip-button") || element.hasAttribute("data-wordplay-live"))
+  if (element.hasAttribute("data-chat-box") && !element.classList.contains("wordplay-chat-toggle") || element.hasAttribute("data-calculator-button") || element.hasAttribute("data-calculator-room") || element.hasAttribute("data-wordplay-live"))
     return [];
   if (element.tagName.toLowerCase() === "data" && element.hasAttribute("data-key")) return [];
   if (element.hasAttribute("data-chat")) {
@@ -51927,9 +51924,7 @@ var STANDARD_ATTRIBUTES = [
 ];
 var WORDPLAY_ATTRIBUTES = [
   "data-chat",
-  "data-progress",
   "data-pages",
-  "data-skip",
   "data-calculator",
   "data-key",
   "data-container",
@@ -51940,7 +51935,20 @@ var WORDPLAY_ATTRIBUTES = [
 var KNOWN_ATTRIBUTES = [...STANDARD_ATTRIBUTES, ...WORDPLAY_ATTRIBUTES];
 var isPageElement = (element) => isPageAttrs(element.tagName, (name) => element.hasAttribute(name));
 var isContext = (element) => element.hasAttribute("data-context");
+var isAnswerNote = (element) => isContext(element) && element.closest(".wordplay-answer") !== null;
 var hasCondition = (element) => element.hasAttribute("data-expect");
+var generalContextOf = (body2) => Array.from(body2.children).find(
+  (one) => isContext(one) && !hasCondition(one) && one.tagName.toLowerCase() === "div"
+) ?? null;
+var chatContextOf = generalContextOf;
+function isPlacedNote(element) {
+  if (!isContext(element)) return false;
+  if (isAnswerNote(element)) return true;
+  const parent = element.parentElement;
+  if (!parent) return false;
+  if (parent === element.ownerDocument.body) return generalContextOf(parent) === element;
+  return parent.hasAttribute("data-chat") && !parent.closest("[data-context]") && chatContextOf(parent) === element;
+}
 var isSection = (element) => element.tagName.toLowerCase() === "section";
 function conditionOf(element) {
   const expect = element.getAttribute("data-expect");
@@ -51960,14 +51968,12 @@ function parseWordplay(source) {
   const version3 = body2?.getAttribute("data-wordplay") ?? null;
   const parts = [];
   const top = [];
-  let steps = 0;
   let reveals = 0;
-  let contexts = 0;
   let keys2 = 0;
-  const visit2 = (element, holder, inContext) => {
+  const visit2 = (element, holder) => {
     for (const child of Array.from(element.children)) {
-      const context = inContext || isContext(child);
-      if (!context && isKeyElement(child)) {
+      if (isContext(child)) continue;
+      if (isKeyElement(child)) {
         keys2++;
         const kind = (child.getAttribute("data-key") ?? "").trim().toLowerCase();
         const key2 = {
@@ -51986,51 +51992,28 @@ function parseWordplay(source) {
         (holder ? holder.children : top).push(key2);
         continue;
       }
-      const conditioned = hasCondition(child);
-      if (!isContext(child) && !conditioned) {
-        visit2(child, holder, inContext);
+      if (!hasCondition(child)) {
+        visit2(child, holder);
         continue;
       }
       const own2 = child.getAttribute("id")?.trim();
-      const base = { element: child, parent: holder, children: [] };
-      let part;
-      if (context) {
-        part = {
-          ...base,
-          kind: "context",
-          id: own2 || `c${contexts + 1}`,
-          condition: conditionOf(child),
-          text: contextText(child)
-        };
-        contexts++;
-      } else if (isSection(child)) {
-        steps++;
-        const id = own2 || `s${steps}`;
-        part = {
-          ...base,
-          kind: "step",
-          id,
-          name: nameOfElement(child, id),
-          condition: conditionOf(child),
-          skip: child.getAttribute("data-skip")?.trim().toLowerCase() !== "false"
-        };
-      } else {
-        reveals++;
-        const id = own2 || `r${reveals}`;
-        part = {
-          ...base,
-          kind: "reveal",
-          id,
-          name: nameOfElement(child, id),
-          condition: conditionOf(child)
-        };
-      }
+      if (!(own2 && isSection(child))) reveals++;
+      const id = own2 || `r${reveals}`;
+      const part = {
+        kind: "reveal",
+        id,
+        element: child,
+        parent: holder,
+        children: [],
+        name: nameOfElement(child, id),
+        condition: conditionOf(child)
+      };
       parts.push(part);
       (holder ? holder.children : top).push(part);
-      visit2(child, part, context);
+      visit2(child, part);
     }
   };
-  if (body2) visit2(body2, null, false);
+  if (body2) visit2(body2, null);
   const pages = Array.from(body2?.children ?? []).filter(isPageElement).map((element, at) => ({
     id: `p${at + 1}`,
     name: nameOfElement(element, `Page ${at + 1}`),
@@ -52045,11 +52028,10 @@ function parseWordplay(source) {
     document: document2,
     body: body2,
     parts,
-    steps: parts.filter((part) => part.kind === "step"),
     reveals: parts.filter((part) => part.kind === "reveal"),
-    contexts: parts.filter((part) => part.kind === "context"),
+    contexts: body2 ? notesOf(body2, parts) : [],
     keys: parts.filter((part) => part.kind === "key"),
-    slotted: parts.filter((part) => part.kind !== "context"),
+    slotted: parts,
     top,
     pages,
     chats,
@@ -52076,23 +52058,6 @@ function waitingParts(wordplay, held) {
   const given = givenParts(wordplay, held);
   return wordplay.parts.filter(
     (part) => !given.has(part.id) && (!part.parent || given.has(part.parent.id))
-  );
-}
-function progress(wordplay, held) {
-  const given = givenParts(wordplay, held);
-  return {
-    given: wordplay.steps.filter((step) => given.has(step.id)).length,
-    total: wordplay.steps.length
-  };
-}
-function isDone(wordplay, held) {
-  const { given, total } = progress(wordplay, held);
-  return total > 0 && given === total;
-}
-function skippable(wordplay, held) {
-  if (!addsOf(wordplay).skip) return [];
-  return waitingParts(wordplay, held).filter(
-    (part) => part.kind === "step" && part.skip
   );
 }
 var INLINE2 = /* @__PURE__ */ new Set([
@@ -52124,6 +52089,7 @@ var INLINE2 = /* @__PURE__ */ new Set([
   "del",
   "ins"
 ]);
+var NOT_READ = /* @__PURE__ */ new Set(["script", "style", "template", "button", "input", "select", "textarea"]);
 function contextText(element) {
   const paragraphs = [];
   let line = "";
@@ -52142,7 +52108,7 @@ function contextText(element) {
       const one = child;
       if (isContext(one) || hasCondition(one)) continue;
       const tag = one.tagName.toLowerCase();
-      if (tag === "script" || tag === "style" || tag === "template") continue;
+      if (NOT_READ.has(tag)) continue;
       if (INLINE2.has(tag)) {
         line += tag === "br" ? " " : one.outerHTML;
         continue;
@@ -52156,11 +52122,48 @@ function contextText(element) {
   end();
   return paragraphs.join("\n\n");
 }
+function notesOf(body2, parts) {
+  const names = new Map(
+    parts.flatMap((part) => part.kind === "reveal" ? [[part.element, part.name]] : [])
+  );
+  const found = [];
+  const walk = (element, inContext) => {
+    for (const child of Array.from(element.children)) {
+      const context = isContext(child);
+      if (context || inContext && hasCondition(child)) found.push(child);
+      walk(child, inContext || context);
+    }
+  };
+  walk(body2, false);
+  return found.map((element, at) => ({
+    kind: "context",
+    id: element.getAttribute("id")?.trim() || `c${at + 1}`,
+    element,
+    text: notesText(element, (reveal) => names.get(reveal) ?? nameOfElement(reveal, "a part"))
+  }));
+}
+function notesText(element, nameOfReveal = (reveal) => nameOfElement(reveal, "a part")) {
+  const text3 = contextText(element);
+  const moment = momentOf(element, nameOfReveal);
+  return moment && text3 ? `${moment} ${text3}` : text3;
+}
+function momentOf(element, nameOfReveal) {
+  const own2 = conditionOf(element);
+  if (own2) return `When ${own2}:`;
+  const parent = element.parentElement;
+  if (parent?.hasAttribute("data-chat") && chatContextOf(parent) === element) return null;
+  for (let at = parent; at && at !== element.ownerDocument.body; at = at.parentElement) {
+    const condition = conditionOf(at);
+    if (!condition) continue;
+    return at.closest("[data-context]") ? `When ${condition}:` : `Once "${nameOfReveal(at)}" is on their page:`;
+  }
+  return null;
+}
 function serialize(document2) {
   const doctype = document2.doctype ? "<!doctype html>\n" : "";
   const html = document2.documentElement.outerHTML.replace(
     /<body\b[^>]*>/i,
-    (tag) => tag.replace(/ (data-(?:chat|progress|pages|skip))=""/g, " $1")
+    (tag) => tag.replace(/ (data-(?:chat|pages))=""/g, " $1")
   );
   return doctype + html + "\n";
 }
@@ -52182,19 +52185,22 @@ function distance(a, b) {
 var RETIRED_ATTRIBUTES = {
   "data-verify": "data-verify is no longer read. Check the answer in a script that calls document.wordplay?.met(id), or write the moment as data-expect."
 };
+var SILENT_ATTRIBUTES = /* @__PURE__ */ new Set(["data-progress", "data-skip"]);
 function nearlyKnown(attribute2) {
-  if (KNOWN_ATTRIBUTES.includes(attribute2) || attribute2 in RETIRED_ATTRIBUTES) return null;
+  if (KNOWN_ATTRIBUTES.includes(attribute2) || attribute2 in RETIRED_ATTRIBUTES || SILENT_ATTRIBUTES.has(attribute2))
+    return null;
   const close3 = KNOWN_ATTRIBUTES.find((known) => distance(attribute2, known) <= 2);
   if (close3) return close3;
   if (attribute2.startsWith("data-wordplay")) return "data-wordplay";
   return null;
 }
 var describe3 = (element) => `<${element.tagName.toLowerCase()}>`;
-var what = (part) => part.kind === "step" ? `the step "${part.name}"` : part.kind === "reveal" ? `the reveal "${part.name}"` : part.kind === "key" ? `the key "${part.label}"` : `context ${part.id}`;
+var what = (part) => part.kind === "reveal" ? `the block "${part.name}"` : `the key "${part.label}"`;
 function repeatedIds(wordplay) {
   const seen = /* @__PURE__ */ new Set();
   const twice = /* @__PURE__ */ new Set();
-  for (const part of wordplay.parts) (seen.has(part.id) ? twice : seen).add(part.id);
+  const notes = wordplay.contexts.filter((note) => note.element.getAttribute("id")?.trim());
+  for (const one of [...wordplay.parts, ...notes]) (seen.has(one.id) ? twice : seen).add(one.id);
   return [...twice];
 }
 var BOX_NAME = /^\s*(chat about|ask about|chat:|ask:)/i;
@@ -52227,21 +52233,8 @@ function readableProblems(wordplay) {
     }
     if (element !== body2 && element.hasAttribute("data-wordplay"))
       problems.push(`data-wordplay belongs on the <body>, not on a ${describe3(element)}.`);
-    for (const name of ["data-progress", "data-pages"])
-      if (element !== body2 && element.hasAttribute(name))
-        problems.push(`${name} goes on the <body>, not on this ${describe3(element)}.`);
-    const skip = element === body2 ? null : element.getAttribute("data-skip");
-    const step = hasCondition(element) && isSection(element) && !element.closest("[data-context]");
-    if (skip !== null && !step)
-      problems.push(
-        `data-skip goes on the <body>, or as data-skip="false" on a step, not on this ${describe3(element)}.`
-      );
-    else if (skip !== null && skip.trim().toLowerCase() !== "false")
-      problems.push(`data-skip on a step is "false" or left out, not "${skip}".`);
-    else if (skip !== null && body2 && !addsOf(wordplay).skip)
-      problems.push(
-        `This wordplay offers no Skip (no data-skip on its <body>), so data-skip="false" on the step "${nameOfElement(element, element.id || "unnamed")}" changes nothing. Take it off, or put data-skip on the <body>.`
-      );
+    if (element !== body2 && element.hasAttribute("data-pages"))
+      problems.push(`data-pages goes on the <body>, not on this ${describe3(element)}.`);
     const calculator = element.hasAttribute("data-calculator");
     const chat = element !== body2 && element.hasAttribute("data-chat");
     if (calculator && !chat && element.tagName.toLowerCase() !== "input")
@@ -52272,6 +52265,7 @@ function readableProblems(wordplay) {
       );
   if (body2?.hasAttribute("data-context"))
     problems.push("The <body> cannot be context: it is what the student sees.");
+  problems.push(...notesProblems(wordplay));
   if (body2 && hasCondition(body2))
     problems.push("The <body> is always shown, so a condition on it means nothing.");
   const chatNames = /* @__PURE__ */ new Set();
@@ -52362,13 +52356,13 @@ function readableProblems(wordplay) {
       );
     if (!wordplay.chats.length && wordplay.parts.some((part) => part.condition !== null))
       problems.push(
-        "This wordplay has no chat anywhere, so the tutor hears nothing: a condition holds only when a script says so (document.wordplay.met) or the step is skipped. Put data-chat on the <body>, or draw a chat in the page (data-chat on a <div>)."
+        "This wordplay has no chat anywhere, so the tutor hears nothing: a condition holds only when a script says so (document.wordplay.met). Put data-chat on the <body>, or draw a chat in the page (data-chat on a <div>)."
       );
   }
-  for (const step of wordplay.steps)
-    if (!nameOfElement(step.element, ""))
+  for (const reveal of wordplay.reveals)
+    if (reveal.element.tagName.toLowerCase() === "section" && !nameOfElement(reveal.element, ""))
       problems.push(
-        `The step ${step.id} has no name. Give its <section> an aria-label or a heading, so the progress bar can name it.`
+        `The section ${reveal.id} that appears later has no name. Give its ${describe3(reveal.element)} an aria-label or a heading, so the chat can name it when it appears.`
       );
   for (const part of wordplay.parts) {
     const condition = part.condition;
@@ -52377,6 +52371,50 @@ function readableProblems(wordplay) {
     if (condition.length > MAX_CONDITION)
       problems.push(`The condition on ${what(part)} is longer than ${MAX_CONDITION} characters.`);
   }
+  return problems;
+}
+var CONTROL_TAGS = /* @__PURE__ */ new Set(["button", "input", "select", "textarea", "form"]);
+function notesProblems(wordplay) {
+  const { body: body2 } = wordplay;
+  const problems = [];
+  const reveals = new Map(wordplay.reveals.map((reveal) => [reveal.element, reveal]));
+  const pages = new Map(wordplay.pages.map((page2) => [page2.element, page2]));
+  const notes = wordplay.contexts.map((note) => note.element).filter((note) => isContext(note) && !isAnswerNote(note));
+  const besideNotes = (note) => note.parentElement === body2 || !!note.parentElement?.hasAttribute("data-chat");
+  const astray = notes.find(
+    (note) => !isPlacedNote(note) && !(besideNotes(note) && hasCondition(note))
+  );
+  if (astray) {
+    const parent = astray.parentElement;
+    let where = parent === body2 ? "the <body> beside the general notes" : parent.hasAttribute("data-chat") ? `the chat "${chatName(parent)}" beside its notes` : `a ${describe3(parent)}`;
+    for (let at = besideNotes(astray) ? null : parent; at && at !== body2; at = at.parentElement) {
+      const reveal = reveals.get(at);
+      const page2 = pages.get(at);
+      if (isContext(at)) where = "other notes";
+      else if (reveal) where = `the block "${reveal.name}"`;
+      else if (page2) where = `the page "${page2.name}"`;
+      else continue;
+      break;
+    }
+    problems.push(
+      `Notes for the tutor go directly in the <body> or in a chat: this ${describe3(astray)} is inside ${where}. Move its text into the general notes or the chat's.`
+    );
+  }
+  const waits = wordplay.contexts.find((note) => hasCondition(note.element));
+  if (waits)
+    problems.push(
+      `Notes for the tutor are read from the start, so the condition on this ${describe3(waits.element)} only leads its text. Write the moment in front of its note, in the general notes or the chat's.`
+    );
+  const control = notes.some(
+    (note) => [note, ...Array.from(note.querySelectorAll("*"))].some((one) => {
+      const role = roleOf(one);
+      return CONTROL_TAGS.has(one.tagName.toLowerCase()) || role !== null && role !== "link" && CONTROL_ROLES.has(role);
+    })
+  );
+  if (control)
+    problems.push(
+      "A control inside the tutor's notes is one nobody can use: the student never sees it, and the tutor reads notes as text. Put it on the page, named, and the tutor can set it."
+    );
   return problems;
 }
 function regions(wordplay) {
@@ -52431,24 +52469,6 @@ function publishableProblems(wordplay, source) {
   return problems;
 }
 
-// packages/player/src/lib/active-time.ts
-init_define_WORDPLAY_ENGINE();
-var IDLE_SECONDS = 5 * 60;
-function activeSeconds(moments) {
-  const times = moments.map((one) => one instanceof Date ? one.getTime() : one ? Date.parse(one) : NaN).filter((time3) => Number.isFinite(time3)).sort((a, b) => a - b);
-  let total = 0;
-  for (let at = 1; at < times.length; at++)
-    total += Math.min(times[at] - times[at - 1], IDLE_SECONDS * 1e3);
-  return Math.round(total / 1e3);
-}
-function localRunFacts(turns, events) {
-  if (!events.some((event) => event.kind === "done")) return {};
-  return {
-    messages: turns.filter((turn) => turn.role === "user").length,
-    seconds: activeSeconds(events.map((event) => event.at))
-  };
-}
-
 // packages/format/src/links.ts
 init_define_WORDPLAY_ENGINE();
 var NAME = /^[a-z0-9][a-z0-9_-]*$/i;
@@ -52473,7 +52493,7 @@ init_define_WORDPLAY_ENGINE();
 function emptyStandings(self, names, title = self) {
   const none = (name) => ({
     title: name,
-    completed: 0,
+    readers: 0,
     minutes: null,
     mine: null
   });
@@ -67188,16 +67208,16 @@ function contained(wordplay, given, order) {
 function slotted(wordplay, given, order = []) {
   loadingLater(wordplay);
   contained(wordplay, given, order);
-  for (const step of wordplay.slotted) {
-    if (given.has(step.id)) {
-      if (step.kind !== "key") step.element.setAttribute(MET, step.id);
-      for (const name of CONDITION_ATTRIBUTES) step.element.removeAttribute(name);
+  for (const part of wordplay.slotted) {
+    if (given.has(part.id)) {
+      if (part.kind !== "key") part.element.setAttribute(MET, part.id);
+      for (const name of CONDITION_ATTRIBUTES) part.element.removeAttribute(name);
       continue;
     }
-    if (!step.element.isConnected) continue;
+    if (!part.element.isConnected) continue;
     const slot = wordplay.document.createElement("template");
-    slot.setAttribute(SLOT, step.id);
-    step.element.replaceWith(slot);
+    slot.setAttribute(SLOT, part.id);
+    part.element.replaceWith(slot);
   }
   stripDocument(wordplay.document);
 }
@@ -67213,11 +67233,11 @@ function partHtml(source, ids, held) {
   const order = [...held];
   const given = givenParts(wordplay, order);
   const out = [];
-  const steps = wordplay.slotted.filter((step) => wanted.has(step.id) && given.has(step.id));
+  const parts = wordplay.slotted.filter((part) => wanted.has(part.id) && given.has(part.id));
   slotted(wordplay, given, order);
-  for (const step of steps) {
-    if (steps.some((other) => other !== step && other.element.contains(step.element))) continue;
-    out.push({ id: step.id, html: step.element.outerHTML });
+  for (const part of parts) {
+    if (parts.some((other) => other !== part && other.element.contains(part.element))) continue;
+    out.push({ id: part.id, html: part.element.outerHTML });
   }
   return out;
 }
@@ -67271,7 +67291,7 @@ function studentPage(source, held, folder) {
   if (folder) inFolder(document2, folder);
   return serialize(document2);
 }
-function givenSteps(source, ids, held, folder) {
+function givenHtml(source, ids, held, folder) {
   return partHtml(source, ids, held).map(({ id, html }) => {
     const document2 = documentOf(`<html><body>${html}</body></html>`);
     drawMath(document2.body);
@@ -67340,16 +67360,6 @@ function heldAfterMet(wordplay, held, ids) {
     now = union2(now, holding);
   }
 }
-function heldAfterSkip(wordplay, held, skipped, id) {
-  if (!skippable(wordplay, held).some((step) => step.id === id)) return { held, skipped };
-  return { held: union2(held, [id]), skipped: union2(skipped, [id]) };
-}
-function progressOf(wordplay, held) {
-  return {
-    ...progress(wordplay, held),
-    skippable: skippable(wordplay, held).map((step) => step.id)
-  };
-}
 var MAX_EVENTS = 300;
 var repliesIn = (turns) => turns.filter((turn) => turn.role === "assistant").length;
 function turnsBeforeEdit(turns, replaces) {
@@ -67360,8 +67370,6 @@ function turnsBeforeEdit(turns, replaces) {
 function keptAfter(wordplay, kept, change, cause) {
   const at = cause.at ?? (/* @__PURE__ */ new Date()).toISOString();
   const held = union2(kept.held, change.held);
-  const skipped = union2(kept.skipped, change.skipped ?? []);
-  const fresh = new Set(skipped.filter((id) => !kept.skipped.includes(id)));
   const was = givenParts(wordplay, kept.held);
   const now = givenParts(wordplay, held);
   const event = (kind, id, by = cause.by) => ({
@@ -67372,9 +67380,7 @@ function keptAfter(wordplay, kept, change, cause) {
     reply: cause.reply
   });
   const events = [
-    ...wordplay.parts.filter((part) => (part.kind === "step" || part.kind === "reveal") && part.condition !== null).filter((part) => now.has(part.id) && !was.has(part.id)).map(
-      (part) => fresh.has(part.id) ? event("skipped", part.id, "student") : event("given", part.id)
-    ),
+    ...wordplay.parts.filter((part) => part.kind === "reveal" && part.condition !== null).filter((part) => now.has(part.id) && !was.has(part.id)).map((part) => event("given", part.id)),
     ...(change.did ?? []).map((action) => ({
       ...event(action.value === void 0 ? "pressed" : "set", action.name.slice(0, 200), "tutor"),
       ...action.value !== void 0 ? { value: action.value.slice(0, 200) } : {}
@@ -67383,40 +67389,20 @@ function keptAfter(wordplay, kept, change, cause) {
       ...new Map((change.wrote ?? []).map((write2) => [write2.name.slice(0, 200), write2.text]))
     ].map(([name, text3]) => ({ ...event("changed", name, "tutor"), value: text3 }))
   ];
-  if (isDone(wordplay, held) && !isDone(wordplay, kept.held)) events.push(event("done", ""));
   const page2 = change.page ?? kept.page;
   return {
     held,
-    skipped,
     events: [...kept.events, ...events].slice(-MAX_EVENTS),
     ...page2 ? { page: page2 } : {}
   };
 }
-function shownEvents(wordplay, events, run2 = {}) {
-  const kindOf = (id) => wordplay.parts.find((one) => one.id === id)?.kind;
+function shownEvents(wordplay, events) {
   return events.flatMap((event) => {
-    if (event.kind === "pressed" || event.kind === "set" || event.kind === "changed")
-      return [{ ...event, name: event.id, step: false }];
-    if (event.kind === "done") {
-      const skipped = new Set(events.filter((one) => one.kind === "skipped").map((one) => one.id));
-      const tutors = events.filter((one) => one.kind === "given" && one.by === "tutor");
-      return [
-        {
-          ...event,
-          name: "",
-          step: false,
-          skipped: skipped.size,
-          hints: tutors.filter((one) => kindOf(one.id) === "reveal").length,
-          steps: tutors.filter((one) => kindOf(one.id) === "step").length,
-          ...run2
-        }
-      ];
-    }
+    if (event.kind !== "given") return [{ ...event, name: event.id }];
     const part = wordplay.parts.find((one) => one.id === event.id);
-    if (!part || part.kind !== "step" && part.kind !== "reveal") return [];
-    const unnamed = part.name === part.id;
-    const name = !unnamed ? part.name : part.kind === "step" ? "A step" : part.element.tagName.toLowerCase() === "aside" ? "A hint" : "Something new";
-    return [{ ...event, name, step: part.kind === "step" }];
+    if (!part || part.kind !== "reveal") return [];
+    const name = part.name !== part.id ? part.name : "Something new";
+    return [{ ...event, name }];
   });
 }
 function writesLanded(turns, names) {
@@ -67429,7 +67415,7 @@ function writesLanded(turns, names) {
 }
 
 // packages/player/src/lib/local-preview.ts
-function localLesson(source, held, meta4, events = [], turns = []) {
+function localLesson(source, held, meta4, events = []) {
   const wordplay = parseWordplay(source);
   const given = givenParts(wordplay, held);
   return {
@@ -67439,10 +67425,8 @@ function localLesson(source, held, meta4, events = [], turns = []) {
     changed: meta4.changed,
     title: titleOf(wordplay) || meta4.stem,
     page: studentPage(source, held, meta4.folder),
-    given: wordplay.slotted.filter((step) => given.has(step.id)).map((step) => step.id),
-    done: isDone(wordplay, held),
-    progress: progressOf(wordplay, held),
-    events: shownEvents(wordplay, events, localRunFacts(turns, events)),
+    given: wordplay.slotted.filter((part) => given.has(part.id)).map((part) => part.id),
+    events: shownEvents(wordplay, events),
     openings: { tutor: openingOf(wordplay), chats: chatOpenings(wordplay) },
     adds: addsOf(wordplay),
     standings: emptyStandings(
@@ -67486,9 +67470,7 @@ function chatOfMessage(content) {
 }
 
 // packages/player/src/lib/history.ts
-function summaryOf(wordplay, row) {
-  const given = givenParts(wordplay, row.held);
-  const skipped = new Set(row.skipped ?? []);
+function summaryOf(row) {
   const said2 = row.turns.find((turn) => turn.role === "user")?.content ?? "";
   const iso = (at) => typeof at === "string" ? at : at.toISOString();
   return {
@@ -67497,9 +67479,7 @@ function summaryOf(wordplay, row) {
     startedAt: iso(row.createdAt ?? row.lastAskedAt),
     lastAt: iso(row.lastAskedAt),
     messages: row.turns.length + 2 * (row.repliesLetGo ?? 0),
-    stepsEarned: wordplay.steps.filter((step) => given.has(step.id) && !skipped.has(step.id)).length,
-    pageAt: row.page?.at ?? 0,
-    done: isDone(wordplay, row.held)
+    pageAt: row.page?.at ?? 0
   };
 }
 
@@ -67512,17 +67492,17 @@ var MAX_ANNOUNCED = 40;
 var MAX_TOLD = 20;
 var MAX_CALCULATIONS = 20;
 function tutorEnvelope(wordplay, source, title, view) {
-  const given = givenParts(wordplay, view.held);
   return {
     title,
-    context: wordplay.contexts.filter((context) => given.has(context.id) && context.text).map((context) => {
+    // Every note from the start, each led by its moment (SPEC.md, "Notes").
+    context: wordplay.contexts.filter((context) => context.text).map((context) => {
       const chat = wordplay.chats.find((one) => one.element.contains(context.element))?.name;
       return { id: context.id, text: context.text, ...chat ? { chat } : {} };
     }),
     waiting: waitingParts(wordplay, view.held).filter((part) => part.condition !== null).map((part) => ({
       id: part.id,
       kind: part.kind,
-      ...part.kind === "step" || part.kind === "reveal" ? { name: part.name } : {},
+      ...part.kind === "reveal" ? { name: part.name } : {},
       ...part.kind === "key" ? { name: part.label } : {},
       condition: part.condition
     })),
@@ -67530,8 +67510,6 @@ function tutorEnvelope(wordplay, source, title, view) {
     announced: (view.announced ?? []).slice(-MAX_ANNOUNCED),
     told: (view.told ?? []).slice(-MAX_TOLD),
     calculations: (view.calculations ?? []).slice(-MAX_CALCULATIONS),
-    skipped: wordplay.steps.filter((step) => view.skipped?.includes(step.id)).map((step) => step.name),
-    done: isDone(wordplay, view.held),
     pictures: view.pictures ?? 0,
     share: wordplay.shared?.tutor ? fieldsInWords(wordplay.shared.fields) : null,
     openings: [
@@ -67550,9 +67528,7 @@ function fieldsInWords(fields) {
   }).join("; ");
 }
 var WHAT = {
-  step: (name) => `the step "${name}"`,
-  reveal: (name) => `a reveal, "${name}"`,
-  context: () => "context",
+  reveal: (name) => `the part "${name}"`,
   key: (name) => `the calculator key "${name}"`
 };
 function calculationLine({ on, line, value, error: error62, put, seen }) {
@@ -67590,8 +67566,6 @@ function envelopeBindings(envelope) {
     announced: envelope.announced.map((line) => `- ${asLine(line)}`),
     told: envelope.told.map((line) => `- ${asLine(line)}`),
     calculations: envelope.calculations.map((one) => asLine(calculationLine(one))),
-    skipped: envelope.skipped.map((name) => `- "${name}"`),
-    done: envelope.done,
     share: envelope.share,
     openings: envelope.openings.map((line) => `- ${line}`)
   };
@@ -67810,8 +67784,7 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
         source(),
         trial?.held ?? [],
         { ...rest, problems: problems ?? [], ...folder ? { folder } : {} },
-        trial?.events ?? [],
-        trial?.turns ?? []
+        trial?.events ?? []
       ),
       ...trial?.page ? { pageState: trial.page } : {},
       // The wall, for a file that shares (SPEC.md, "Sharing").
@@ -67828,32 +67801,25 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     const wordplay = parseWordplay(file2);
     const before2 = find3(sent.conversationId);
     let held = before2?.held ?? [];
-    let skipped = before2?.skipped ?? [];
     let events = before2?.events ?? [];
     held = heldAfterMet(wordplay, held, readIds(sent.met));
-    if (typeof sent.skip === "string")
-      ({ held, skipped } = heldAfterSkip(wordplay, held, skipped, sent.skip));
     const did = before2 ? readDid(sent.did) : [];
     const wrote = before2 ? writesLanded(before2.turns, readWrote(sent.wrote)) : [];
     const page2 = readPage(sent.page);
     let id = before2?.id ?? null;
     if (held.length > (before2?.held.length ?? 0) || did.length || wrote.length || page2) {
       id ??= typeof sent.conversationId === "string" && sent.conversationId ? sent.conversationId : newId();
-      ({ held, skipped, events } = keptAfter(
+      ({ held, events } = keptAfter(
         wordplay,
-        { held: before2?.held ?? [], skipped: before2?.skipped ?? [], events },
-        { held, skipped, did, wrote },
-        {
-          by: typeof sent.skip === "string" ? "student" : "page",
-          reply: repliesIn(before2?.turns ?? [])
-        }
+        { held: before2?.held ?? [], events },
+        { held, did, wrote },
+        { by: "page", reply: repliesIn(before2?.turns ?? []) }
       ));
       trials2.save({
         ...before2 ?? { turns: [] },
         id,
         lastAskedAt: before2?.lastAskedAt ?? (/* @__PURE__ */ new Date()).toISOString(),
         held,
-        ...skipped.length ? { skipped } : {},
         events,
         ...page2 ? { page: page2 } : {}
       });
@@ -67864,15 +67830,12 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
       )
     );
     const given = givenParts(wordplay, held);
-    const fresh = wordplay.slotted.filter((step) => given.has(step.id) && !have.has(step.id)).map((step) => step.id);
+    const fresh = wordplay.slotted.filter((part) => given.has(part.id) && !have.has(part.id)).map((part) => part.id);
     return json2(200, {
       conversationId: id,
       held,
-      give: fresh.length ? givenSteps(file2, fresh, held, folder) : [],
-      done: isDone(wordplay, held),
-      progress: progressOf(wordplay, held),
-      skipped,
-      events: shownEvents(wordplay, events, localRunFacts(before2?.turns ?? [], events))
+      give: fresh.length ? givenHtml(file2, fresh, held, folder) : [],
+      events: shownEvents(wordplay, events)
     });
   }
   async function tutor(init) {
@@ -67895,7 +67858,6 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
         source: file2,
         messages: turns,
         held,
-        skipped: before2?.skipped ?? [],
         ...readView(sent),
         sent
       },
@@ -67916,7 +67878,6 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
       const after2 = [...turns, { role: "assistant", content: answer }];
       const was = {
         held: now?.held ?? held,
-        skipped: now?.skipped ?? [],
         events: now?.events ?? [],
         ...now?.page ? { page: now.page } : {}
       };
@@ -67955,26 +67916,13 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
   }
   function wall(wordplay) {
     const block = wordplay.shared;
-    const steps = new Set(wordplay.steps.map((step) => step.id));
     const entryOf = (trial) => {
       const one = trial.shared;
       if (!one || refusalOfShared(block, one.value)) return null;
-      const events = trial.events ?? [];
       const facts = {};
-      for (const fact of block?.facts ?? []) {
-        if (fact === "seconds") {
-          const end = events.find((event) => event.kind === "done")?.at;
-          const start = events[0]?.at;
-          if (end && start)
-            facts.seconds = Math.round((Date.parse(end) - Date.parse(start)) / 1e3);
-        } else if (fact === "steps")
-          facts.steps = events.filter(
-            (event) => event.kind === "given" && event.by === "tutor" && steps.has(event.id)
-          ).length;
-        else if (fact === "messages")
+      for (const fact of block?.facts ?? [])
+        if (fact === "messages")
           facts.messages = trial.turns.filter((turn) => turn.role === "user").length;
-        else if (fact === "skips") facts.skips = trial.skipped?.length ?? 0;
-      }
       return {
         value: one.value,
         at: one.at,
@@ -68032,17 +67980,13 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     return json2(200, {
       // The list's facts (`summaryOf`), and the turns, which the preview's trials read.
       conversations: sorted.map((trial) => ({
-        ...summaryOf(wordplay, {
+        ...summaryOf({
           ...trial,
           createdAt: trial.events?.[0]?.at ?? trial.lastAskedAt
         }),
         lastAskedAt: trial.lastAskedAt,
         turns: trial.turns,
-        events: shownEvents(
-          wordplay,
-          trial.events ?? [],
-          localRunFacts(trial.turns, trial.events ?? [])
-        )
+        events: shownEvents(wordplay, trial.events ?? [])
       }))
     });
   }
@@ -69108,7 +69052,7 @@ function tutorMeasure(envelope) {
   const context = of(["context"]);
   const page2 = of(["page"]);
   const waiting = of(["waiting"]);
-  const activity = of(["announced", "told", "calculations", "skipped"]);
+  const activity = of(["announced", "told", "calculations"]);
   return { rules: whole - context - page2 - waiting - activity, context, page: page2, waiting, activity };
 }
 function tutorTurn(wordplay, source, title, view) {
@@ -69129,18 +69073,20 @@ function runs(text3, size) {
   for (let at = 0; at + size <= list.length; at++) out.add(list.slice(at, at + size).join(" "));
   return out;
 }
-var partText = (part) => part.kind === "context" ? part.text : (part.element.textContent ?? "").replace(/\s+/g, " ");
-var partName = (part) => part.kind === "step" ? `the step "${part.name}"` : part.kind === "key" ? `the key "${part.label}"` : `context ${part.id}`;
+function partText(part) {
+  const copy = part.element.cloneNode(true);
+  for (const note of Array.from(copy.querySelectorAll("[data-context]"))) note.remove();
+  return (copy.textContent ?? "").replace(/\s+/g, " ");
+}
+var partName = (part) => part.kind === "reveal" ? `the part "${part.name}"` : `the key "${part.label}"`;
+var isWithheld = (part) => part.kind === "reveal";
 function studentView(source, held) {
   const wordplay = parseWordplay(source);
   const tree = treeText(documentTree(studentDocument(source, held).body)).join("\n");
   const title = titleOf(wordplay);
   return `${title ? `# ${title}
 
-` : ""}${tree}
-
----
-${isDone(wordplay, held) ? "The wordplay is complete." : "The wordplay is not complete yet."}`;
+` : ""}${tree}`;
 }
 function trialReport(source, turns, acts = []) {
   const wordplay = parseWordplay(source);
@@ -69148,7 +69094,6 @@ function trialReport(source, turns, acts = []) {
   const flags = [];
   let held = [];
   let reply = 0;
-  let completedAt = null;
   for (const turn of turns) {
     if (turn.role === "user") continue;
     reply++;
@@ -69158,7 +69103,7 @@ function trialReport(source, turns, acts = []) {
     const { text: text3, show } = readMarkers(turn.content);
     const said2 = runs(text3, HIDDEN_RUN);
     for (const part of wordplay.parts) {
-      if (given.has(part.id) || part.kind !== "step") continue;
+      if (given.has(part.id) || !isWithheld(part)) continue;
       const shared = [...runs(partText(part), HIDDEN_RUN)].find((run2) => said2.has(run2));
       if (shared)
         flags.push(
@@ -69176,10 +69121,8 @@ function trialReport(source, turns, acts = []) {
     );
     for (const act2 of acts.filter((one) => one.after === reply))
       timeline.push(`  then the student: ${act2.text}`);
-    if (completedAt === null && isDone(wordplay, held) && wordplay.steps.length)
-      completedAt = reply;
   }
-  return { exchanges: reply, completedAt, timeline, flags };
+  return { exchanges: reply, timeline, flags };
 }
 
 // packages/player/src/lib/simulate.ts
@@ -69211,14 +69154,9 @@ async function simulate(source, persona, id, host) {
       (turn) => turn.role === "user" ? { role: "assistant", content: typed(turn.content) } : { role: "user", content: readMarkers(turn.content).text }
     )
   ];
-  const complete = () => wordplay.steps.length > 0 && isDone(wordplay, held);
   let ended = "the student stopped";
   try {
     for (let said2 = 0; said2 < MAX_SAID2; said2++) {
-      if (complete()) {
-        ended = "the lesson is complete";
-        break;
-      }
       const spent2 = await host.spend?.() ?? null;
       if (spent2) {
         ended = spent2;
@@ -69256,8 +69194,7 @@ async function simulate(source, persona, id, host) {
       host.send({ role: "assistant", content: tutor, ...given.length ? { given } : {} });
       if (said2 === MAX_SAID2 - 1) ended = `the student had said ${MAX_SAID2} things`;
     }
-    if (complete()) ended = "the lesson is complete";
-    host.send({ done: true, id, ended, completed: complete() });
+    host.send({ done: true, id, ended });
   } catch (error62) {
     host.send({ done: true, id, ended: "the run stopped", error: host.explain(error62) });
   }
@@ -69459,10 +69396,7 @@ function tokensLine(usage) {
   return `Tokens: ${n(input2)} in${read ? ` (${n(read)} of them read from cache)` : ""}, ${n(sum((one) => one.output))} out, over ${usage.length} ${usage.length === 1 ? "reply" : "replies"}.`;
 }
 function changesBetween(wordplay, before2, after2) {
-  const out = wordplay.steps.filter((step) => after2.includes(step.id) && !before2.includes(step.id)).map((step) => `\u201C${step.name}\u201D appeared on the page.`);
-  if (wordplay.steps.length && isDone(wordplay, after2) && !isDone(wordplay, before2))
-    out.push("The wordplay is complete.");
-  return out;
+  return wordplay.reveals.filter((reveal) => after2.includes(reveal.id) && !before2.includes(reveal.id)).map((reveal) => `\u201C${reveal.name}\u201D appeared on the page.`);
 }
 function actionWords({ name, value }) {
   return value === void 0 ? `pressed \u201C${name}\u201D` : `put ${JSON.stringify(value)} in \u201C${name}\u201D`;
@@ -70283,7 +70217,6 @@ function askFor(s, play) {
       turn.messages.slice(-MAX_TURNS),
       {
         held: turn.held,
-        skipped: turn.skipped,
         tree: turn.tree,
         announced: turn.announced,
         told: turn.told,
@@ -70402,15 +70335,11 @@ function simulatedTree(source, held, operations) {
   return { tree: documentTree(document2.body), refused };
 }
 function simulatedView(source, held, operations) {
-  const wordplay = parseWordplay(source);
-  const title = titleOf(wordplay);
+  const title = titleOf(parseWordplay(source));
   const tree = treeText(simulatedTree(source, held, operations).tree).join("\n");
   return `${title ? `# ${title}
 
-` : ""}${tree}
-
----
-${isDone(wordplay, held) ? "The wordplay is complete." : "The wordplay is not complete yet."}`;
+` : ""}${tree}`;
 }
 
 // packages/player/src/bridge/preview-trials.ts
@@ -70504,7 +70433,7 @@ async function say(s, id, said2) {
     turns,
     ...keptReply(
       wordplay,
-      { held: kept.held, skipped: kept.skipped ?? [], events: kept.events ?? [] },
+      { held: kept.held, events: kept.events ?? [] },
       answer,
       turns,
       performed
@@ -70567,12 +70496,10 @@ function reportOf(s, id, on) {
   const trial = id ? readTrial(play.dir, play.stem, id) : trials(s, play)[0];
   if (!trial) throw new Error(id ? `There is no trial ${id} for ${play.stem}.` : "No trials yet.");
   const report = trialReport(read.source, trial.turns, trial.acts ?? []);
-  const wordplay = parseWordplay(read.source);
-  const complete = report.completedAt !== null ? `the wordplay was complete after exchange ${report.completedAt}.` : wordplay.steps.length && isDone(wordplay, trial.held ?? []) ? "the wordplay was completed on the page, by its scripts or Skip." : "the wordplay did not complete.";
   return [
     `## Trial ${trial.id}${trial.reader ? `: ${trial.reader}` : ""}`,
     "",
-    `${report.exchanges} ${report.exchanges === 1 ? "exchange" : "exchanges"}; ${complete}`,
+    `${report.exchanges} ${report.exchanges === 1 ? "exchange" : "exchanges"}.`,
     "",
     "What happened:",
     ...report.timeline.length ? report.timeline.map((line) => `- ${line}`) : ["- Nothing changed on the page."],
@@ -70817,7 +70744,7 @@ server.registerTool(
   "say_to_tutor",
   {
     title: "Say something to the tutor, in a simulated trial",
-    description: "The simulated student's next message to the tutor, in a trial begun with start_trial. Answers with the tutor's reply as the page shows it, and what changed on the page (a step appearing, the tutor operating a control, the wordplay complete), with the page as it now reads when anything did.",
+    description: "The simulated student's next message to the tutor, in a trial begun with start_trial. Answers with the tutor's reply as the page shows it, and what changed on the page (a part appearing, the tutor operating a control), with the page as it now reads when anything did.",
     inputSchema: {
       trial: external_exports.string().min(1).describe("The trial's id, from start_trial."),
       message: external_exports.string().min(1).max(MAX_TUTOR_MESSAGE).describe("What the student says.")
@@ -70847,7 +70774,7 @@ server.registerTool(
   "do_on_page",
   {
     title: "Use a control on the page, in a simulated trial",
-    description: "The simulated student uses one of the page's controls, in a trial begun with start_trial: named as the page reads it (its label), pressed when no value is given, or given one (a field's text or number, a checkbox's true or false, a select's choice). Answers with what changed (a step appearing, the wordplay complete) and the page as it now reads. The tutor reads the page with the next message.",
+    description: "The simulated student uses one of the page's controls, in a trial begun with start_trial: named as the page reads it (its label), pressed when no value is given, or given one (a field's text or number, a checkbox's true or false, a select's choice). Answers with what changed (a part appearing) and the page as it now reads. The tutor reads the page with the next message.",
     inputSchema: {
       trial: external_exports.string().min(1).describe("The trial's id, from start_trial."),
       control: external_exports.string().min(1).max(120).describe("The control's name, as the page reads it."),
@@ -70873,7 +70800,7 @@ server.registerTool(
   "trial_report",
   {
     title: "Report what a trial did",
-    description: "What one trial of the open lesson did, read mechanically: what each of the tutor's replies gave and when, what the student did on the page, when the wordplay completed, and flags for what a machine sees better than the teacher: the tutor saying words of a step before it was given, a marker naming nothing waiting, a [[SHOW]] of a condition the page checks itself. It does not judge the teaching. Works on simulated trials and the teacher's own; the newest when no trial is named.",
+    description: "What one trial of the open lesson did, read mechanically: what each of the tutor's replies gave and when, what the student did on the page, and flags for what a machine sees better than the teacher: the tutor saying words of a part before it was given, a marker naming nothing waiting, a [[SHOW]] of a condition the page checks itself. It does not judge the teaching. Works on simulated trials and the teacher's own; the newest when no trial is named.",
     inputSchema: {
       trial: external_exports.string().min(1).optional().describe("The trial's id; the newest when left out."),
       path: external_exports.string().min(1).optional().describe(

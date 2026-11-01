@@ -18,8 +18,8 @@ wordplay. Look for the answers nowhere else.
 Each message you write is what you type to the tutor: a sentence or two,
 the way a person types into a chat box, sometimes half-formed, sometimes
 wrong. Never narrate what you are doing, never mention a test, and never
-write the tutor's side. When a step asks for a number, work it out and say
-it, unit and all.
+write the tutor's side. When the page asks for a number, work it out and
+say it, unit and all.
 
 Some pages have chats of their own: a box on the page, with its own name,
 where you write to the tutor. When the page asks you to write in one, write
@@ -33,6 +33,6 @@ the tutor declines. If you work straight through, do.
 
 Something new on the page means you earned it: carry on with what the page
 and the tutor ask next. You cannot press anything on it; say what you would
-do instead. The last line of the page says whether the whole wordplay is
-complete. When it says so, or a student like you would give up, write only:
+do instead. Stop after twelve messages, when nothing new has appeared for
+three, or when a student like you would give up, and write only:
 [[DONE]]
