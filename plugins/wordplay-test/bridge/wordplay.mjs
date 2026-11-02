@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "b7e54456db90";
+var PREVIEW_BUILD = false ? "source" : "71028677251b";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -39882,6 +39882,7 @@ function addsOf(wordplay) {
   const has = (name) => wordplay.body?.hasAttribute(name) ?? false;
   return { chat: has("data-chat"), pages: has("data-pages") };
 }
+var isChatLink = (id) => id === "chat";
 
 // packages/format/src/tree.ts
 init_define_WORDPLAY_ENGINE();
@@ -52263,6 +52264,7 @@ function readableProblems(wordplay) {
       problems.push(
         `${name} on the <body> takes no value: write it alone for what it adds, or leave it off.`
       );
+  problems.push(...chatLinkProblems(wordplay));
   if (body2?.hasAttribute("data-context"))
     problems.push("The <body> cannot be context: it is what the student sees.");
   problems.push(...notesProblems(wordplay));
@@ -52372,6 +52374,26 @@ function readableProblems(wordplay) {
       problems.push(`The condition on ${what(part)} is longer than ${MAX_CONDITION} characters.`);
   }
   return problems;
+}
+function chatLinkProblems(wordplay) {
+  const { document: document2 } = wordplay;
+  if (document2.getElementById("chat"))
+    return [
+      'The id "chat" is the link to the chat beside the page (href="#chat"). Give the element another id.'
+    ];
+  if (addsOf(wordplay).chat) return [];
+  const toChat = Array.from(document2.querySelectorAll("a[href^='#'], area[href^='#']")).some(
+    (link) => {
+      try {
+        return isChatLink(decodeURIComponent((link.getAttribute("href") ?? "").slice(1)));
+      } catch {
+        return false;
+      }
+    }
+  );
+  return toChat ? [
+    "This wordplay has no chat beside the page (no data-chat on its <body>), so a link to #chat opens nothing. Put data-chat on the <body>, or take the link out."
+  ] : [];
 }
 var CONTROL_TAGS = /* @__PURE__ */ new Set(["button", "input", "select", "textarea", "form"]);
 function notesProblems(wordplay) {

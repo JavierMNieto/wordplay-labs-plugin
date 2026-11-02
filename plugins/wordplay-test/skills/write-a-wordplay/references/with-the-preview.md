@@ -293,7 +293,9 @@ drawn in the page is an element in it.
   page; `data-pages`, each `<section>` directly in the body without a
   condition drawn as a page, with the pages along the foot.
 - With `data-pages`, a link to an id on another page turns to that page. A
-  link to anything else opens it: another wordplay on the site in place of
+  link to a chat in the page, or to anything in it, opens it where it is,
+  and `href="#chat"` opens the chat beside the page. A link to anything
+  else opens it: another wordplay on the site in place of
   this one, with the way back over its title; anything off the site in a
   new tab. A wordplay is linked by its name, `<a href="sodium-2">`, which
   resolves beside this one.
@@ -429,8 +431,9 @@ nearly one of these or no longer read, `document.tutor`, the object's old
 name, in a script, `data-opening` on anything but the body or a chat or
 over 400 characters, a declaration on the body with a value or
 on anything but the body, an opening line on the body of a wordplay with no chat
-beside the page, a condition in a wordplay with no chat anywhere, and a
-shared block it cannot read. It refuses to publish an unknown
+beside the page, a condition in a wordplay with no chat anywhere, a link
+to `#chat` with no chat beside the page, an element with the id `chat`,
+and a shared block it cannot read. It refuses to publish an unknown
 `data-wordplay` version, a file over the limit, an id used twice, a shared
 block it cannot read, and a control the tutor cannot see: one with no
 accessible name, on a page where nothing is named or live.
@@ -577,6 +580,9 @@ How to write it:
      inside it. Its first line, a question that starts
      the conversation where the page cannot, is `data-opening` on it; the
      tutor's own chat's is on the body.
+   - **A link where a question arises** is a plain link: `<a
+     href="#units">` to a chat in the page by its id, `<a href="#chat">` to
+     the chat beside the page. The link's words say what it opens.
    - **What Wordplay draws for it**: the body of a new wordplay declares
      it, `data-chat`, the tutor's chat beside the page, and `data-pages`.
      Leave `data-chat` off a wordplay whose questions are all asked in

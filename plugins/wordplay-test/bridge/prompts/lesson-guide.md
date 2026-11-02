@@ -290,6 +290,9 @@ How to write it:
      inside it. Its first line, a question that starts
      the conversation where the page cannot, is `data-opening` on it; the
      tutor's own chat's is on the body.
+   - **A link where a question arises** is a plain link: `<a
+     href="#units">` to a chat in the page by its id, `<a href="#chat">` to
+     the chat beside the page. The link's words say what it opens.
    - **What Wordplay draws for it**: the body of a new wordplay declares
      it, `data-chat`, the tutor's chat beside the page, and `data-pages`.
      Leave `data-chat` off a wordplay whose questions are all asked in
