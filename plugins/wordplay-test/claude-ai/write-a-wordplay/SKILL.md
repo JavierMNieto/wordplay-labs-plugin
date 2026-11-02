@@ -705,7 +705,7 @@ and whose one data file is the wordplay.
   asking you for it: give them `lesson.wplay` whole.
 
 ```html
-<title>The lesson's title</title>
+<title>The wordplay's title</title>
 <link rel="stylesheet" href="player.css" />
 <div data-shell class="mx-auto flex w-full max-w-[1400px] gap-0 2xl:max-w-[1680px]">
   <main class="min-w-0 flex-1 overflow-x-clip border-line pb-20 md:border-x lg:max-w-[52rem] 2xl:max-w-[68rem]">

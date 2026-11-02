@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "3847bc2c7555";
+var PREVIEW_BUILD = false ? "source" : "b7e54456db90";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -68423,7 +68423,7 @@ var drawLocally = tikzDrawer({
 
 // packages/player/src/player/shell.ts
 init_define_WORDPLAY_ENGINE();
-function playerShell(title = "A lesson", host = "artifact", at = "") {
+function playerShell(title = "A wordplay", host = "artifact", at = "") {
   const escaped = title.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   return `<title>${escaped}</title>
 <link rel="stylesheet" href="${at}player.css" />
@@ -68898,7 +68898,7 @@ function lessonGuide(host) {
     labsTools: host === "claude-code" || host === "connector",
     // The page the claude.ai builder publishes each lesson as, and where its files come from.
     player: PLAYER_ARTIFACT,
-    playerShell: playerShell("The lesson's title").trimEnd()
+    playerShell: playerShell("The wordplay's title").trimEnd()
   });
 }
 
@@ -68927,9 +68927,9 @@ function changeLines(changes) {
     const n = `Change ${i2 + 1}`;
     if (change.result === "made") return `${n} was made.`;
     if (change.result === "ambiguous") {
-      return `${n} was not made: its <find> text appears more than once in the lesson${quoted}. Give more of the lines around it.`;
+      return `${n} was not made: its <find> text appears more than once in the wordplay${quoted}. Give more of the lines around it.`;
     }
-    return `${n} was not made: its <find> text is not in the lesson${quoted}. Copy it from the lesson as it stands.`;
+    return `${n} was not made: its <find> text is not in the wordplay${quoted}. Copy it from the wordplay as it stands.`;
   });
 }
 function trialText(turns) {
@@ -69148,7 +69148,7 @@ async function simulate(source, persona, id, host) {
   const theirs = () => [
     {
       role: "user",
-      content: "The lesson is open in front of you. Write your first message to the tutor."
+      content: "The wordplay is open in front of you. Write your first message to the tutor."
     },
     ...turns.map(
       (turn) => turn.role === "user" ? { role: "assistant", content: typed(turn.content) } : { role: "user", content: readMarkers(turn.content).text }
@@ -69474,7 +69474,7 @@ function said(response, words2) {
   const safe = words2.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   response.writeHead(400, { "Content-Type": "text/html; charset=utf-8" });
   response.end(
-    `<!doctype html><meta charset="utf-8"><title>Wordplay</title><p style="font:15px system-ui;padding:2rem">${safe} <a href="/preview/local">Back to the lesson</a></p>`
+    `<!doctype html><meta charset="utf-8"><title>Wordplay</title><p style="font:15px system-ui;padding:2rem">${safe} <a href="/preview/local">Back to the wordplay</a></p>`
   );
 }
 function replyOn(settings, turn) {
@@ -70060,7 +70060,7 @@ function portNote(s) {
   if (s.portNoted || !inContainer()) return [];
   s.portNoted = true;
   return [
-    "This preview runs in a container. If its port is forwarded, keep it private: anyone who can reach it can read the lesson, answers included."
+    "This preview runs in a container. If its port is forwarded, keep it private: anyone who can reach it can read the wordplay, answers included."
   ];
 }
 function files(s, play = currentOf(s)) {
@@ -70347,7 +70347,7 @@ function startTrial(s, student, choice, on = currentOf(s)) {
   const read = on ? files(s, on) : null;
   if (!read || !on) {
     throw new Error(
-      on ? `There is no ${on.stem}.wplay in ${on.dir}.` : "No lesson is open: give start_trial the lesson's path."
+      on ? `There is no ${on.stem}.wplay in ${on.dir}.` : "No wordplay is open: give start_trial the wordplay's path."
     );
   }
   const id = `sim-${randomUUID5().slice(0, 8)}`;
@@ -70648,10 +70648,10 @@ server.registerTool(
         [
           shown ? `The creator is open in the author's browser at ${opened.url}, on ${opened.stem}; ${opened.lesson.tutor}. If they do not see it, give them that address.` : `Open ${opened.url} to try ${opened.stem} as a learner; ${opened.lesson.tutor}. No browser was opened here: give the author that address.`,
           // In the desktop app's Code tab you can look at the page and use it yourself.
-          `In the Claude desktop app, show it in the Browser pane beside this conversation: it attaches to a running server by its bare address, so add {"name": "Lesson preview", "url": "${opened.origin}", "port": ${new URL(opened.origin).port}} to "configurations" in .claude/launch.json (with "version": "0.0.1") and open it. ${opened.origin} leads to the preview. There you can see the lesson as a reader does, and talk to the tutor to try it.`,
+          `In the Claude desktop app, show it in the Browser pane beside this conversation: it attaches to a running server by its bare address, so add {"name": "Wordplay preview", "url": "${opened.origin}", "port": ${new URL(opened.origin).port}} to "configurations" in .claude/launch.json (with "version": "0.0.1") and open it. ${opened.origin} leads to the preview. There you can see the wordplay as a reader does, and talk to the tutor to try it.`,
           ...opened.notes,
-          opened.play ? `A student's preview of this file alone, the lesson and the tutor without the creator, is at ${opened.play}. Any .wplay under ${opened.root} opens the same way by its path (/play/<path>), several at once, and the creator stays on ${opened.stem}.` : `A student's preview by path opens any .wplay under ${opened.root} at ${opened.origin}/play/<path>; this file is outside that folder.`,
-          "The page follows the files as they are edited. Each conversation is kept as a file in .trials beside the lesson, and read_trials reads them.",
+          opened.play ? `A student's preview of this file alone, the wordplay and the tutor without the creator, is at ${opened.play}. Any .wplay under ${opened.root} opens the same way by its path (/play/<path>), several at once, and the creator stays on ${opened.stem}.` : `A student's preview by path opens any .wplay under ${opened.root} at ${opened.origin}/play/<path>; this file is outside that folder.`,
+          "The page follows the files as they are edited. Each conversation is kept as a file in .trials beside the wordplay, and read_trials reads them.",
           problems.length ? `Wrong with it now:
 ${problems.map((problem) => `  ! ${problem}`).join("\n")}` : "Nothing wrong with it that the checks can see."
         ].join("\n")
@@ -70665,9 +70665,9 @@ server.registerTool(
   "read_trials",
   {
     title: "Read the trials of a wordplay",
-    description: "The conversations the teacher has had with the tutor in this machine's preview, newest first, with the tutor's markers left in ([[SHOW: id]] when it judged a moment had come, [[DO: name]] when it operated the page, [[WRITE: name: words]] when it wrote on it), and the ids whose conditions held. Read them to see what a student would meet before revising the lesson. Of the lesson the creator shows, or of the one at path.",
+    description: "The conversations the teacher has had with the tutor in this machine's preview, newest first, with the tutor's markers left in ([[SHOW: id]] when it judged a moment had come, [[DO: name]] when it operated the page, [[WRITE: name: words]] when it wrote on it), and the ids whose conditions held. Read them to see what a student would meet before revising the wordplay. Of the wordplay the creator shows, or of the one at path.",
     inputSchema: {
-      path: external_exports.string().min(1).optional().describe("The .wplay file, its stem or its folder; the creator's lesson when left out."),
+      path: external_exports.string().min(1).optional().describe("The .wplay file, its stem or its folder; the creator's wordplay when left out."),
       take: external_exports.number().int().min(1).max(12).optional().describe("How many, newest first; 3 when left out.")
     },
     annotations: READS
@@ -70702,10 +70702,10 @@ server.registerTool(
   "start_trial",
   {
     title: "Start a simulated student's trial",
-    description: "Begin a trial of a lesson as a simulated student, for an automated trial (the learner agent, /wordplay:trial). Answers with the trial's id and the page as a student's screen reader first reads it, and never with the lesson's context. Then talk to the tutor with say_to_tutor and use the page's controls with do_on_page. The tutor is the site's unless the teacher names another: pass it as model (and effort) to try the lesson on that one. For trying a lesson yourself, use preview_wordplay instead.",
+    description: "Begin a trial of a wordplay as a simulated student, for an automated trial (the learner agent, /wordplay:trial). Answers with the trial's id and the page as a student's screen reader first reads it, and never with the wordplay's context. Then talk to the tutor with say_to_tutor and use the page's controls with do_on_page. The tutor is the site's unless the teacher names another: pass it as model (and effort) to try the wordplay on that one. For trying a wordplay yourself, use preview_wordplay instead.",
     inputSchema: {
       path: external_exports.string().min(1).optional().describe(
-        "The .wplay file, its stem or its folder: the trial runs on it, and the creator stays on the lesson it shows. Left out, the trial runs on the creator's lesson; with none open, this opens it."
+        "The .wplay file, its stem or its folder: the trial runs on it, and the creator stays on the wordplay it shows. Left out, the trial runs on the creator's wordplay; with none open, this opens it."
       ),
       reader: external_exports.string().min(1).max(300).describe(
         "Who this student is, in a sentence, so the report can say which trial was which."
@@ -70800,7 +70800,7 @@ server.registerTool(
   "trial_report",
   {
     title: "Report what a trial did",
-    description: "What one trial of the open lesson did, read mechanically: what each of the tutor's replies gave and when, what the student did on the page, and flags for what a machine sees better than the teacher: the tutor saying words of a part before it was given, a marker naming nothing waiting, a [[SHOW]] of a condition the page checks itself. It does not judge the teaching. Works on simulated trials and the teacher's own; the newest when no trial is named.",
+    description: "What one trial of the open wordplay did, read mechanically: what each of the tutor's replies gave and when, what the student did on the page, and flags for what a machine sees better than the teacher: the tutor saying words of a part before it was given, a marker naming nothing waiting, a [[SHOW]] of a condition the page checks itself. It does not judge the teaching. Works on simulated trials and the teacher's own; the newest when no trial is named.",
     inputSchema: {
       trial: external_exports.string().min(1).optional().describe("The trial's id; the newest when left out."),
       path: external_exports.string().min(1).optional().describe(
