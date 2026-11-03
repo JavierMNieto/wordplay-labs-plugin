@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "71028677251b";
+var PREVIEW_BUILD = false ? "source" : "30de46af862d";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -68881,6 +68881,9 @@ function load2(name) {
 function prompt(name, bindings) {
   return render5(load2(name), bindings).trimEnd();
 }
+function tutorDefault() {
+  return prompt("tutor-default", {}).trim();
+}
 var count = (n) => n.toLocaleString("en-US");
 function specText() {
   return render5(load2("spec"), {
@@ -68909,6 +68912,8 @@ function specText() {
 function lessonGuide(host) {
   return prompt("lesson-guide", {
     editor: prompt("editor", {}),
+    // Wordplay's recommended notes on how to answer, which every wordplay's notes start from.
+    tutorDefault: tutorDefault().split(/\n\s*\n/).join("\n\n     "),
     // The format, whole: the guide never restates it (SPEC.md).
     spec: specText(),
     claudeCode: host === "claude-code",
