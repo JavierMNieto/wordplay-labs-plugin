@@ -5,7 +5,7 @@
       "do svg figures"). --}}
 How to write for the page, which is a browser's own, in a frame of its own:
 
-- **Text** is plain HTML: `<p>`, `<h2>` and `<h3>`, `<ul>` and `<ol>`,
+- **Text** is plain HTML: `<p>`, `<h1>` to `<h4>`, `<ul>` and `<ol>`,
   `<table>`, `<blockquote>`, `<em>`, `<strong>`, `<code>`, `<a>`. The page
   dresses it in the site's look, light and dark: style none of it.
 - **Math** is `$…$` in the text, and `$$…$$` displayed, drawn with KaTeX:

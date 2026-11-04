@@ -19,7 +19,7 @@ It is new and empty: write it from what the teacher describes.
 {{/if}}
 
 **Answer with the whole element in one block**, never a `<change>`, a
-`<file>`, a `<name>` or an `<ask>`, then say in a few words that it is done:
+`<file>`, a `<name>`, an `<answer>` or an `<ask>`, then say in a few words that it is done:
 
 <element>
 <div class="tide-table">…</div>

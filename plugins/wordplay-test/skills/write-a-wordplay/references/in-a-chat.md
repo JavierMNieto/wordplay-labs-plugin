@@ -562,8 +562,9 @@ How to write it:
      computer; ask what happens from 4."). A hint the student reads is a
      paragraph or a box with its moment, as anything that appears later is.
    - **A chat's own notes**, inside the chat, for that conversation alone.
-   - **An answer to check**, a choice or a number, is a component with a
-     script that tells the tutor when it is right (the format's Scripts).
+   - **An answer to check**, a choice or a number,
+     is a component with a script that tells the tutor when it is right (the
+     format's Scripts).
      The condition of the part it gives says the same moment in words, for
      the chat.
    - **A question asked where it arises** is a chat in the page, named for
@@ -652,8 +653,9 @@ How to write it:
 11. **The book's own answer, once it is earned**: where the material prints
     it, quoted and credited, in the part that appears at that moment.
 12. **Something to try is the least that carries it**: a sentence before a
-    figure, a figure before a script; never a quiz (the conversation is the
-    quiz), and no answer in its code, which a student can open. It is
+    figure, a figure before a script; no quiz unless the teacher asks for a
+    question to check (the conversation is the quiz), and no answer in the code
+    of something you draw yourself, which a student can open. It is
     written to ARIA, as the format's "Reading the page" says. **Before you
     say it is written, read it as the tutor will**: its tree of names and
     states, and the status line after a first try ("You took 3; 14 left. My
@@ -680,7 +682,7 @@ How to write it:
 
 How to write for the page, which is a browser's own, in a frame of its own:
 
-- **Text** is plain HTML: `<p>`, `<h2>` and `<h3>`, `<ul>` and `<ol>`,
+- **Text** is plain HTML: `<p>`, `<h1>` to `<h4>`, `<ul>` and `<ol>`,
   `<table>`, `<blockquote>`, `<em>`, `<strong>`, `<code>`, `<a>`. The page
   dresses it in the site's look, light and dark: style none of it.
 - **Math** is `$…$` in the text, and `$$…$$` displayed, drawn with KaTeX:

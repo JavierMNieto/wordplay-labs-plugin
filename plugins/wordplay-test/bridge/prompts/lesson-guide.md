@@ -293,8 +293,13 @@ How to write it:
      computer; ask what happens from 4."). A hint the student reads is a
      paragraph or a box with its moment, as anything that appears later is.
    - **A chat's own notes**, inside the chat, for that conversation alone.
-   - **An answer to check**, a choice or a number, is a component with a
-     script that tells the tutor when it is right (the format's Scripts).
+   - **An answer to check**, a choice or a number,
+{{#if creator}}
+     is the `<answer>` block below.
+{{else}}
+     is a component with a script that tells the tutor when it is right (the
+     format's Scripts).
+{{/if}}
      The condition of the part it gives says the same moment in words, for
      the chat.
    - **A question asked where it arises** is a chat in the page, named for
@@ -411,8 +416,9 @@ How to write it:
 11. **The book's own answer, once it is earned**: where the material prints
     it, quoted and credited, in the part that appears at that moment.
 12. **Something to try is the least that carries it**: a sentence before a
-    figure, a figure before a script; never a quiz (the conversation is the
-    quiz), and no answer in its code, which a student can open. It is
+    figure, a figure before a script; no quiz unless the teacher asks for a
+    question to check (the conversation is the quiz), and no answer in the code
+    of something you draw yourself, which a student can open. It is
     written to ARIA, as the format's "Reading the page" says. **Before you
     say it is written, read it as the tutor will**: its tree of names and
     states, and the status line after a first try ("You took 3; 14 left. My
@@ -511,6 +517,26 @@ give all of it:
 </body>
 </html>
 </file>
+
+**Use the editor's own blocks first**, which the teacher can change with no HTML:
+text, headings, a quotation, the lists, a formula, a picture, a chat in the page, a
+container, and an answer; any of them can appear later. A table or your own HTML can
+be changed only as code: write one only when none of these can do it, and say so.
+
+**An answer to check is an `<answer>`**, in a `<put>` or a `<file>`; the page makes
+it the editor's own, so never write its fields or script. `+` marks a right option
+(several mean all that apply), ` || ` starts a note for the tutor, and `<gives>` is
+what appears once it is right. Its `name` never gives the answer away:
+
+<answer name="Question 1">
++ The far side || They may say the dark side: it gets as much sun.
+- The near side
+<gives><p>The same face always points at us.</p></gives>
+</answer>
+
+True or false is those two options; a drop-down has `sentence="It has ___ sides."`;
+a number has `value="86.4 s"`, `within="1%"` if it may be off, and no options. The
+same `name` rewrites one, and `<answer name="…" remove></answer>` takes it away.
 
 **The page's look is its CSS, and you write it**: one `<style>` in the
 `<head>`, which the teacher cannot change themselves. When they ask anything
