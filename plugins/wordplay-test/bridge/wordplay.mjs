@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "040bbb34edfa";
+var PREVIEW_BUILD = false ? "source" : "471c84b98cfa";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67384,10 +67384,18 @@ function heldAfterMet(wordplay, held, ids) {
 }
 var MAX_EVENTS = 300;
 var repliesIn = (turns) => turns.filter((turn) => turn.role === "assistant").length;
-function turnsBeforeEdit(turns, replaces) {
-  const text3 = typeof replaces === "string" ? replaces.trim() : "";
+function turnsBeforeEdit(turns, replaces, letGo2 = 0) {
   const at = turns.map((turn) => turn.role).lastIndexOf("user");
-  return text3 && at >= 0 && turns[at].content.trim() === text3 ? turns.slice(0, at) : turns;
+  if (at < 0 || typeof replaces !== "number") return turns;
+  return replaces === placeOf(turns, at, letGo2) ? turns.slice(0, at) : turns;
+}
+function placeOf(turns, at, letGo2 = 0) {
+  let place = letGo2;
+  for (let one = 0; one < at; one++)
+    if (turns[one].role === "user" && turns[one + 1]?.role === "assistant") {
+      if (turns[one + 1].content.trim()) place++;
+    }
+  return place;
 }
 function keptAfter(wordplay, kept, change, cause) {
   const at = cause.at ?? (/* @__PURE__ */ new Date()).toISOString();
@@ -67796,6 +67804,7 @@ function readBody(init) {
 var newId = () => typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
 function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
   const find3 = (id) => typeof id === "string" && id ? trials2.list().find((one) => one.id === id) : void 0;
+  const answering = /* @__PURE__ */ new Map();
   function lesson(path2) {
     const conversation = new URLSearchParams(path2.split("?")[1] ?? "").get("conversation");
     const trial = find3(conversation);
@@ -67886,6 +67895,9 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
       init?.signal
     );
     if (!response.ok || !response.body) return response;
+    let letGo2 = () => {
+    };
+    answering.set(id, new Promise((done) => letGo2 = done));
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let text3 = "";
@@ -67893,6 +67905,10 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
     const keep = () => {
       if (kept) return;
       kept = true;
+      queueMicrotask(() => {
+        answering.delete(id);
+        letGo2();
+      });
       const answer = stoppedIn(text3).text;
       if (!answer.trim()) return;
       const now = find3(id);
@@ -68021,6 +68037,16 @@ function localRoutes({ source, meta: meta4, trials: trials2, ask, folder }) {
         return state(init);
       case "POST tutor":
         return tutor(init);
+      case "GET tutor": {
+        const id = new URLSearchParams(path2.split("?")[1] ?? "").get("conversationId") ?? "";
+        await Promise.race([
+          answering.get(id) ?? Promise.resolve(),
+          new Promise((done) => setTimeout(done, 5e3))
+        ]);
+        const trial = find3(id);
+        if (!trial) return json2(404, { error: "There is no such conversation." });
+        return json2(200, { turns: trial.turns, repliesLetGo: 0 });
+      }
       case "GET tutor/history":
         return history();
       case "POST lesson/shared":
@@ -68122,7 +68148,7 @@ function readPlaces(lesson) {
     return {};
   }
 }
-function placeOf(lesson, site2) {
+function placeOf2(lesson, site2) {
   const found = readPlaces(lesson)[new URL(site2).origin]?.[basename(lesson)];
   return found && typeof found.id === "string" ? found : null;
 }
@@ -68137,7 +68163,7 @@ function keepPlace(lesson, site2, place) {
   renameSync(temp, placesOf(lesson));
 }
 async function publishedCopy(labs2, lesson, site2) {
-  const place = placeOf(lesson, site2);
+  const place = placeOf2(lesson, site2);
   if (!place || !labs2.status().signedIn) return null;
   const response = await labs2.call(`/api/publish?id=${encodeURIComponent(place.id)}`);
   if (!response.ok) return null;
@@ -68159,7 +68185,7 @@ function folderFiles(lesson, file2) {
 }
 async function publishFromDisk(labs2, lesson, site2, listing) {
   const file2 = readFileSync3(lesson, "utf8");
-  const place = placeOf(lesson, site2);
+  const place = placeOf2(lesson, site2);
   const response = await labs2.call("/api/publish", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -69125,7 +69151,8 @@ function trialReport(source, turns, acts = []) {
     if (turn.role === "user") continue;
     reply++;
     const before2 = held;
-    const given = givenParts(wordplay, before2);
+    held = heldAfterReply(wordplay, before2, turn.content);
+    const given = givenParts(wordplay, held);
     const waiting = new Map(waitingParts(wordplay, before2).map((part) => [part.id, part]));
     const { text: text3, show } = readMarkers(turn.content);
     const said2 = runs(text3, HIDDEN_RUN);
@@ -69141,7 +69168,6 @@ function trialReport(source, turns, acts = []) {
       const part = waiting.get(id);
       if (!part) flags.push(`Reply ${reply} marked ${id}, which was not waiting.`);
     }
-    held = heldAfterReply(wordplay, before2, turn.content);
     const fresh = held.filter((id) => !before2.includes(id));
     timeline.push(
       `Reply ${reply}: ${fresh.length ? `gave ${fresh.map((id) => wordplay.parts.find((part) => part.id === id)).filter((part) => Boolean(part)).map(partName).join(", ")}` : "gave nothing"}`
