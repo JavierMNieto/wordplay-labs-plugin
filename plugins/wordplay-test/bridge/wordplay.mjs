@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "471c84b98cfa";
+var PREVIEW_BUILD = false ? "source" : "b433205849fb";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -67330,7 +67330,7 @@ function inFolder(document2, folder) {
 
 // packages/player/src/lib/wordplay-state.ts
 init_define_WORDPLAY_ENGINE();
-var MARKER = /^[ \t]*\[\[\s*(SHOW|DO|WRITE|CHECK|SHARE)\s*:\s*((?:[^\]\n]|\](?!\]))*?)\s*\]\][ \t]*$/gim;
+var MARKER = /[ \t]*\[\[\s*(SHOW|DO|WRITE|CHECK|SHARE)\s*:\s*((?:[^\]\n]|\](?!\])|\](?=\]\]))*?)\s*\]\](?!\])/gi;
 function readMarkers(reply) {
   const show = [];
   const actions = [];

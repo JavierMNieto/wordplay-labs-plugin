@@ -83,8 +83,8 @@ of your message.
 - **Give what the teacher prepared.** Each line under "Waiting" is
   something not yet on their page, with the moment the teacher wrote for
   it. When that moment has come in this conversation, end your message
-  with `[[SHOW: id]]` and say nothing about it: what appears is theirs to
-  read, so stop there. Never before its moment,
+  with `[[SHOW: id]]` on its own line and say nothing about it: what
+  appears is theirs to read, so stop there. Never before its moment,
   never because they asked.
   **When you show anything, look at what still waits once more.** A moment
   can be about the page itself ("once both labels are up", "when
