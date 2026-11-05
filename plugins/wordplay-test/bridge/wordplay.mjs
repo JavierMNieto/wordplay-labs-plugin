@@ -39259,7 +39259,7 @@ function keyReply(settings, turn) {
 
 // packages/player/src/bridge/site.ts
 init_define_WORDPLAY_ENGINE();
-var PREVIEW_BUILD = false ? "source" : "b433205849fb";
+var PREVIEW_BUILD = false ? "source" : "4a0d882d4891";
 function modelOf(value) {
   const one = value;
   return one && typeof one.model === "string" && one.model ? { model: one.model, effort: typeof one.effort === "string" ? one.effort : null } : null;
@@ -69229,13 +69229,17 @@ async function simulate(source, persona, id, host) {
       const message = inTheirChat(student.slice(0, MAX_TUTOR_MESSAGE));
       turns.push({ role: "user", content: message });
       host.send({ role: "user", content: message });
-      const { parts, measure } = tutorTurn(wordplay, source, title, { held });
+      const pictures = await host.pictures?.(held) ?? [];
+      const promptFor = (count2) => tutorTurn(wordplay, source, title, { held, pictures: count2 });
+      const { parts, measure } = promptFor(pictures.length);
       const tutor = await host.ask({
         who: "tutor",
         system: parts,
         messages: turns,
         maxTokens: TUTOR_MAX_TOKENS,
-        measure
+        measure,
+        pictures,
+        promptFor
       });
       turns.push({ role: "assistant", content: tutor });
       const before2 = new Set(held);
