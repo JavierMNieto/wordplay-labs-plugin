@@ -1,10 +1,10 @@
-{{!-- The creator's builder is sent the builder's guide (lesson-guide.md,
+{{!-- The creator's builder is sent the builder's guide (wordplay-guide.md,
       for the `creator` host), what the author attached, their other lessons
       and their latest conversation with the tutor (trial.md), and then
       this: the lesson as the author's page holds it now, sent with every
       message. It is the last of the cacheable pieces, so everything above it
       is read from cache while this changes (`builderPrompt` in
-      lib/builder-turn.ts, docs/creator.md). --}}
+      lib/builder-turn.ts, docs/builder.md). --}}
 # The wordplay as it stands
 
 {{#if file}}

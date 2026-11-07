@@ -4,7 +4,7 @@ The tutor's fixed prompt keeps one rule, that it talks about the page and
 nothing else (tutor.md). How it answers is the teacher's, and this is what
 we recommend: every new wordplay starts with it in the general chat's
 Notes for the tutor (apps/wordplay/src/lib/creator/blank-file.ts), the
-builder's guide starts every wordplay's notes from it (lesson-guide.md,
+builder's guide starts every wordplay's notes from it (wordplay-guide.md,
 bound as `tutorDefault`), and the wordplays written before it were given it
 once (apps/wordplay/src/lib/migrate.ts). A teacher changes or deletes any
 of it.

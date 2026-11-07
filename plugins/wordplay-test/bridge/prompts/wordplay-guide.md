@@ -1,4 +1,4 @@
-{{!-- The builder's guide (lib/lesson-guide.ts): the plugin's builder agent
+{{!-- The builder's guide (lib/wordplay-guide.ts): the plugin's builder agent
       and skill in Claude Code, the skill an author uploads to claude.ai,
       the creator's assistant, and any app connected to Labs' MCP server,
       which reads it with `get_guide` and writes the wordplay in the creator

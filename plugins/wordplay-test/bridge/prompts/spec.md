@@ -4,7 +4,7 @@ THE .WPLAY FORMAT: THE ONE PLACE IT IS DEFINED
 
 Labs serves this file at /format and, for an agent, at /format.md
 (apps/wordplay/src/lib/format-reference.ts); the builder's guide includes it
-whole (the spec binding in packages/player/prompts/lesson-guide.md). The
+whole (the spec binding in packages/player/prompts/wordplay-guide.md). The
 parser in packages/format/src implements it, and spec.test.ts fails when
 they drift: every ```html block below must parse with no problems, and each
 attribute table must equal the parser's set. Edit the prose here; the
@@ -27,8 +27,8 @@ Licensed under Apache-2.0 with the rest of packages/ (packages/LICENSE).
 ## What a wordplay is
 
 A wordplay is a teacher's understanding, frozen into a file, that a tutor
-defrosts in conversation with one student at a time. The file holds three
-things: what the student plays with, when each part of it appears, and what
+defrosts in conversation with one reader at a time. The file holds three
+things: what the reader plays with, when each part of it appears, and what
 the teacher prepared for the tutor. A tutor takes those three and holds the
 session the teacher would have held.
 
@@ -41,7 +41,7 @@ what a tutor needs on top of that.
 | Attribute | On any element, means |
 |---|---|
 | `data-wordplay="1"` | On `<body>`: this document is a wordplay. |
-| `data-context` | On a `<div>` directly in the `<body>`, or directly in a chat: the teacher's notes for the tutor. The student never sees it; the tutor reads it. |
+| `data-context` | On a `<div>` directly in the `<body>`, or directly in a chat: the teacher's notes for the tutor. The reader never sees it; the tutor reads it. |
 | `data-expect="…"` | This element is given once a condition holds, judged by the tutor from the conversation, or said by the page's script. |
 | `data-tutor` | On an `<output>`: the tutor writes it, by its accessible name. What it writes replaces what was there. |
 
@@ -51,23 +51,23 @@ answer or counting a game, is the teacher's script (Scripts, below).
 
 ## Rules
 
-**One rule.** An element with a condition is given to the student once its
+**One rule.** An element with a condition is given to the reader once its
 condition holds. Until then it is not given at all, with everything it
 holds. An element without a condition is given with its parent. The body is
 always shown.
 
-**Reveals.** Any element the student sees that carries a condition is a
+**Reveals.** Any element the reader sees that carries a condition is a
 reveal, a paragraph, a figure, an `<aside>` or a whole `<section>`, given
 the same way and counted for nothing. A condition goes
-on what the student should see next, written as the moment that earns it.
+on what the reader should see next, written as the moment that earns it.
 
 **Order.** A condition is judged once its element's parent has been given.
-Conditions do not wait for one another otherwise, so a hint the student
+Conditions do not wait for one another otherwise, so a hint the reader
 never needs blocks nothing after it. Two reveals that must come one after
 the other nest, or say in their conditions what they follow.
 
 **Notes.** A context element holds whatever the teacher wants the tutor to
-read, in prose: what the student is taken to know, the facts, the route, the
+read, in prose: what the reader is taken to know, the facts, the route, the
 answers, and for each moment the teacher prepared for, what counts and what
 to say, the moment written in front of its note ("When they ask why 4 is the
 bad number: …"). One directly in the body is about the whole wordplay and is
@@ -88,9 +88,9 @@ by id.
 **Reading the page.** The tutor is given the page as a screen reader would
 read it: the accessibility tree (role, name, state) of what is shown, and
 what its live regions have announced. Nothing about how the page is drawn
-reaches it. A page that works for a blind student works for the tutor.
+reaches it. A page that works for a blind reader works for the tutor.
 
-**Acting on the page.** Anything a student could do with a keyboard, the
+**Acting on the page.** Anything a reader could do with a keyboard, the
 tutor can do by accessible name: press a button, set a field, choose an
 option.
 
@@ -100,7 +100,7 @@ replacing what was there. Nothing else on the page takes the tutor's words,
 and how they are drawn is the teacher's.
 
 **Privacy.** Every element marked `data-context` is stripped before anything
-reaches the student's browser. This is the one rule a host must never break.
+reaches the reader's browser. This is the one rule a host must never break.
 A reveal reaches the browser only once given, without its
 `data-expect`, which is often the answer; before, at most its stand-in
 in a container that keeps room ("What Wordplay adds"). Where a host lets readers share
@@ -115,7 +115,7 @@ element as HTML.
 announcements, what the page told it since its last turn, and what was
 worked out on a calculator. The notes. Each part not yet given whose parent
 has been, by id and condition, so it knows what to watch for.
-Where a student is is never in the file; it is worked out from their
+Where a reader is is never in the file; it is worked out from their
 conversation. With no conversation, a host shows the whole wordplay.
 
 ## Scripts
@@ -127,8 +127,8 @@ these members:
 | Member | Does | At most |
 |---|---|---|
 | `met(id)` | That element's condition holds: the host gives it, as if the tutor had said so. An id not waiting is ignored. A part `met` gives is the browser's report, kept apart from what the tutor gave. | |
-| `tell(text)` | The text reaches the tutor at its next turn. A live region is read out to the student too; this is not. | {{maxAnnouncement}} characters |
-| `say(text, chat?)` | A message from the student, as if typed, in the chat named or the tutor's own: the tutor answers it now, and is told it came from the page. Returns a promise of the reply as the student reads it, once it ends; refused, it rejects with why. `tell` waits for the next message; `say` is one. | {{maxSaid}} characters, {{maxPageSays}} a minute |
+| `tell(text)` | The text reaches the tutor at its next turn. A live region is read out to the reader too; this is not. | {{maxAnnouncement}} characters |
+| `say(text, chat?)` | A message from the reader, as if typed, in the chat named or the tutor's own: the tutor answers it now, and is told it came from the page. Returns a promise of the reply as the reader reads it, once it ends; refused, it rejects with why. `tell` waits for the next message; `say` is one. | {{maxSaid}} characters, {{maxPageSays}} a minute |
 | `keep(value)` | Keeps one JSON value, the page's own state, with the conversation; each call replaces the last. A larger value is dropped, with a warning in the console. | {{maxKept}} bytes |
 | `kept` | The value last kept in this conversation, or `undefined`; there before the first script runs. | |
 
@@ -163,7 +163,7 @@ not a store: what the page needs to draw itself again.
 Opened as plain HTML a page has no `document.wordplay`, so a script calls
 `document.wordplay?.met("solved")`. A host may add members of its own
 ("What Wordplay adds"), which a script tests for:
-`document.wordplay?.share?.(…)`. A script runs in the student's browser,
+`document.wordplay?.share?.(…)`. A script runs in the reader's browser,
 which can read it: a secret goes in `data-context` or behind a
 `data-expect`, never in a script.
 
@@ -243,7 +243,7 @@ reveal "One row solved"  ── expect: they say, in their own words, always lea
 ```
 
 Nothing counts: each part appears when its moment comes, and a hint the
-student never needs blocks nothing.
+reader never needs blocks nothing.
 
 ## What Wordplay adds
 
@@ -290,7 +290,7 @@ Its attributes:
 | `data-calculator` | On an `<input>`: the box has the calculator, which takes its place, the box's value what it works out (`86.4 s`). Its accessible name is its label. On a chat: one under it, `=` adding to the message. Its keys are the `data-key` elements in the chat, or in the input's `<label>`. |
 | `data-key="…"` | On a `<data>`: a key on that calculator, never shown in the page. `number` (its text: `<data data-key="number">24 h</data>`), `constant` (its text the name, its `value` the value: `<data data-key="constant" value="9.81 m/s^2">g</data>`), `unit`, or `function` (a key from the calculator's library, by name). |
 | `data-container="…"` | On a `<div>`: its reveals appear as it says. `stack`, one under another in the order they are given, taking no room before; `reserved`, the same with room kept for all of them from the start; `fixed`, each in its own place, room kept for all of them. |
-| `data-group` | On a `<div>`: blocks the editor keeps together. Nothing to the student. |
+| `data-group` | On a `<div>`: blocks the editor keeps together. Nothing to the reader. |
 | `data-person="…"` | Filled with the profile of the reader of an entry on the wall: `mine`, or an entry's place in `entries`, from 0 ("Sharing"). |
 | `data-opening="…"` | On the `<body>`, the tutor's first line in its chat beside the page; on a chat, its first line in that chat. Shown before anything is said, Markdown and math as in any reply, and the tutor is told it. Without it, the host's own line. |
 
@@ -340,7 +340,7 @@ as JSON, every key optional:
 | `tutor` | `true`: the tutor may write a reader's entry as it judges it |
 | `tally` | The names of fields to total over every entry: for a `choice` or `boolean` field, how many entries hold each value; for a `number` field, how many and their sum. A `text` field cannot be tallied |
 
-The class's guesses, shown once the student has guessed:
+The class's guesses, shown once the reader has guessed:
 
 ```html
 <body data-wordplay="1" data-chat>
@@ -349,7 +349,7 @@ The class's guesses, shown once the student has guessed:
   </script>
   <label>Your guess <input id="guess" type="number"></label>
   <button id="send">Send</button>
-  <p id="guessed" data-expect="The student has guessed">The class: <output id="class"></output></p>
+  <p id="guessed" data-expect="The reader has guessed">The class: <output id="class"></output></p>
   <script>
     const draw = () => {
       const all = (document.wordplay?.shared?.entries ?? []).map((one) => one.value.guess);
@@ -425,13 +425,13 @@ One word per thing, in the file, the site, the prompts and the docs.
 | Word | Means |
 |---|---|
 | wordplay | One `.wplay` file, what a reader works through |
-| student | The person working through it |
+| reader | The person working through it (`reader`, in the code) |
 | teacher | Who wrote it |
-| tutor | What the student talks to |
+| tutor | What the reader talks to |
 | host | What runs the file: Wordplay's site, or another |
-| reveal | Anything the student sees with a condition; it counts for nothing |
+| reveal | Anything the reader sees with a condition; it counts for nothing |
 | context | The teacher's notes for the tutor, for the whole wordplay or for one chat |
 | chat | The tutor's chat beside the page, or one in it (`data-chat`) |
 | expect | The condition, the moment as the teacher wrote it |
-| given | Shown to the student |
+| given | Shown to the reader |
 | waiting | Not given, its parent given: its condition is being judged |

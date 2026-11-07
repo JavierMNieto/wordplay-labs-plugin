@@ -1,4 +1,4 @@
-{{!-- How to write for the page (bound into lesson-guide.md as `editor`).
+{{!-- How to write for the page (bound into wordplay-guide.md as `editor`).
       The ground truth is the student's frame: packages/player/src/lib/
       frame-document.ts (math, the policy) and the runtime's stylesheet
       (scripts/runtime-build.ts). Figures are SVG since 1 October (Javi:
